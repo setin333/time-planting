@@ -295,6 +295,10 @@ button{font-family:inherit;color:inherit}
 .sky-chip{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;border-radius:999px;padding:3px 11px;background:#e3f2fb;color:#3f7fa3}
 .sky-chip.night{background:#2a3561;color:#e9ecfb}
 .sky-chip svg{width:15px;height:15px}
+.attend-chip{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500;border-radius:999px;padding:3px 11px;background:#fff6d8;color:#8a6a10;border:1px solid #f0d98a}
+.attend-chip svg{width:15px;height:15px}
+.attend-chip.pop{animation:attendPop .9s cubic-bezier(.3,1.6,.5,1)}
+@keyframes attendPop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){.sky-cloud,.sky-star.tw{animation:none}}
 .garden-bed{
   --row:190px;
@@ -623,7 +627,7 @@ button{font-family:inherit;color:inherit}
         <p class="tip-text">
           <span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v1.0 · 2026.11.04</span>
+          <span class="app-version">나의 공부 정원 v1.1 · 2026.11.04</span>
         </p>
       </aside>
 
@@ -653,6 +657,7 @@ button{font-family:inherit;color:inherit}
         <h2 id="gardenTitle">오늘의 정원</h2>
         <span class="today-badge" id="gardenTodayBadge">오늘</span>
         <span class="sky-chip" id="skyChip"></span>
+        <span class="attend-chip" id="attendChip" hidden></span>
         <div class="date-nav">
           <button class="icon-btn" type="button" id="prevDay" aria-label="이전 날짜"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
           <button class="icon-btn text" type="button" id="todayBtn">오늘</button>
@@ -711,7 +716,7 @@ button{font-family:inherit;color:inherit}
         <h2>상점</h2>
         <div class="wallet" id="shopWallet"></div>
       </div>
-      <p class="shop-desc">오래 걸리는 식물일수록 1분당 코인을 더 많이 받아요. 영양제나 맑은 물을 주면 코인이 더 늘어나요.</p>
+      <p class="shop-desc">오래 걸리는 식물일수록 1분당 코인을 더 많이 받아요. 영양제나 맑은 물을 주면 코인이 더 늘어나요. 매일 오늘의 정원에 들르면 출석 보상 10코인도 받아요.</p>
       <div class="shop-banner" id="shopBanner"></div>
       <h3 class="shop-sec">새로운 모종</h3>
       <div class="shop-grid" id="shopSeeds"></div>
@@ -776,6 +781,7 @@ const ITEMS = {
   water:    { name:'맑은 물', rate:0.2, min:2, unit:'병' }             // 완성 코인 +20% (최소 +2)
 };
 const REST_MINUTES = 15;
+const ATTEND_COINS = 10;   // 매일 오늘의 정원에 처음 들어가면 받는 출석 보상
 
 // 공부 중 응원 메시지 (공통 + 식물별)
 const MESSAGES = {
@@ -947,7 +953,8 @@ function normalizeWallet(w) {
     coins: num(w.coins), nutrients: num(w.nutrients), water: num(w.water),
     owned: (w.owned && typeof w.owned === 'object') ? w.owned : {},
     rewardedRest: Array.isArray(w.rewardedRest) ? w.rewardedRest : [],
-    restLog: (w.restLog && typeof w.restLog === 'object') ? w.restLog : {}
+    restLog: (w.restLog && typeof w.restLog === 'object') ? w.restLog : {},
+    attended: Array.isArray(w.attended) ? w.attended : []
   };
 }
 function loadWallet() { return normalizeWallet(Store.read(LS_KEYS.wallet, null) || state.wallet); }
@@ -2041,6 +2048,13 @@ function renderSky() {
 }
 function renderGarden() {
   renderSky();
+  const chip = $('#attendChip'), attended = (state.wallet.attended || []).includes(dateKey());
+  chip.hidden = !attended;
+  if (attended) {
+    chip.innerHTML = `${ICON.coin}오늘 출석 완료 · +${ATTEND_COINS}코인`;
+    chip.classList.remove('pop'); if (state.justAttended) { void chip.offsetWidth; chip.classList.add('pop'); }
+  }
+  state.justAttended = false;
   const today = dateKey();
   const key = state.gardenKey || today;
   const isToday = key === today;
@@ -2312,6 +2326,19 @@ function itemEffect(key) {
   }
 }
 
+/** 출석 보상 — 하루에 한 번, 오늘의 정원에 처음 들어갈 때 (여러 기기에서도 하루 한 번만) */
+function claimAttendance() {
+  const key = dateKey();
+  if ((state.wallet.attended || []).includes(key)) return false;
+  let ok = false;
+  updateWallet(w => {
+    if (w.attended.includes(key)) return;
+    w.coins += ATTEND_COINS; w.attended = [...w.attended, key].slice(-90); ok = true;
+  }, 'attend_' + key);
+  if (ok) { state.justAttended = true; toast(`출석 보상! 오늘의 정원에 와서 +${ATTEND_COINS}코인을 받았어요.`); }
+  return ok;
+}
+
 /* =========================================================
    12. 화면 전환 · 설정 · 전체 갱신
    ========================================================= */
@@ -2319,6 +2346,7 @@ const VIEWS = { study: ['#viewStudy', '#tabStudy'], rest: ['#viewRest', '#tabRes
 function switchView(v) {
   if (!VIEWS[v]) return;
   state.view = v;
+  if (v === 'garden') claimAttendance();
   for (const k in VIEWS) {
     $(VIEWS[k][0]).classList.toggle('active', k === v);
     $(VIEWS[k][1]).setAttribute('aria-selected', k === v);
@@ -2359,6 +2387,7 @@ function tick() {
   if (today !== state.today) {
     state.today = today;
     if (!isStudy(state.timer) && !canGrow(state.settings.selected)) { state.settings.selected = 'primrose'; saveSettings(); state.done = null; }
+    if (state.view === 'garden') claimAttendance();
     syncStageFromState();
     refreshAll();
     return;
@@ -2570,13 +2599,15 @@ function walletDiff(a, b) {
 function emptyDiff(e) { return !e.coins && !e.nutrients && !e.water && !e.owned.length && !Object.keys(e.rest).length; }
 /** 장부 → 지갑 */
 function walletFromLedger(entries) {
-  const w = { coins: 0, nutrients: 0, water: 0, owned: {}, rewardedRest: [], restLog: {} };
+  const w = { coins: 0, nutrients: 0, water: 0, owned: {}, rewardedRest: [], restLog: {}, attended: [] };
   entries.forEach(e => {
     w.coins += Number(e.coins) || 0; w.nutrients += Number(e.nutrients) || 0; w.water += Number(e.water) || 0;
     (Array.isArray(e.owned) ? e.owned : []).forEach(t => { w.owned[t] = true; });
     const r = e.rest && typeof e.rest === 'object' ? e.rest : {};
     for (const k in r) w.restLog[k] = (w.restLog[k] || 0) + (Number(r[k]) || 0);
     if (typeof e.id === 'string' && e.id.startsWith('rest_')) w.rewardedRest.push(e.id.slice(5));
+    if (typeof e.id === 'string' && e.id.startsWith('attend_')) w.attended.push(e.id.slice(7));
+    (Array.isArray(e.attended) ? e.attended : []).forEach(k => w.attended.push(k));
   });
   return normalizeWallet(w);
 }
@@ -2793,8 +2824,8 @@ function start(app, A, F) {
     }
     const w = L.wallet || {};
     const e = { coins: w.coins || 0, nutrients: w.nutrients || 0, water: w.water || 0,
-                owned: Object.keys(w.owned || {}).filter(k => w.owned[k]), rest: w.restLog || {} };
-    if (e.coins || e.nutrients || e.water || e.owned.length || Object.keys(e.rest).length) api.ledger(`import_${DEVICE}_${Date.now().toString(36)}`, e);
+                owned: Object.keys(w.owned || {}).filter(k => w.owned[k]), rest: w.restLog || {}, attended: w.attended || [] };
+    if (e.coins || e.nutrients || e.water || e.owned.length || Object.keys(e.rest).length || e.attended.length) api.ledger(`import_${DEVICE}_${Date.now().toString(36)}`, e);
     pendingTimer = L.timer || null;
     if (recs.length || e.coins) SG.toast(`이 기기의 기록(식물 ${recs.length}개 · 코인 ${e.coins})을 계정으로 옮겼어요.`);
   }
