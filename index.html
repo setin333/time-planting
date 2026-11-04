@@ -1,0 +1,2854 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>나의 공부 정원</title>
+<!-- 한글 웹폰트 (오프라인일 때는 시스템 한글 폰트로 자동 대체됩니다) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   0. 디자인 토큰 (아이보리 · 연초록 · 베이지)
+   ========================================================= */
+:root{
+  --bg:#f7f2e6;
+  --paper:#fffcf5;
+  --card:#fffaf0;
+  --line:#ebdfc7;
+  --line-d:#d9c8a6;
+  --ink:#3d3a32;
+  --ink-2:#5b5546;
+  --muted:#8d8470;
+  --green:#78a872;
+  --green-d:#5a8656;
+  --green-dd:#436a44;
+  --green-l:#e2eed9;
+  --green-ll:#f1f7eb;
+  --beige:#f0e6d2;
+  --beige-d:#e2d3b5;
+  --yellow:#f2c94c;
+  --danger:#c86a52;
+  --danger-d:#a5523e;
+  --radius:22px;
+  --shadow:0 1px 0 rgba(255,255,255,.8) inset, 0 8px 24px rgba(96,78,46,.08);
+  --font-title:"Gowun Dodum","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --font-body:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  word-break:keep-all;
+  background-color:var(--bg);
+  background-image:radial-gradient(rgba(150,128,86,.11) 1px, transparent 1.3px);
+  background-size:22px 22px;
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:15px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+button{font-family:inherit;color:inherit}
+.hidden-defs{position:absolute;width:0;height:0;overflow:hidden}
+
+/* =========================================================
+   1. 상단 바
+   ========================================================= */
+.app{max-width:1500px;margin:0 auto;padding:18px 28px 28px}
+.topbar{
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  background:var(--paper);border:1.5px solid var(--line);border-radius:var(--radius);
+  padding:12px 18px;box-shadow:var(--shadow);margin-bottom:20px;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand-logo{width:44px;height:44px;flex:none;background:var(--green-ll);border-radius:14px;display:grid;place-items:center;border:1.5px solid var(--green-l)}
+.brand-logo svg{width:30px;height:30px;shape-rendering:crispEdges}
+.brand h1{font-family:var(--font-title);font-weight:400;font-size:24px;margin:0;letter-spacing:-.5px;white-space:nowrap}
+.brand .today-date{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.stats{display:flex;gap:10px;margin-left:auto;flex-wrap:wrap}
+.stat{
+  display:flex;align-items:center;gap:10px;background:var(--card);
+  border:1.5px solid var(--line);border-radius:16px;padding:7px 14px;
+}
+.stat-ico{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--green-ll)}
+.stat-ico svg{width:18px;height:18px}
+.stat small{display:block;font-size:11.5px;color:var(--muted);line-height:1.2}
+.stat b{font-family:var(--font-title);font-weight:400;font-size:19px;line-height:1.2}
+.tabs{display:flex;background:var(--beige);border-radius:15px;padding:4px;gap:4px}
+.tab{
+  border:0;background:transparent;padding:9px 16px;border-radius:11px;cursor:pointer;
+  font-size:14.5px;font-weight:500;color:var(--ink-2);display:flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.tab svg{width:17px;height:17px}
+.tab[aria-selected="true"]{background:var(--paper);color:var(--green-dd);box-shadow:0 2px 0 var(--beige-d)}
+.icon-btn{
+  border:1.5px solid var(--line);background:var(--card);border-radius:13px;height:40px;padding:0 12px;
+  display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--ink-2);white-space:nowrap;
+}
+.icon-btn svg{width:18px;height:18px}
+.icon-btn:hover{border-color:var(--line-d)}
+.icon-btn.off{color:var(--muted)}
+.mini-status{
+  display:none;align-items:center;gap:8px;border:0;cursor:pointer;
+  background:var(--green-d);color:#fff;border-radius:13px;padding:8px 13px;font-size:13.5px;
+  box-shadow:0 3px 0 var(--green-dd);
+}
+.mini-status.show{display:flex}
+.mini-status b{font-variant-numeric:tabular-nums;font-weight:700}
+.mini-status .dot{width:8px;height:8px;border-radius:50%;background:#d8f0c6;animation:blink 2s ease-in-out infinite}
+.mini-status.paused{background:#a39a83;box-shadow:0 3px 0 #857d68}
+.mini-status.paused .dot{animation:none;background:#eee}
+@keyframes blink{50%{opacity:.35}}
+
+/* =========================================================
+   2. 공통 카드 & 버튼
+   ========================================================= */
+.card{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-title{font-family:var(--font-title);font-size:17px;margin:0 0 12px;display:flex;align-items:center;gap:8px;font-weight:400}
+.card-title .chip{font-family:var(--font-body)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;background:var(--beige);color:var(--ink-2);border-radius:999px;padding:3px 10px}
+.btn{
+  border:0;cursor:pointer;font-size:16px;font-weight:700;letter-spacing:-.2px;
+  padding:13px 26px;border-radius:15px;display:inline-flex;align-items:center;gap:8px;justify-content:center;
+  background:var(--green);color:#fff;box-shadow:0 4px 0 var(--green-dd);
+  transition:transform .08s, box-shadow .08s, background .2s;min-width:132px;
+}
+.btn svg{width:18px;height:18px}
+.btn:hover{background:var(--green-d)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--green-dd)}
+.btn:focus-visible,.tab:focus-visible,.icon-btn:focus-visible,.plant-card:focus-visible,.g-plant:focus-visible{outline:3px solid #b9d7a9;outline-offset:2px}
+.btn.soft{background:var(--beige);color:var(--ink);box-shadow:0 4px 0 var(--beige-d)}
+.btn.soft:hover{background:#eadcc1}
+.btn.soft:active{box-shadow:0 1px 0 var(--beige-d)}
+.btn.danger{background:var(--danger);box-shadow:0 4px 0 var(--danger-d)}
+.btn.danger:hover{background:#b95e47}
+.btn.danger:active{box-shadow:0 1px 0 var(--danger-d)}
+.btn.small{font-size:13.5px;padding:8px 14px;min-width:0;border-radius:12px;box-shadow:0 3px 0 var(--beige-d)}
+.btn.small.danger{box-shadow:0 3px 0 var(--danger-d)}
+.btn.small:active{transform:translateY(2px);box-shadow:0 1px 0 var(--beige-d)}
+
+/* =========================================================
+   3. 공부하기 화면
+   ========================================================= */
+.view{display:none}
+.view.active{display:block}
+.study-grid{display:grid;grid-template-columns:minmax(300px,370px) minmax(0,1fr);gap:22px;align-items:start}
+.study-grid > *{min-width:0}
+.side{display:flex;flex-direction:column;gap:18px;transition:opacity .5s}
+.studying .side{opacity:.55}
+.studying .side:hover,.studying .side:focus-within{opacity:1}
+.side .card{padding:18px}
+
+/* 식물 선택 카드 (식물 도감 느낌 · 2열) */
+.plant-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.plant-card{
+  position:relative;display:flex;align-items:center;gap:8px;text-align:left;min-width:0;
+  background:var(--card);border:1.5px solid var(--line);border-radius:15px;padding:5px 8px 5px 5px;cursor:pointer;
+  transition:border-color .2s, background .2s, transform .15s;
+}
+.plant-card:hover{border-color:var(--line-d);transform:translateY(-1px)}
+.plant-card.selected{border-color:var(--green);background:var(--green-ll);box-shadow:0 3px 0 var(--green-l)}
+/* 월별 특별 식물 (11월 남천나무): 가을빛 테두리와 배경 */
+.plant-card.limited{border-color:#ecbfa2;background:linear-gradient(135deg,#fff1e7,#fffaf2 72%)}
+.plant-card.limited .pc-art{background:linear-gradient(#fff0e4,#f8ddca)}
+.plant-card.limited:hover{border-color:#e0a07d}
+.plant-card.limited.selected{border-color:#d9542f;background:linear-gradient(135deg,#fde5d6,#fff4ec 75%);box-shadow:0 3px 0 #f2c8ae}
+.plant-card.limited::after{content:"이달의 식물";position:absolute;top:-8px;right:8px;background:#c9573c;color:#fff;font-size:10px;line-height:1.5;border-radius:999px;padding:0 7px;box-shadow:0 1px 0 #a5452c}
+.plant-card.limited.off-season::after{content:"기간 종료";background:#b4a991;box-shadow:none}
+.plant-card[aria-disabled="true"]{cursor:not-allowed}
+.plant-card.locked,.plant-card.off-season{cursor:pointer}
+.studying .plant-card:not(.selected){opacity:.5}
+.plant-card .pc-art{width:50px;height:60px;flex:none;display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(#fff9ee,#f6eedc);border-radius:11px;overflow:hidden}
+.plant-card .pc-art svg{height:66px;width:auto;margin-bottom:-2px}
+.plant-card.locked .pc-art svg,.plant-card.off-season .pc-art svg{filter:grayscale(1);opacity:.42}
+.plant-card.locked .pc-name{color:var(--muted)}
+.pc-info{min-width:0;display:flex;flex-direction:column;gap:1px}
+.pc-name{font-family:var(--font-title);font-size:15.5px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-meta{font-size:12px;color:var(--ink-2);display:flex;align-items:center;gap:3px;white-space:nowrap}
+.pc-meta b{color:var(--green-dd)}
+.pc-meta svg{width:13px;height:13px}
+.pc-meta .dot-sep{color:var(--muted);margin:0 1px}
+.pc-meta .ltd{color:#b14a2f;font-weight:500}
+
+/* 사이드: 오늘의 정원 미리보기 */
+.mini-garden{
+  display:flex;align-items:flex-end;flex-wrap:wrap;gap:0 2px;min-height:64px;padding:6px 8px 0;
+  background:linear-gradient(to bottom, transparent 0 48px, #a9cb8d 48px 51px, #cfb08a 51px 64px);
+  background-size:100% 64px;border-radius:12px;
+}
+.mini-garden svg{height:52px;width:auto;margin:0 -9px;margin-bottom:12px}
+.mini-garden .more{font-size:12px;color:var(--ink-2);margin:0 0 20px 12px}
+.mini-empty{font-size:13px;color:var(--muted);padding:6px 2px 14px}
+.side-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px;flex-wrap:wrap}
+.side-foot .counts{font-size:12.5px;color:var(--ink-2);display:flex;gap:10px;flex-wrap:wrap}
+.tip-text{font-size:12px;color:var(--muted);line-height:1.6}
+.kbd{display:inline-block;border:1px solid var(--line-d);border-bottom-width:2px;border-radius:6px;padding:0 6px;font-size:11px;background:#fff}
+
+/* 메인 스테이지 */
+.stage{padding:26px 28px 28px;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden}
+.stage::before{ /* 은은한 햇빛 */
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 45% at 50% 38%, rgba(255,246,214,.75), transparent 70%);
+}
+.stage > *{position:relative}
+.stage-top{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.stage-name{font-family:var(--font-title);font-size:20px;display:flex;align-items:center;gap:8px}
+.stage-pill{font-size:12.5px;background:var(--green-ll);color:var(--green-dd);border:1.5px solid var(--green-l);border-radius:999px;padding:4px 12px}
+.stage-pill b{font-weight:700}
+
+/* 말풍선 */
+.bubble-wrap{min-height:70px;display:flex;align-items:flex-end;justify-content:center;margin-top:10px;width:100%}
+.bubble{
+  max-width:440px;background:#fff;border:1.5px solid var(--line-d);border-radius:18px;
+  padding:11px 20px;font-family:var(--font-title);font-size:17.5px;color:var(--ink);text-align:center;
+  box-shadow:0 3px 0 var(--line);position:relative;
+  transition:opacity .7s ease, transform .7s ease;
+}
+.bubble::after,.bubble::before{content:"";position:absolute;left:50%;transform:translateX(-50%);border-style:solid}
+.bubble::before{bottom:-12px;border-width:12px 10px 0;border-color:var(--line-d) transparent transparent}
+.bubble::after{bottom:-9.5px;border-width:10.5px 8.5px 0;border-color:#fff transparent transparent}
+.bubble.hide{opacity:0;transform:translateY(5px)}
+
+.plant-stage{height:min(40vh,430px);min-height:240px;aspect-ratio:200/250;max-width:100%;margin-top:4px;position:relative}
+.plant-stage svg{width:100%;height:100%;display:block;overflow:visible}
+.stage-hint{font-size:13px;color:var(--muted);height:20px;margin-top:2px}
+
+/* 타이머 & 진행률 */
+.timer{
+  font-family:var(--font-title);font-size:clamp(52px,5.4vw,90px);line-height:1;margin-top:8px;
+  font-variant-numeric:tabular-nums;letter-spacing:1px;color:var(--ink);
+}
+.paused-mode .timer{color:var(--muted)}
+.progress{width:min(520px,100%);margin-top:16px}
+.progress-bar{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;padding:4px;background:var(--beige);border-radius:10px;border:1.5px solid var(--beige-d)}
+.seg{height:12px;border-radius:3px;background:#f8f1e1;transition:background .4s}
+.seg.on{background:var(--green)}
+.seg.on:nth-child(4n){background:#86b47e}
+.seg.cur{background:#b9d7a9;animation:blink 2.4s ease-in-out infinite}
+.paused-mode .seg.cur{animation:none}
+.progress-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-2);margin-top:7px;font-variant-numeric:tabular-nums}
+.controls{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap;justify-content:center}
+
+/* 식물 성장 파트 — 실시간 성장 시 부드러운 전환 */
+.gp{transform-box:view-box}
+.live .gp{transition:transform 1.4s cubic-bezier(.25,.75,.3,1), opacity 1.2s ease, stroke-dashoffset 1.4s linear}
+.live .sway{transform-box:view-box;transform-origin:100px 190px;animation:sway 8s ease-in-out infinite}
+.paused-mode .live .sway{animation-play-state:paused}
+.paused-mode .plant-stage{filter:saturate(.7)}
+@keyframes sway{0%,100%{transform:rotate(-.7deg)}50%{transform:rotate(.7deg)}}
+
+/* 완료 축하 */
+.celebrate .live .sway{animation:wiggle 1.3s ease-in-out 2}
+@keyframes wiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-3deg)}45%{transform:rotate(2.5deg)}70%{transform:rotate(-1.4deg)}85%{transform:rotate(.6deg)}}
+.spark{position:absolute;width:9px;height:9px;border-radius:2px;pointer-events:none;animation:spark 2.4s ease-out forwards}
+@keyframes spark{
+  0%{opacity:0;transform:translate(0,0) rotate(0) scale(.6)}
+  15%{opacity:1}
+  100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(1)}
+}
+
+/* =========================================================
+   4. 오늘의 정원 화면
+   ========================================================= */
+.garden-card{padding:24px 28px 26px}
+.garden-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.garden-head h2{font-family:var(--font-title);font-weight:400;font-size:26px;margin:0;letter-spacing:-.5px}
+.today-badge{font-size:12px;background:var(--green);color:#fff;border-radius:999px;padding:3px 10px}
+.date-nav{display:flex;gap:6px;margin-left:auto}
+.date-nav .icon-btn{width:40px;justify-content:center;padding:0}
+.date-nav .icon-btn.text{width:auto;padding:0 14px}
+.date-nav .icon-btn:disabled{opacity:.4;cursor:default}
+.date-chips{display:flex;gap:8px;overflow-x:auto;padding:12px 2px 6px;scrollbar-width:thin}
+.date-chip{
+  flex:none;border:1.5px solid var(--line);background:var(--card);border-radius:13px;padding:6px 12px;cursor:pointer;
+  font-size:13px;color:var(--ink-2);display:flex;gap:6px;align-items:center;
+}
+.date-chip b{font-weight:700;color:var(--green-dd)}
+.date-chip.active{background:var(--green-ll);border-color:var(--green)}
+.garden-summary{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 18px}
+.sum{display:flex;align-items:center;gap:9px;background:var(--card);border:1.5px solid var(--line);border-radius:15px;padding:6px 14px 6px 6px}
+.sum svg{height:40px;width:auto}
+.sum small{display:block;font-size:11.5px;color:var(--muted);line-height:1.2}
+.sum b{font-family:var(--font-title);font-weight:400;font-size:18px}
+.sum.total{padding-left:14px;background:var(--green-ll);border-color:var(--green-l)}
+
+/* 정원 화단: 행마다 잔디와 흙 띠가 이어지는 화단 */
+.garden-frame{position:relative;border-radius:20px;overflow:hidden;border:1.5px solid #d5c19b;background:linear-gradient(#fbf6e8,#f4ecd8);transition:background .8s,border-color .8s}
+/* 하늘: 낮(6시~18시)은 하늘색, 밤은 어두운 밤하늘 — 사용자 컴퓨터 시각 기준 */
+.garden-frame.sky-day{background:linear-gradient(#9fd5f3 0%,#c6e7f8 55%,#e9f6fc 100%);border-color:#b2d4e6}
+.garden-frame.sky-night{background:linear-gradient(#111a38 0%,#212c55 55%,#36426f 100%);border-color:#2c3762}
+.garden-sky{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.garden-sky svg{position:absolute;inset:0;width:100%;height:100%}
+.garden-frame .garden-bed{position:relative}
+.sky-night .garden-bed{background-image:repeating-linear-gradient(to bottom,transparent 0 160px,#759a63 160px 164px,#638a55 164px 167px,#94795a 167px 190px)}
+.sky-night .garden-empty{color:#cfd6f0}
+.sky-night .garden-empty .sign{color:#fff}
+.sky-cloud{animation:drift 46s ease-in-out infinite alternate}
+.sky-cloud.c2{animation-duration:62s;animation-delay:-20s}
+.sky-cloud.c3{animation-duration:54s;animation-delay:-35s}
+@keyframes drift{from{transform:translateX(-30px)}to{transform:translateX(40px)}}
+.sky-star.tw{animation:twinkle 4.5s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.25}}
+.sky-chip{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;border-radius:999px;padding:3px 11px;background:#e3f2fb;color:#3f7fa3}
+.sky-chip.night{background:#2a3561;color:#e9ecfb}
+.sky-chip svg{width:15px;height:15px}
+@media (prefers-reduced-motion:reduce){.sky-cloud,.sky-star.tw{animation:none}}
+.garden-bed{
+  --row:190px;
+  display:flex;flex-wrap:wrap;align-content:flex-start;padding:0 20px;min-height:var(--row);
+  background-image:
+    repeating-linear-gradient(to bottom,
+      transparent 0 160px,
+      #9cc581 160px 164px,
+      #8db872 164px 167px,
+      #c9a77d 167px 190px);
+}
+.garden-bed::after{content:"";flex:1 0 0;height:0}
+.g-plant{
+  position:relative;height:var(--row);border:0;background:transparent;padding:0;cursor:pointer;flex:none;
+}
+.g-plant svg{
+  position:absolute;left:50%;bottom:21px;transform:translateX(-50%);overflow:visible;pointer-events:none;
+  transition:transform .25s ease;
+}
+.g-plant:hover svg,.g-plant:focus-visible svg{transform:translateX(-50%) translateY(-4px)}
+.g-plant.new svg{animation:pop .9s cubic-bezier(.3,1.5,.5,1)}
+@keyframes pop{0%{transform:translateX(-50%) scale(.2);opacity:0}100%{transform:translateX(-50%) scale(1);opacity:1}}
+.g-plant::after{ /* 흙 위 작은 그림자 */
+  content:"";position:absolute;left:50%;bottom:24px;width:46px;height:7px;transform:translateX(-50%);
+  background:radial-gradient(ellipse at center, rgba(90,62,36,.28), transparent 70%);
+}
+.garden-empty{
+  width:100%;height:var(--row);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--ink-2);font-size:14px;gap:6px;padding-bottom:36px;text-align:center;
+}
+.garden-empty .sign{font-family:var(--font-title);font-size:18px;color:var(--ink)}
+.garden-foot{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-top:18px;flex-wrap:wrap}
+.log{flex:1 1 420px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:10px 16px}
+.log summary{cursor:pointer;font-weight:500;font-size:14px;color:var(--ink-2)}
+.log ol{list-style:none;margin:10px 0 2px;padding:0;display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto}
+.log li{display:grid;grid-template-columns:150px 1fr 56px 80px auto;align-items:center;gap:10px;font-size:13.5px;padding:6px 8px;border-radius:10px;background:#fff}
+.log .dotc{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.log .muted{color:var(--muted)}
+.log-del{border:0;background:transparent;color:var(--danger);cursor:pointer;font-size:12.5px;padding:3px 6px;border-radius:7px}
+.log-del:hover{background:#f8e6df}
+.danger-zone{display:flex;gap:8px;flex-wrap:wrap}
+
+/* 툴팁 */
+.tooltip{
+  position:fixed;z-index:50;pointer-events:none;background:#fffdf7;border:1.5px solid var(--line-d);border-radius:13px;
+  padding:9px 13px;font-size:13px;box-shadow:0 8px 20px rgba(80,62,30,.15);opacity:0;transform:translateY(4px);
+  transition:opacity .15s, transform .15s;min-width:160px;
+}
+.tooltip.show{opacity:1;transform:none}
+.tooltip b{font-family:var(--font-title);font-weight:400;font-size:16px;display:block;margin-bottom:3px}
+.tooltip div{color:var(--ink-2);display:flex;justify-content:space-between;gap:14px}
+.tooltip div span:first-child{color:var(--muted)}
+
+/* =========================================================
+   5. 모달 & 토스트
+   ========================================================= */
+.modal-back{
+  position:fixed;inset:0;background:rgba(60,50,32,.28);display:flex;align-items:center;justify-content:center;
+  z-index:100;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.modal-back.show{opacity:1;pointer-events:auto}
+.modal{
+  width:min(420px,100%);background:var(--paper);border:1.5px solid var(--line);border-radius:24px;padding:24px 24px 22px;
+  text-align:center;box-shadow:0 20px 50px rgba(60,46,20,.2);transform:translateY(10px) scale(.98);transition:transform .25s;
+}
+.modal-back.show .modal{transform:none}
+.modal-art{display:flex;justify-content:center}
+.modal-art svg{height:150px;width:auto}
+.modal h3{font-family:var(--font-title);font-weight:400;font-size:22px;margin:8px 0 6px}
+.modal-body{font-size:14.5px;color:var(--ink-2)}
+.modal-body p{margin:4px 0}
+.modal-actions{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.modal-actions .btn{min-width:120px}
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:#4d5a42;color:#fff;border-radius:14px;
+  padding:11px 18px;font-size:14px;opacity:0;transition:opacity .3s, transform .3s;z-index:120;pointer-events:none;
+  box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* =========================================================
+   5-2. 코인 · 아이템 · 휴식 · 상점
+   ========================================================= */
+.ico{width:1em;height:1em;vertical-align:-.15em;flex:none}
+.stat.coin .stat-ico{background:#fff6d8}
+.stat.coin .stat-ico svg{width:20px;height:20px}
+.mini-status.rest{background:#5f9fc4;box-shadow:0 3px 0 #457fa1}
+.btn.blue{background:#6fb3d6;box-shadow:0 4px 0 #4f8fb4}
+.btn.blue:hover{background:#5fa5ca}
+.btn.blue:active{box-shadow:0 1px 0 #4f8fb4}
+.btn.small.blue{box-shadow:0 3px 0 #4f8fb4}
+.btn:disabled{background:var(--beige);color:var(--muted);box-shadow:0 3px 0 var(--beige-d);cursor:default;transform:none}
+.modal .sub{color:var(--muted);font-size:13px}
+.reward{display:inline-flex;align-items:center;gap:6px;background:#fff6d8;border:1.5px solid #f0d98a;border-radius:999px;padding:5px 16px;margin:8px 0 4px;font-size:15px;color:#8a6a10}
+.reward svg{width:22px;height:22px}
+.rewards{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.reward.gift.water{background:#eaf6fc;border-color:#b8def0;color:#3f7fa3}
+.reward.gift.water b{color:#3f7fa3}
+.reward.gift.nutrient{background:#eef7e6;border-color:#bfdca9;color:#4f7d48}
+.reward.gift.nutrient b{color:#4f7d48}
+.modal .lucky{color:#b1452c;font-weight:700;font-size:13.5px}
+.chip.gift{background:#fbe3d4;color:#a5452c}
+.reward b{font-family:var(--font-title);font-weight:400;font-size:22px;color:#a87b0c}
+
+/* 공부 중 아이템 버튼 */
+.items-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;justify-content:center}
+.item-btn{
+  display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--card);border-radius:14px;
+  padding:6px 14px 6px 9px;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--ink-2);text-align:left;line-height:1.3;
+  transition:border-color .2s, background .2s, opacity .2s;
+}
+.item-btn svg{width:26px;height:26px}
+.item-btn small{display:block;font-size:11.5px;font-weight:400;color:var(--muted)}
+.item-btn:hover{border-color:var(--line-d)}
+.item-btn.dim{opacity:.5}
+.item-btn.used{background:var(--green-ll);border-color:var(--green);color:var(--green-dd)}
+.item-btn.water.used{background:#eef7fc;border-color:#8fcbe6;color:#3f7fa3}
+.item-btn:focus-visible{outline:3px solid #b9d7a9;outline-offset:2px}
+.fx{position:absolute;pointer-events:none;opacity:0;animation:fxfall 1.9s ease-in forwards}
+.fx-drop{width:7px;height:10px;background:#8fcbe6;border-radius:50% 50% 50% 50%/62% 62% 38% 38%}
+.fx-nutri{width:8px;height:8px;background:#9fd07f;border-radius:50%;box-shadow:0 0 6px #d4efbd}
+@keyframes fxfall{0%{opacity:0;transform:translateY(-10px)}20%{opacity:1}100%{opacity:0;transform:translateY(130px)}}
+
+/* 휴식 화면 */
+.rest-bar .seg.on,.rest-bar .seg.on:nth-child(4n){background:#8fcbe6}
+.rest-bar .seg.cur{background:#cfe9f5}
+.rest-stage::before{background:radial-gradient(ellipse 60% 45% at 50% 40%, rgba(222,241,250,.8), transparent 70%)}
+.rest-stage .stage-pill{background:#eef7fc;color:#3f7fa3;border-color:#d3eaf6;display:flex;align-items:center;gap:5px}
+.rest-svg .drop{opacity:0}
+.rest-stage.running .rest-svg .drop{animation:drip 3.4s ease-in infinite}
+.rest-stage.running .rest-svg .drop.d2{animation-delay:1.7s}
+@keyframes drip{0%{opacity:0;transform:translateY(0)}12%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translateY(46px)}}
+.rest-info{font-size:13.5px;color:var(--ink-2);margin:0 0 12px;line-height:1.65}
+.inv-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.inv{display:flex;align-items:center;gap:9px;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:8px 10px}
+.inv svg{width:26px;height:26px}
+.inv small{display:block;font-size:11.5px;color:var(--muted);line-height:1.2}
+.inv b{font-family:var(--font-title);font-weight:400;font-size:18px}
+.rest-tips{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;font-size:13.5px;color:var(--ink-2)}
+.rest-tips li{display:flex;gap:8px;align-items:center}
+.rest-tips li::before{content:"";width:7px;height:7px;border-radius:50%;background:#9fd3ee;flex:none}
+
+/* 상점 */
+.shop-card{padding:24px 28px 28px}
+.shop-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.shop-head h2{font-family:var(--font-title);font-weight:400;font-size:26px;margin:0;letter-spacing:-.5px}
+.wallet{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.wallet span{display:flex;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:6px 12px;font-size:13.5px;color:var(--ink-2)}
+.wallet svg{width:20px;height:20px}
+.wallet b{font-family:var(--font-title);font-weight:400;font-size:18px;color:var(--ink)}
+.shop-desc{color:var(--ink-2);font-size:13.5px;margin:8px 0 16px}
+.shop-banner{display:flex;align-items:center;gap:14px;background:linear-gradient(90deg,#fbe5d6,#fdf3e1 55%,#eef5e4);border:1.5px solid #ecc9ad;border-radius:16px;padding:12px 18px;margin-bottom:20px;font-size:13.5px;color:#7a4a2e;line-height:1.55}
+.shop-banner b{font-family:var(--font-title);font-weight:400;font-size:17px;color:#9c3a22}
+.shop-banner .maple{width:38px;height:38px}
+.shop-banner > div{flex:1}
+.shop-banner .dday{background:#c9573c;color:#fff;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700;white-space:nowrap}
+.shop-banner.off{background:var(--card);border-color:var(--line);color:var(--muted)}
+.shop-banner.off b{color:var(--ink-2)}
+.shop-banner.off .maple{filter:grayscale(1);opacity:.5}
+.shop-sec{font-family:var(--font-title);font-weight:400;font-size:19px;margin:4px 0 10px}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-bottom:22px}
+.shop-item{position:relative;display:flex;flex-direction:column;background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:12px 14px 14px;transition:box-shadow .3s,border-color .3s}
+.shop-item.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%,40%{border-color:var(--green);box-shadow:0 0 0 5px rgba(120,168,114,.25)}100%{box-shadow:0 0 0 0 rgba(120,168,114,0)}}
+.si-art{height:150px;display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(#fff9ee,#f6eedc);border-radius:14px;overflow:hidden}
+.si-art svg{height:164px;width:auto;margin-bottom:-4px}
+.si-art.icon{align-items:center;background:linear-gradient(#f6fbef,#e9f3df)}
+.si-art.icon.water{background:linear-gradient(#f3fafd,#e0f1f9)}
+.si-art.icon svg{height:76px;width:76px;margin:0}
+.shop-item.owned .si-art{background:linear-gradient(#f4f9ee,#e6efda)}
+.si-no{font-size:11px;color:var(--muted);margin-top:10px;letter-spacing:.3px}
+.si-name{font-family:var(--font-title);font-size:21px;line-height:1.3}
+.si-latin{font-size:11.5px;color:var(--muted);font-style:italic}
+.si-desc{font-size:13px;color:var(--ink-2);margin:6px 0 10px;flex:1;line-height:1.55}
+.si-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.si-meta .chip svg{width:13px;height:13px}
+.si-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.si-note{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.si-note svg{width:16px;height:16px}
+.price{display:flex;align-items:center;gap:5px;font-family:var(--font-title);font-size:20px}
+.price svg{width:21px;height:21px}
+.owned-badge{font-size:13px;color:var(--green-dd);font-weight:700;display:flex;align-items:center;gap:4px}
+.owned-badge svg{width:17px;height:17px}
+.ribbon{position:absolute;top:20px;left:22px;background:#c9573c;color:#fff;font-size:12px;border-radius:999px;padding:3px 10px;z-index:1;box-shadow:0 2px 0 #a5452c}
+
+/* 구글 계정 버튼 */
+.icon-btn.account{gap:7px;padding:0 12px 0 8px}
+.icon-btn.account svg{width:18px;height:18px}
+.icon-btn.account img,.icon-btn.account .avatar{width:26px;height:26px;border-radius:50%;object-fit:cover;flex:none}
+.icon-btn.account .avatar{display:grid;place-items:center;background:var(--green);color:#fff;font-size:13px;font-weight:700}
+.acc-dot{width:8px;height:8px;border-radius:50%;background:#e0b84a;flex:none}
+.acc-dot.ok{background:#78a872}.acc-dot.off{background:#b9b1a0}.acc-dot.err{background:var(--danger)}
+.acc-dot.busy{animation:blink 1.6s ease-in-out infinite}
+.modal-avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--green-l)}
+
+/* 정원: 받은 코인 · 아이템 표시 */
+.sum.total.coin{background:#fff8e0;border-color:#f0dc9a;padding-left:10px;gap:8px}
+.sum.total.coin > svg{width:24px;height:24px}
+.boost svg{width:15px;height:15px;margin-left:4px;vertical-align:-3px}
+.log-coin{color:#a87b0c;font-size:12.5px;font-weight:500}
+
+/* =========================================================
+   6. 반응형
+   ========================================================= */
+@media (max-width:1080px){
+  .study-grid{grid-template-columns:1fr}
+  .side{order:2}
+  .studying .side{opacity:.8}
+  .plant-list{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+}
+@media (max-width:760px){
+  .app{padding:12px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px))}
+  .topbar{gap:10px}
+  .stats{margin-left:0;width:100%}
+  .stat{flex:1}
+  .tabs{flex:1}
+  .tab{flex:1;justify-content:center}
+  .stage{padding:18px 14px 22px}
+  .garden-card{padding:18px 14px}
+  .garden-bed{padding:0 6px}
+  .log li{grid-template-columns:1fr auto;}
+  .log li .log-min,.log li .log-coin{display:none}
+  .date-nav{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .live .sway,.celebrate .live .sway{animation:none}
+  .live .gp{transition-duration:.3s}
+  .seg.cur{animation:none}
+}
+</style>
+</head>
+<body>
+
+<!-- 공용 SVG 정의 (몬스테라 잎의 갈라짐·구멍을 표현하는 마스크) -->
+<svg class="hidden-defs" aria-hidden="true" focusable="false">
+  <defs>
+    <mask id="sg-monstera-mask" maskUnits="userSpaceOnUse" x="-70" y="-80" width="140" height="100">
+      <rect x="-70" y="-80" width="140" height="100" fill="#fff"/>
+      <g stroke="#000" stroke-width="4.3" stroke-linecap="round" fill="none">
+        <path d="M-10 -10 L-48 -6"/><path d="M-11 -22 L-50 -24"/><path d="M-10 -34 L-46 -45"/><path d="M-7 -46 L-34 -64"/>
+        <path d="M10 -10 L48 -6"/><path d="M11 -22 L50 -24"/><path d="M10 -34 L46 -45"/><path d="M7 -46 L34 -64"/>
+      </g>
+      <g fill="#000">
+        <ellipse cx="-18" cy="-15.8" rx="3" ry="1.9"/><ellipse cx="-19" cy="-29.4" rx="3.2" ry="2"/><ellipse cx="-14.5" cy="-42.6" rx="2.6" ry="1.7"/>
+        <ellipse cx="18" cy="-15.8" rx="3" ry="1.9"/><ellipse cx="19" cy="-29.4" rx="3.2" ry="2"/><ellipse cx="14.5" cy="-42.6" rx="2.6" ry="1.7"/>
+      </g>
+    </mask>
+  </defs>
+</svg>
+
+<div class="app" id="app">
+  <!-- ===== 상단 바: 제목 · 오늘 통계 · 탭 · 알림음 ===== -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true">
+        <!-- 픽셀 감성의 작은 새싹 로고 -->
+        <svg viewBox="0 0 12 12">
+          <rect x="5" y="4" width="1" height="4" fill="#5a8656"/>
+          <rect x="3" y="3" width="2" height="1" fill="#78a872"/><rect x="2" y="2" width="2" height="1" fill="#78a872"/><rect x="4" y="4" width="1" height="1" fill="#78a872"/>
+          <rect x="6" y="2" width="2" height="1" fill="#8fbf7a"/><rect x="7" y="1" width="2" height="1" fill="#8fbf7a"/><rect x="6" y="3" width="1" height="1" fill="#8fbf7a"/>
+          <rect x="3" y="8" width="6" height="1" fill="#c98a64"/><rect x="3" y="9" width="6" height="2" fill="#b77a56"/><rect x="4" y="11" width="4" height="1" fill="#a66d4b"/>
+        </svg>
+      </div>
+      <div>
+        <h1>나의 공부 정원</h1>
+        <div class="today-date" id="todayLabel"></div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#5a8656" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></div>
+        <div><small>오늘 공부한 시간</small><b id="statTime">0분</b></div>
+      </div>
+      <div class="stat">
+        <div class="stat-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#5a8656" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-9"/><path d="M12 12C12 7 8 5 4 5c0 4 3 7 8 7zM12 14c0-4 3-6 7-6 0 4-3 6-7 6z"/></svg></div>
+        <div><small>오늘 완성한 식물</small><b id="statCount">0개</b></div>
+      </div>
+      <div class="stat coin" title="식물을 다 키우면 코인을 받아요">
+        <div class="stat-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.6" fill="#f2c94c" stroke="#d6a21c" stroke-width="1.4"/><circle cx="12" cy="12" r="6.6" fill="none" stroke="#fff1b8" stroke-width="1.1"/><path d="M12 16.6V11M12 11.2c0-1.9-1.4-2.9-3-2.9 0 1.7 1.3 2.9 3 2.9zM12 12.6c0-1.7 1.4-2.6 3-2.6 0 1.6-1.3 2.6-3 2.6z" fill="#b8860b" stroke="#b8860b" stroke-width=".9" stroke-linejoin="round"/></svg></div>
+        <div><small>내 코인</small><b id="statCoins">0</b></div>
+      </div>
+    </div>
+
+    <button class="mini-status" id="miniStatus" type="button" title="공부 화면으로 돌아가기">
+      <span class="dot"></span><span id="miniStatusName"></span><b id="miniStatusTime">00:00</b>
+    </button>
+
+    <nav class="tabs" role="tablist" aria-label="화면 전환">
+      <button class="tab" role="tab" id="tabStudy" aria-selected="true" data-view="study">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2"/></svg>공부하기
+      </button>
+      <button class="tab" role="tab" id="tabRest" aria-selected="false" data-view="rest">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5C9.5 7 7 9.8 7 13a5 5 0 0 0 10 0c0-3.2-2.5-6-5-9.5z"/></svg>휴식
+      </button>
+      <button class="tab" role="tab" id="tabShop" aria-selected="false" data-view="shop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l1.5-4.5h13L20 9"/><path d="M4 9h16v2a2.7 2.7 0 0 1-5.3 0 2.7 2.7 0 0 1-5.4 0A2.7 2.7 0 0 1 4 11z"/><path d="M5.5 13v6.5h13V13M10 19.5v-4h4v4"/></svg>상점
+      </button>
+      <button class="tab" role="tab" id="tabGarden" aria-selected="false" data-view="garden">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M7 20v-5M7 15c0-3-2-4-4-4 0 2 1 4 4 4zM7 15c0-3 2-4 4-4 0 2-1 4-4 4z"/><path d="M16 20V9M16 9a3 3 0 1 0 0-.1"/></svg>오늘의 정원
+      </button>
+    </nav>
+
+    <button class="icon-btn account" id="accountBtn" type="button"></button>
+    <button class="icon-btn" id="soundBtn" type="button" aria-pressed="true"></button>
+  </header>
+
+  <!-- ===== 공부하기 화면 ===== -->
+  <main class="view active" id="viewStudy">
+    <div class="study-grid">
+      <aside class="side">
+        <section class="card">
+          <h2 class="card-title">식물 고르기 <span class="chip">도감 <b id="dexCount"></b></span></h2>
+          <div class="plant-list" id="plantList"></div>
+        </section>
+
+        <section class="card">
+          <h2 class="card-title">오늘의 작은 정원</h2>
+          <div id="miniGarden"></div>
+          <div class="side-foot">
+            <div class="counts" id="miniCounts"></div>
+            <span style="display:flex;gap:6px"><button class="btn soft small" type="button" id="goShopBtn">상점</button><button class="btn soft small" type="button" id="goGardenBtn">정원 보러 가기</button></span>
+          </div>
+        </section>
+
+        <p class="tip-text">
+          <span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br>
+          새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.
+        </p>
+      </aside>
+
+      <section class="card stage" id="stage" aria-live="polite">
+        <div class="stage-top">
+          <div class="stage-name" id="stageName"></div>
+          <div class="stage-pill" id="stagePill"></div>
+        </div>
+        <div class="bubble-wrap"><div class="bubble" id="bubble"><span id="bubbleText"></span></div></div>
+        <div class="plant-stage" id="plantStage"></div>
+        <div class="stage-hint" id="stageHint"></div>
+        <div class="timer" id="timer" role="timer" aria-label="남은 시간">05:00</div>
+        <div class="progress">
+          <div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+          <div class="progress-meta"><span id="progressPct">성장률 0%</span><span id="progressElapsed">0:00 / 5:00</span></div>
+        </div>
+        <div class="items-row" id="itemsRow"></div>
+        <div class="controls" id="controls"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ===== 오늘의 정원 화면 ===== -->
+  <main class="view" id="viewGarden">
+    <section class="card garden-card">
+      <div class="garden-head">
+        <h2 id="gardenTitle">오늘의 정원</h2>
+        <span class="today-badge" id="gardenTodayBadge">오늘</span>
+        <span class="sky-chip" id="skyChip"></span>
+        <div class="date-nav">
+          <button class="icon-btn" type="button" id="prevDay" aria-label="이전 날짜"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <button class="icon-btn text" type="button" id="todayBtn">오늘</button>
+          <button class="icon-btn" type="button" id="nextDay" aria-label="다음 날짜"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+      <div class="date-chips" id="dateChips" aria-label="기록이 있는 날짜"></div>
+      <div class="garden-summary" id="gardenSummary"></div>
+      <div class="garden-frame" id="gardenFrame"><div class="garden-sky" id="gardenSky" aria-hidden="true"></div><div class="garden-bed" id="gardenBed"></div></div>
+      <div class="garden-foot">
+        <details class="log" id="logBox"><summary id="logSummary">공부 기록</summary><ol id="logList"></ol></details>
+        <div class="danger-zone">
+          <button class="btn soft small" type="button" id="clearDayBtn">이 날의 정원 비우기</button>
+          <button class="btn danger small" type="button" id="clearAllBtn">모든 기록 삭제</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== 휴식 화면 ===== -->
+  <main class="view" id="viewRest">
+    <div class="study-grid">
+      <aside class="side">
+        <section class="card">
+          <h2 class="card-title">쉬는 시간 <span class="chip">15분</span></h2>
+          <p class="rest-info">15분을 끝까지 쉬면 <b>맑은 물</b> 한 병을 받아요.<br>공부할 때 식물에게 주면 다 자랐을 때 코인을 조금 더 받아요.</p>
+          <div class="inv-list" id="restInv"></div>
+        </section>
+        <section class="card">
+          <h2 class="card-title">쉬는 동안 해 볼 것</h2>
+          <ul class="rest-tips"><li>눈을 감고 20초 쉬기</li><li>물 한 잔 마시기</li><li>목과 어깨 천천히 돌리기</li><li>창밖 먼 곳 바라보기</li><li>자리에서 일어나 기지개 켜기</li></ul>
+        </section>
+      </aside>
+      <section class="card stage rest-stage" id="restStage" aria-live="polite">
+        <div class="stage-top">
+          <div class="stage-name"><span>휴식</span><span class="chip">맑은 물 만들기</span></div>
+          <div class="stage-pill" id="restPill"></div>
+        </div>
+        <div class="bubble-wrap"><div class="bubble" id="restBubble"><span id="restBubbleText"></span></div></div>
+        <div class="plant-stage" id="restArt"></div>
+        <div class="stage-hint" id="restHint"></div>
+        <div class="timer" id="restTimer" role="timer" aria-label="남은 휴식 시간">15:00</div>
+        <div class="progress">
+          <div class="progress-bar rest-bar" id="restBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+          <div class="progress-meta"><span id="restPct">맑은 물 0%</span><span id="restElapsed">0:00 / 15:00</span></div>
+        </div>
+        <div class="controls" id="restControls"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ===== 상점 화면 ===== -->
+  <main class="view" id="viewShop">
+    <section class="card shop-card">
+      <div class="shop-head">
+        <h2>상점</h2>
+        <div class="wallet" id="shopWallet"></div>
+      </div>
+      <p class="shop-desc">오래 걸리는 식물일수록 1분당 코인을 더 많이 받아요. 영양제나 맑은 물을 주면 코인이 더 늘어나요.</p>
+      <div class="shop-banner" id="shopBanner"></div>
+      <h3 class="shop-sec">새로운 모종</h3>
+      <div class="shop-grid" id="shopSeeds"></div>
+      <h3 class="shop-sec">아이템</h3>
+      <div class="shop-grid" id="shopItems"></div>
+    </section>
+  </main>
+</div>
+
+<div class="tooltip" id="tooltip" role="tooltip"></div>
+<div class="modal-back" id="modalBack">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-art" id="modalArt"></div>
+    <h3 id="modalTitle"></h3>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   1. 상수: 저장 키 · 식물 정보 · 응원 메시지
+   ========================================================= */
+const LS_KEYS = {
+  records: 'studyGarden.records.v1',   // { "YYYY-MM-DD": [ {id,type,startedAt,completedAt,minutes,coins,boosts} ] }
+  timer:   'studyGarden.timer.v1',     // 진행 중인 타이머 (공부 또는 휴식, 동시에 하나만)
+  settings:'studyGarden.settings.v1',  // { sound, selected }
+  wallet:  'studyGarden.wallet.v1',    // { coins, nutrients, water, owned, rewardedRest, restLog }
+  cloud:   'studyGarden.cloudUser.v1', // 이 기기의 기록이 어느 구글 계정의 사본인지 (uid)
+  outbox:  'studyGarden.outbox.v1',    // 연결 전에 생긴 변경 (연결되면 올림)
+  device:  'studyGarden.device.v1'     // 기기 구분용 id
+};
+
+/* 식물 정보 — coins: 다 키웠을 때 받는 기본 코인. 오래 걸리는 식물일수록 1분당 코인이 많아집니다
+   (5분 1.0 → 10분 1.2 → 15분 1.3 → 20분 1.4 → 30분 1.5 → 40분 1.6 → 60분 2.0 코인/분).
+   base: 처음부터 키울 수 있음 · price: 상점 모종 가격 · limited: 기간 한정 */
+const PLANTS = {
+  primrose:  { name:'달맞이꽃', latin:'Oenothera biennis', minutes:5, coins:5, unit:'송이', base:true,
+               desc:'노란 네 장의 꽃잎이 피는 꽃', pot:'#e8d9b8', band:'#a9c792', color:'#f2c94c', gardenH:118, tileW:62 },
+  nemophila: { name:'푸른별꽃', latin:'Isotoma axillaris', minutes:10, coins:12, unit:'포기', price:60,
+               desc:'가는 잎 위로 하늘색 별 모양 꽃이 피어요', pot:'#e6e8ef', band:'#86b2ef', color:'#86b2ef', gardenH:116, tileW:66 },
+  monstera:  { name:'몬스테라', latin:'Monstera deliciosa', minutes:15, coins:20, unit:'그루', base:true,
+               desc:'갈라지고 구멍 난 커다란 잎', pot:'#cf8f69', band:'#e8b996', color:'#5f9a52', gardenH:150, tileW:116 },
+  rosemary:  { name:'민트', latin:'Mentha', minutes:20, coins:28, unit:'포기', price:100,
+               desc:'둥근 잎이 마주나는 싱그러운 허브', pot:'#e3efe6', band:'#6fbf73', color:'#6fbf73', gardenH:126, tileW:68 },
+  maple:     { name:'남천나무', latin:'Nandina domestica · 11월 한정', minutes:30, coins:45, unit:'그루', price:200, limited:'november', gift:true,
+               desc:'빨강부터 초록까지 물드는 잎과 빨간 열매', pot:'#cdb48c', band:'#c9573c', color:'#d2452f', gardenH:160, tileW:84 },
+  cotton:    { name:'목화', latin:'Gossypium hirsutum', minutes:40, coins:65, unit:'그루', base:true,
+               desc:'다래가 벌어지면 하얀 목화솜', pot:'#d7bf96', band:'#f3ead6', color:'#ebe3d2', gardenH:168, tileW:100 },
+  tangerine: { name:'귤나무', latin:'Citrus unshiu', minutes:60, coins:120, unit:'그루', price:500,
+               desc:'하얀 꽃 뒤에 주황빛 귤이 열리는 나무', pot:'#b98b62', band:'#dcb88c', color:'#f08a24', gardenH:180, tileW:104 }
+};
+const ORDER = ['primrose','nemophila','monstera','rosemary','maple','cotton','tangerine'];
+ORDER.forEach((t, i) => { PLANTS[t].no = String(i + 1).padStart(2, '0'); });
+
+/* 아이템 — 영양제는 상점에서 사고, 맑은 물은 15분 휴식을 마치면 얻습니다.
+   공부 중인 식물에게 각각 한 번씩 줄 수 있고, 완성할 때 코인이 늘어납니다. */
+const ITEMS = {
+  nutrient: { name:'영양제', price:10, rate:0.5, min:3, unit:'개' },   // 완성 코인 +50% (최소 +3)
+  water:    { name:'맑은 물', rate:0.2, min:2, unit:'병' }             // 완성 코인 +20% (최소 +2)
+};
+const REST_MINUTES = 15;
+
+// 공부 중 응원 메시지 (공통 + 식물별)
+const MESSAGES = {
+  common: [
+    '지금도 조금씩 자라고 있어!', '완벽하지 않아도 괜찮아. 계속해 보자.', '나는 자라는 중이야. 너는 배우는 중이고!',
+    '오늘 배운 게 내일의 뿌리가 될 거야.', '조금씩 쌓이면 분명 달라질 거야.', '서두르지 않아도 돼.',
+    '지금 이 시간도 충분히 의미 있어.', '나에게 물이 필요하듯, 너에게는 시간이 필요해.',
+    '어려운 부분은 천천히 다시 읽어도 괜찮아.', '여기까지 집중한 것도 성과야.',
+    '한 줄씩, 한 잎씩.', '어깨 한번 펴고, 다시 천천히.', '모르는 건 표시해 두고 넘어가도 돼.', '좋은 속도로 가고 있어.'
+  ],
+  primrose:  ['작은 꽃도 피는 데 시간이 필요해.', '조금만 더 하면 노란 꽃을 보여 줄게.', '짧은 시간도 꽃 한 송이만큼 소중해.', '해가 져야 피는 꽃도 있어. 때가 있는 거야.'],
+  nemophila: ['작은 별꽃도 하나씩 피어나.', '하늘색처럼 마음도 맑게.', '가는 꽃대도 곧게 서 있어. 천천히 가자.'],
+  monstera:  ['잎이 하나씩 넓어지고 있어.', '구멍 난 잎에도 다 이유가 있대. 틀려도 괜찮아.', '새 잎은 늘 돌돌 말린 채로 시작해.', '넓은 잎처럼 차근차근 펼쳐 보자.'],
+  rosemary:  ['잎이 하나씩 마주 돋고 있어.', '상쾌하게 한 줄 더!', '민트처럼 머리가 맑아지길.'],
+  maple:     ['잎이 물드는 데도 시간이 걸려.', '빨간 열매는 천천히 영글어.', '가을은 천천히 깊어지는 계절이야.'],
+  cotton:    ['솜은 오래 기다려야 열려. 지금 잘하고 있어.', '긴 시간도 한 걸음씩이면 돼.', '천천히 영그는 중이야.', '포근한 솜이 될 때까지 같이 가 보자.'],
+  tangerine: ['귤이 익으려면 긴 햇살이 필요해.', '한 시간도 한 걸음씩이면 돼.', '달콤한 열매는 기다림 끝에 와.', '반쯤 왔어도, 아직 처음이어도 괜찮아.']
+};
+// 휴식 중 말풍선
+const REST_MESSAGES = [
+  '눈을 잠깐 감아 볼까?', '물 한 잔 마시고 오자.', '어깨를 천천히 돌려 봐.', '창밖 먼 곳을 바라보자.',
+  '쉬는 것도 공부의 일부야.', '숨을 깊게 들이쉬고, 천천히 내쉬어.', '지금은 아무것도 안 해도 괜찮아.',
+  '한 방울씩 맑은 물이 모이고 있어.', '손목도 살살 풀어 주자.', '잠깐 일어나서 기지개 켜 볼까?'
+];
+const IDLE_MSG = {
+  primrose:  '나를 키워 줄래? 5분이면 꽃을 피울 수 있어.',
+  nemophila: '10분이면 하늘색 별꽃을 피울 수 있어.',
+  monstera:  '15분만 함께해 줘. 멋진 잎을 펼쳐 볼게.',
+  rosemary:  '20분 함께하면 싱그러운 잎을 보여 줄게.',
+  maple:     '30분 동안 가을빛으로 물들어 볼게.',
+  cotton:    '40분 동안 천천히, 하얀 솜을 키워 보자.',
+  tangerine: '한 시간 동안 함께하면 귤이 열릴 거야.'
+};
+const DONE_MSG = {
+  primrose:  '노란 꽃이 활짝 폈어! 고마워.',
+  nemophila: '하늘색 별꽃이 활짝 폈어!',
+  monstera:  '갈라진 큰 잎이 다 자랐어. 수고했어!',
+  rosemary:  '싱그러운 민트가 다 자랐어. 수고했어!',
+  maple:     '빨간 열매가 열리고 잎이 곱게 물들었어!',
+  cotton:    '하얀 솜이 열렸어. 정말 수고했어!',
+  tangerine: '주황빛 귤이 주렁주렁 열렸어. 정말 수고했어!'
+};
+const STAGE_TEXT = {
+  common:    ['흙에서 새싹이 올라오는 중', '줄기가 자라고 작은 잎이 났어요', '잎이 커지고 새 잎이 돋아요'],
+  primrose:  ['꽃봉오리가 맺혔어요', '노란 꽃잎이 열리는 중', '노란 꽃이 활짝 피었어요'],
+  nemophila: ['흙에서 새싹이 올라오는 중', '가는 잎이 소복하게 돋아요', '가는 꽃대가 올라와요', '꽃대 끝에 봉오리가 맺혔어요', '하늘색 별꽃이 피는 중', '푸른별꽃이 활짝 피었어요'],
+  monstera:  ['잎이 갈라지기 시작했어요', '큰 잎이 펼쳐지는 중', '갈라진 잎이 완성됐어요'],
+  rosemary:  ['흙에서 새싹이 올라오는 중', '줄기가 올라오고 둥근 잎이 나요', '잎이 마주나며 줄기가 길어져요', '여기저기서 줄기가 자라요', '줄기 끝에 연한 새잎이 돋는 중', '싱그러운 민트가 완성됐어요'],
+  maple:     ['하얀 꽃이 피고 잎이 물들기 시작해요', '빨간 열매가 맺히는 중', '빨간 열매와 단풍잎이 완성됐어요'],
+  cotton:    ['꽃봉오리와 꽃이 피었어요', '다래가 영글고 벌어지는 중', '하얀 목화솜이 열렸어요'],
+  tangerine: ['하얀 귤꽃이 피었어요', '초록 열매가 맺히고 익는 중', '주황빛 귤이 익었어요']
+};
+
+// 단풍잎 모양 (남천나무 · 상점 배너에 사용)
+const MAPLE = 'M0 0 L-3 -4 L-13 -2 L-11 -7 L-17 -13 L-12 -14 L-13 -21 L-7 -17 L-6 -25 L-3 -22 L0 -30 L3 -22 L6 -25 L7 -17 L13 -21 L12 -14 L17 -13 L11 -7 L13 -2 L3 -4 Z';
+
+// 작은 아이콘 모음
+const ICON = {
+  coin: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.6" fill="#f2c94c" stroke="#d6a21c" stroke-width="1.4"/><circle cx="12" cy="12" r="6.6" fill="none" stroke="#fff1b8" stroke-width="1.1"/><path d="M12 16.6V11M12 11.2c0-1.9-1.4-2.9-3-2.9 0 1.7 1.3 2.9 3 2.9zM12 12.6c0-1.7 1.4-2.6 3-2.6 0 1.6-1.3 2.6-3 2.6z" fill="#b8860b" stroke="#b8860b" stroke-width=".9" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+  nutrient: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="1.8" width="6" height="3.2" rx="1" fill="#a07a56"/><path d="M9.5 5h5v3.2l3.2 3.6v8.2a2 2 0 0 1-2 2H8.3a2 2 0 0 1-2-2v-8.2L9.5 8.2z" fill="#f1f8ea" stroke="#6f9f68" stroke-width="1.3"/><path d="M7.4 13.2h9.2v6.6a1.1 1.1 0 0 1-1.1 1.1h-7a1.1 1.1 0 0 1-1.1-1.1z" fill="#8fc274"/><path d="M12 19.2v-4M12 16.4c0-1.3-1-1.9-2.1-1.9 0 1.1.9 1.9 2.1 1.9zM12 17.2c0-1.1.9-1.7 1.9-1.7 0 1-.8 1.7-1.9 1.7z" stroke="#fff" stroke-width=".9" fill="#fff"/></svg>',
+  water: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6C9 6.9 5.7 10.5 5.7 14.6a6.3 6.3 0 0 0 12.6 0C18.3 10.5 15 6.9 12 2.6z" fill="#a6d8f0" stroke="#5aa9d2" stroke-width="1.3"/><path d="M8.9 14.6a3.1 3.1 0 0 0 2.5 3.1" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>',
+  lock: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="#9c8a68" stroke-width="2.2" fill="none"/><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="#bfae8c"/></svg>',
+  clock: '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#5a8656" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2"/></svg>',
+  check: '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#5a8656" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  maple: '<svg class="ico maple" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 23V9.5" stroke="#8a7444" stroke-width="1.4"/><path d="M12 14 Q7.5 12.5 3.5 8.5 Q9 9 12 14Z" fill="#d9542f"/><path d="M12 12 Q16 9 20.5 7.5 Q17.5 12.5 12 12Z" fill="#c8342a"/><path d="M12 17.5 Q16 16 19.5 18 Q15.5 20.5 12 17.5Z" fill="#e8893a"/><path d="M12 19.5 Q8 18.5 5 20.5 Q8.5 22 12 19.5Z" fill="#6f9a4e"/><circle cx="9.8" cy="5.2" r="2.3" fill="#d4302a"/><circle cx="14" cy="4.4" r="2.3" fill="#d4302a"/><circle cx="12" cy="8" r="2.3" fill="#d4302a"/><circle cx="9.1" cy="4.5" r=".7" fill="#fff" opacity=".65"/><circle cx="13.3" cy="3.7" r=".7" fill="#fff" opacity=".65"/></svg>'
+};
+
+/* =========================================================
+   2. 유틸리티 (날짜는 모두 사용자 컴퓨터의 현지 시간 기준)
+   ========================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+const pad = n => String(n).padStart(2, '0');
+const WEEK = ['일','월','화','수','목','금','토'];
+
+function dateKey(ms = Date.now()) {
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+function parseKey(k) { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); }
+function shiftKey(k, days) { const d = parseKey(k); d.setDate(d.getDate() + days); return dateKey(d.getTime()); }
+function fmtDateLong(k) { const d = parseKey(k); return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 ${WEEK[d.getDay()]}요일`; }
+function fmtDateShort(k) { const d = parseKey(k); return `${d.getMonth() + 1}/${d.getDate()} (${WEEK[d.getDay()]})`; }
+function fmtClock(ms) { const d = new Date(ms); const h = d.getHours(); return `${h < 12 ? '오전' : '오후'} ${h % 12 || 12}:${pad(d.getMinutes())}`; }
+function fmtMMSS(ms) { const s = Math.max(0, Math.ceil(ms / 1000)); return `${pad(Math.floor(s / 60))}:${pad(s % 60)}`; }
+function fmtMS(ms) { const s = Math.max(0, Math.floor(ms / 1000)); return `${Math.floor(s / 60)}:${pad(s % 60)}`; }
+function fmtMinutes(min) {
+  min = Math.round(min);
+  if (min < 60) return `${min}분`;
+  const h = Math.floor(min / 60), m = min % 60;
+  return m ? `${h}시간 ${m}분` : `${h}시간`;
+}
+/** 받침에 따라 조사 선택: josa('달맞이꽃','이','가') → '달맞이꽃이' */
+function josa(word, withBatchim, without) {
+  const c = word.charCodeAt(word.length - 1) - 0xAC00;
+  return word + (c >= 0 && c <= 11171 && c % 28 ? withBatchim : without);
+}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function hashNum(str) { let h = 0; for (const c of str) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); }
+
+/* =========================================================
+   3. 저장소 (localStorage) — 기록 · 타이머 · 설정
+   ========================================================= */
+const Store = {
+  read(key, fallback) {
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+    catch (e) { return fallback; }
+  },
+  write(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+    catch (e) { toast('저장에 실패했어요. 브라우저 저장 공간을 확인해 주세요.'); return false; }
+  },
+  remove(key) { try { localStorage.removeItem(key); } catch (e) {} }
+};
+
+const state = {
+  records: {},          // 날짜별 완성 기록
+  timer: null,          // 진행 중인 타이머 (공부 또는 휴식)
+  wallet: null,         // 코인 · 아이템 · 보유 모종
+  settings: { sound: true, selected: 'primrose' },
+  done: null,           // 방금 완성한 식물 { type, at }
+  restDone: null,       // 방금 끝낸 휴식 { at }
+  view: 'study',
+  gardenKey: null,      // null이면 '오늘'
+  today: dateKey(),
+  justPlanted: null,    // 정원에 막 심은 기록 id (등장 애니메이션용)
+  migratedCoins: 0      // 첫 실행 때 기존 기록으로 받은 코인
+};
+
+function loadAll() {
+  const rec = Store.read(LS_KEYS.records, {});
+  state.records = (rec && typeof rec === 'object' && !Array.isArray(rec)) ? rec : {};
+  // 지갑이 처음 생길 때: 이전 버전에서 키운 식물만큼 코인을 지급
+  if (Store.read(LS_KEYS.wallet, null) === null) {
+    let sum = 0;
+    for (const k in state.records) (state.records[k] || []).forEach(r => { sum += r.minutes || 0; });
+    const w = normalizeWallet({ coins: sum });
+    if (Store.write(LS_KEYS.wallet, w)) state.migratedCoins = sum;
+  }
+  state.wallet = loadWallet();
+  const s = Store.read(LS_KEYS.settings, {});
+  state.settings = { sound: s.sound !== false, selected: PLANTS[s.selected] ? s.selected : 'primrose' };
+  if (!canGrow(state.settings.selected)) state.settings.selected = 'primrose';
+  const t = Store.read(LS_KEYS.timer, null);
+  state.timer = validTimer(t) ? normalizeTimer(t) : null;
+  if (t && !state.timer) Store.remove(LS_KEYS.timer);
+}
+function validTimer(t) {
+  return !!t && typeof t.id === 'string' && t.durationMs > 0 &&
+    (t.status === 'running' || t.status === 'paused') && typeof t.accumulated === 'number' &&
+    (t.kind === 'rest' || !!PLANTS[t.type]);
+}
+/** 이전 버전 타이머(kind 없음)도 공부 타이머로 이어서 사용 */
+function normalizeTimer(t) {
+  const n = { ...t, kind: t.kind === 'rest' ? 'rest' : 'study' };
+  if (n.kind === 'study') n.boosts = { nutrient: !!(t.boosts && t.boosts.nutrient), water: !!(t.boosts && t.boosts.water) };
+  return n;
+}
+const saveRecords = () => Store.write(LS_KEYS.records, state.records);
+const saveSettings = () => Store.write(LS_KEYS.settings, state.settings);
+function saveTimer(t) { state.timer = t; t ? Store.write(LS_KEYS.timer, t) : Store.remove(LS_KEYS.timer); Cloud.pushTimer(t); }
+
+/* --- 지갑: 코인 · 영양제 · 맑은 물 · 보유 모종 --- */
+function normalizeWallet(w) {
+  w = (w && typeof w === 'object') ? w : {};
+  const num = v => (typeof v === 'number' && isFinite(v) && v > 0) ? Math.floor(v) : 0;
+  return {
+    coins: num(w.coins), nutrients: num(w.nutrients), water: num(w.water),
+    owned: (w.owned && typeof w.owned === 'object') ? w.owned : {},
+    rewardedRest: Array.isArray(w.rewardedRest) ? w.rewardedRest : [],
+    restLog: (w.restLog && typeof w.restLog === 'object') ? w.restLog : {}
+  };
+}
+function loadWallet() { return normalizeWallet(Store.read(LS_KEYS.wallet, null) || state.wallet); }
+/** 항상 저장소의 최신 값을 읽어 수정 (다른 탭과 겹쳐도 코인이 꼬이지 않도록) */
+function updateWallet(fn, id) {
+  const before = loadWallet(), w = normalizeWallet(JSON.parse(JSON.stringify(before)));
+  fn(w);
+  state.wallet = w;
+  Store.write(LS_KEYS.wallet, w);
+  // 로그인 중이면 변화량을 장부에 기록 (id가 같으면 한 번만 반영)
+  Cloud.ledger(id || ('op_' + uid()), walletDiff(before, w));
+  return w;
+}
+
+/* --- 모종 보유 · 기간 한정 --- */
+function isNovember(ms = Date.now()) { return new Date(ms).getMonth() === 10; }
+function novemberDaysLeft() {
+  const d = new Date(), today = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  return Math.round((new Date(d.getFullYear(), 11, 1) - today) / 86400000);
+}
+const isOwned = type => !!PLANTS[type] && (!!PLANTS[type].base || !!(state.wallet && state.wallet.owned[type]));
+const inSeason = type => PLANTS[type].limited !== 'november' || isNovember();
+const canGrow = type => isOwned(type) && inSeason(type);
+
+/* --- 코인 계산 --- */
+/** 남천나무 선물: 90% 맑은 물, 10% 영양제 — 타이머 id로 정해서 어느 기기에서 완료해도 같은 결과 */
+function giftFor(type, id) {
+  if (!PLANTS[type] || !PLANTS[type].gift) return null;
+  return hashNum(String(id) + ':gift') % 10 === 0 ? 'nutrient' : 'water';
+}
+function bonusFor(type, key) { const it = ITEMS[key]; return Math.max(it.min, Math.round(PLANTS[type].coins * it.rate)); }
+function coinsFor(type, boosts) {
+  let c = PLANTS[type].coins;
+  if (boosts && boosts.nutrient) c += bonusFor(type, 'nutrient');
+  if (boosts && boosts.water) c += bonusFor(type, 'water');
+  return c;
+}
+
+/** 완성 기록 추가 — 같은 세션 id가 이미 있으면 중복 저장하지 않음 */
+function addRecord(rec) {
+  state.records = Store.read(LS_KEYS.records, {}) || {};   // 다른 탭의 변경도 반영
+  for (const k in state.records) {
+    if ((state.records[k] || []).some(r => r.id === rec.id)) return false;
+  }
+  const key = dateKey(rec.completedAt);
+  (state.records[key] = state.records[key] || []).push(rec);
+  state.records[key].sort((a, b) => a.completedAt - b.completedAt);
+  saveRecords();
+  Cloud.putRecord(rec);
+  return true;
+}
+function deleteRecord(key, id) {
+  const list = (state.records[key] || []).filter(r => r.id !== id);
+  if (list.length) state.records[key] = list; else delete state.records[key];
+  saveRecords();
+  Cloud.deleteRecords([id]);
+}
+function dayRecords(key) { return state.records[key] || []; }
+function daySummary(key) {
+  const list = dayRecords(key);
+  const counts = {};
+  ORDER.forEach(t => { counts[t] = 0; });
+  let minutes = 0, coins = 0;
+  list.forEach(r => { if (counts[r.type] !== undefined) counts[r.type]++; minutes += r.minutes || 0; coins += r.coins || 0; });
+  return { list, counts, minutes, coins, total: list.length };
+}
+
+/* =========================================================
+   4. 식물 SVG 일러스트
+   - 각 부분은 [시작, 끝, (사라짐 시작, 사라짐 끝)] 진행률 구간을 갖습니다.
+   - 진행률에 따라 부분마다 등장(크기·투명도), 줄기 그리기(stroke), 교체(페이드)가 일어나
+     '크기만 커지는' 것이 아니라 단계별로 모양 자체가 달라집니다.
+   ========================================================= */
+let BP = 1; // 그리는 순간의 진행률 (정적 그림은 1)
+
+function growthValues(g, k, p) {
+  const t = clamp01((p - g[0]) / (g[1] - g[0]));
+  const out = g.length > 3 ? clamp01((p - g[2]) / (g[3] - g[2])) : 0;
+  if (k === 'draw') return { opacity: t > 0.002 ? 1 - out : 0, dash: 1 - t };
+  if (k === 'fade') return { opacity: t * (1 - out) };
+  return { opacity: t > 0.002 ? 1 - out : 0, scale: easeOut(t) * (1 - 0.12 * out) };
+}
+function styleFor(g, k, origin) {
+  const v = growthValues(g, k, BP);
+  let s = `opacity:${v.opacity.toFixed(3)};`;
+  if (k === 'draw') s += `stroke-dashoffset:${v.dash.toFixed(4)};`;
+  if (origin) s += `transform-origin:${origin[0]}px ${origin[1]}px;`;
+  if (v.scale !== undefined) s += `transform:scale(${v.scale.toFixed(4)});`;
+  return s;
+}
+/** 자라나는 그룹 (k: 'scale' 기본, 'fade' 투명도만) */
+function G(g, origin, inner, k = 'scale') {
+  return `<g class="gp" data-g="${g.join(',')}" data-k="${k}" style="${styleFor(g, k, origin)}">${inner}</g>`;
+}
+/** 길게 뻗어 나가는 줄기 */
+function D(g, d, color, w) {
+  return `<path class="gp" data-g="${g.join(',')}" data-k="draw" d="${d}" pathLength="1" stroke-dasharray="1 1" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round" style="${styleFor(g, 'draw')}"/>`;
+}
+
+/* --- 공통 부품 --- */
+function seed() {
+  return G([-1, 0, 0, 0.05], [100, 190], `<ellipse cx="100" cy="188.6" rx="5" ry="3" fill="#8a5f3c"/><ellipse cx="98.6" cy="187.7" rx="1.6" ry=".9" fill="#fff" opacity=".35"/>`);
+}
+function sprout(g, c = '#8fc274', stem = '#6f9b4f') {
+  return G(g, [100, 190], `
+    <path d="M100 190 Q99.5 184 100 177" stroke="${stem}" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <path d="M100 178 C95 171 86 171 84 176 C87 181 95 182 100 178Z" fill="${c}"/>
+    <path d="M100 178 C105 171 114 171 116 176 C113 181 105 182 100 178Z" fill="${c}"/>
+    <path d="M99 177.5 C95 175 90 175 87 176.5" stroke="#fff" stroke-opacity=".4" stroke-width=".8" fill="none"/>`);
+}
+function potSVG(type) {
+  const c = PLANTS[type].pot, band = PLANTS[type].band;
+  return `
+    <ellipse cx="100" cy="242" rx="46" ry="5" fill="#5b4a32" opacity=".12"/>
+    <path d="M67 198 L133 198 L126.5 233 Q125.4 239 119.5 239 L80.5 239 Q74.6 239 73.5 233 Z" fill="${c}"/>
+    <path d="M70.6 216 L129.4 216 L128.1 223 L71.9 223Z" fill="${band}" opacity=".9"/>
+    <path d="M77 203 L80.5 233" stroke="#fff" stroke-opacity=".22" stroke-width="3" stroke-linecap="round"/>
+    <rect x="59" y="186" width="82" height="14" rx="5" fill="${c}"/>
+    <rect x="61" y="196" width="78" height="4" fill="#000" opacity=".06"/>
+    <ellipse cx="100" cy="189" rx="37" ry="4.3" fill="#6e4b33"/>
+    <ellipse cx="95" cy="188.3" rx="22" ry="1.6" fill="#8a6244" opacity=".7"/>`;
+}
+function groundSVG() {
+  return `<ellipse cx="100" cy="192.5" rx="26" ry="4" fill="#7c5a3e" opacity=".42"/><ellipse cx="96" cy="191.5" rx="14" ry="1.6" fill="#a07a56" opacity=".5"/>`;
+}
+
+/* --- 달맞이꽃: 길쭉한 줄기, 피침형 잎, 꽃봉오리, 노란 네 장 꽃잎 --- */
+function lance(x, y, len, w, ang, fill) {
+  return `<g transform="translate(${x} ${y}) rotate(${ang})"><path d="M0 0 Q${len * .42} ${-w} ${len} ${w * .25} Q${len * .45} ${w * 1.1} 0 0Z" fill="${fill}"/><path d="M1.5 0 Q${len * .5} ${-w * .15} ${len * .86} ${w * .18}" stroke="#ecf5dc" stroke-opacity=".45" stroke-width=".9" fill="none"/></g>`;
+}
+function primBud(x, y, a, sc, tint, stem) {
+  return `<g transform="translate(${x} ${y}) rotate(${a}) scale(${sc})"><path d="M0 0 L0 -7" stroke="${stem}" stroke-width="1.7" stroke-linecap="round"/><path d="M-3.3 -6 Q0 -23 3.3 -6Z" fill="#9cc06a"/><path d="M0 -7 Q1.3 -14 0 -20.5" stroke="${tint}" stroke-width="1.1" fill="none" opacity=".8"/></g>`;
+}
+function primFlower(x, y, sc, stalk) {
+  const petal = 'M0 -2 C-7 -5 -15.5 -11 -15 -19.5 C-14.5 -25.5 -8 -28 -2.4 -26.4 Q0 -25.2 2.4 -26.4 C8 -28 14.5 -25.5 15 -19.5 C15.5 -11 7 -5 0 -2Z';
+  let s = stalk ? `<path d="${stalk}" stroke="#6d9a4c" stroke-width="2.4" fill="none" stroke-linecap="round"/>` : '';
+  s += `<g transform="translate(${x} ${y}) scale(${sc})">`;
+  for (const a of [45, 135, 225, 315]) {
+    s += `<g transform="rotate(${a})"><path d="${petal}" fill="#fde98a" stroke="#ebc548" stroke-width=".7" stroke-linejoin="round"/>` +
+         `<path d="${petal}" transform="scale(.5)" fill="#f8d64e" opacity=".9"/>` +
+         `<path d="M0 -4 L0 -20 M-1.2 -5 Q-6 -11 -9.5 -18.5 M1.2 -5 Q6 -11 9.5 -18.5" stroke="#e3b331" stroke-opacity=".38" stroke-width=".6" fill="none"/>` +
+         `<path d="M-11 -21.5 Q-7 -26 -2.6 -24.6" stroke="#fff8d2" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".9"/></g>`;
+  }
+  for (let i = 0; i < 8; i++) s += `<g transform="rotate(${i * 45 + 22.5})"><path d="M0 0 L0 -7.2" stroke="#e2bc3e" stroke-width=".8"/><ellipse cx="0" cy="-7.8" rx="1.1" ry="1.8" fill="#eeb52a"/></g>`;
+  s += `<circle r="2.7" fill="#d6df86"/>`;
+  for (const a of [45, 135, 225, 315]) s += `<path d="M0 0 L0 -5.6" transform="rotate(${a})" stroke="#fff4b8" stroke-width="1.7" stroke-linecap="round"/>`;
+  return s + `<circle r="1.2" fill="#f8ec9c"/></g>`;
+}
+function buildPrimrose() {
+  const stem = '#6d9a4c', leaf = '#78a858', leafD = '#5e8e45';
+  let s = seed() + sprout([0, .12, .3, .42], '#9ccb7c', stem);
+  // 20~40%: 땅 가까이 퍼지는 잎(로제트)과 줄기
+  s += G([.14, .32], [100, 189], lance(100, 189, 34, 6.5, -168, leafD) + lance(100, 189, 32, 6, -12, leafD) + lance(100, 188, 24, 5, -140, leaf) + lance(100, 188, 22, 5, -42, leaf));
+  s += D([.1, .72], 'M100 190 C100 160 98 122 100 64', stem, 3.2);
+  // 40~60%: 줄기를 따라 번갈아 나는 잎
+  [[100,170,-150,27,.24,.38],[99.6,152,-30,29,.32,.46],[99,134,-152,26,.42,.55],[99,116,-28,24,.5,.62],[99.3,99,-148,20,.58,.68],[99.8,86,-34,16,.63,.72]]
+    .forEach(([x, y, a, l, a0, a1]) => { s += G([a0, a1], [x, y], lance(x, y, l, l * .22, a, leaf)); });
+  // 60~80%: 붉은 기가 도는 길쭉한 꽃봉오리
+  s += G([.64, .72], [97, 80], primBud(97, 80, -28, .85, '#c97a4a', stem));
+  s += D([.62, .7], 'M100 93 Q111 91 118 83', stem, 2);
+  s += G([.7, .78, .88, .93], [118, 83], primBud(118, 83, 30, .9, '#e0b23c', stem));
+  s += G([.72, .8, .82, .87], [100, 66], primBud(100, 66, 0, 1.15, '#e9c13e', stem));
+  // 80~100%: 노란 네 장 꽃잎이 활짝
+  s += G([.82, .97], [100, 60], primFlower(100, 58, .85, 'M100 66 L100 58'));
+  s += G([.89, 1], [118, 83], primFlower(123, 76, .62, 'M118 83 L123 76'));
+  return s;
+}
+
+/* --- 몬스테라: 하트 모양 어린 잎 → 커진 잎 → 갈라짐과 구멍 --- */
+const HEART = 'M0 0 C-8 6 -30 5 -37 -11 C-44 -29 -27 -55 0 -64 C27 -55 44 -29 37 -11 C30 5 8 6 0 0Z';
+const HEART_L = 'M0 0 C-8 6 -30 5 -37 -11 C-44 -29 -27 -55 0 -64 Z';
+function heartLeaf(x, y, rot, sc, fill, split) {
+  const veins = `<path d="M0 -1 Q1 -32 0 -60" stroke="#d9edc4" stroke-opacity=".5" stroke-width="1.5" fill="none"/>
+    <path d="M0 -14 Q-16 -18 -37 -15 M0 -27 Q-18 -31 -39 -34 M0 -40 Q-14 -46 -33 -52 M0 -14 Q16 -18 37 -15 M0 -27 Q18 -31 39 -34 M0 -40 Q14 -46 33 -52" stroke="#d9edc4" stroke-opacity=".28" stroke-width="1" fill="none"/>`;
+  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${sc})"><g${split ? ' mask="url(#sg-monstera-mask)"' : ''}><path d="${HEART}" fill="${fill}"/><path d="${HEART_L}" fill="#fff" opacity=".08"/>${veins}</g></g>`;
+}
+function buildMonstera() {
+  const pet = '#5c8d48', young = '#88c06e', mid = '#62a056', deep = '#4b8547';
+  let s = seed() + sprout([0, .12, .26, .38], '#8cc276', pet);
+  s += D([.08, .3], 'M100 191 L100 178', '#6a8d48', 5.5);
+  // 잎자루가 끝까지 뻗은 뒤에 그 끝에서 잎이 펼쳐지도록 (잎이 공중에 뜨지 않게)
+  // 20~40%: 넓은 하트 모양 어린 잎
+  s += D([.1, .18], 'M100 189 Q92 181 81 171', pet, 2.4);
+  s += G([.18, .3], [81, 171], heartLeaf(81, 171, -62, .42, young));
+  s += D([.16, .25], 'M100 189 Q109 177 118 165', pet, 2.4);
+  s += G([.25, .38], [118, 165], heartLeaf(118, 165, 55, .48, young));
+  // 40~60%: 잎이 커짐 → 60~80%: 갈라지고 구멍이 생긴 잎으로 바뀜
+  s += D([.34, .44], 'M100 189 Q87 163 66 140', pet, 3);
+  s += G([.44, .56, .64, .74], [66, 140], heartLeaf(66, 140, -55, .82, mid));
+  s += G([.64, .74], [66, 140], heartLeaf(66, 140, -55, .82, deep, true), 'fade');
+  s += D([.4, .5], 'M100 189 Q117 152 136 128', pet, 3);
+  s += G([.5, .62, .68, .78], [136, 128], heartLeaf(136, 128, 50, .9, mid));
+  s += G([.68, .78], [136, 128], heartLeaf(136, 128, 50, .9, deep, true), 'fade');
+  s += D([.6, .74], 'M101 180 Q114 182 112 191', '#8b6b4a', 1.8);   // 공기뿌리
+  // 80~100%: 가장 큰 잎이 위로 펼쳐지며 완성
+  s += D([.72, .82], 'M100 189 Q104 142 98 102', pet, 3.2);
+  s += G([.82, .96], [98, 102], heartLeaf(98, 102, -6, 1, deep, true));
+  s += D([.8, .88], 'M100 189 Q90 146 78 114', pet, 2.8);
+  s += G([.88, 1], [78, 114], heartLeaf(78, 114, -32, .7, mid, true));
+  return s;
+}
+
+/* --- 목화: 가지, 갈라진 잎, 꽃봉오리 → 꽃 → 다래 → 목화솜 --- */
+const COTTON_LEAF = 'M0 0 Q-12 2 -24 -10 Q-16 -13 -11 -16 Q-24 -24 -19 -35 Q-10 -30 -5 -27 Q-6 -39 0 -45 Q6 -39 5 -27 Q10 -30 19 -35 Q24 -24 11 -16 Q16 -13 24 -10 Q12 2 0 0Z';
+function cottonLeaf(x, y, rot, sc) {
+  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${sc})"><path d="M0 0 L0 -9" stroke="#6f8f45" stroke-width="2.2" stroke-linecap="round"/><g transform="translate(0 -9)"><path d="${COTTON_LEAF}" fill="#6fa24f"/><path d="M0 0 Q-12 2 -24 -10 Q-16 -13 -11 -16 Q-24 -24 -19 -35 Q-10 -30 -5 -27 Q-6 -39 0 -45Z" fill="#fff" opacity=".07"/><path d="M0 0 L0 -38 M0 0 L-16 -30 M0 0 L16 -30 M0 0 L-19 -9 M0 0 L19 -9" stroke="#d6eabb" stroke-opacity=".45" stroke-width="1" fill="none"/></g></g>`;
+}
+const bracts = (c) => `<path d="M-1 -3 L-7 -2 L-8.5 -8 L-6.5 -7.2 L-7.5 -12.5 L-4.8 -10 L-3.6 -14 L-2.5 -8 Z" fill="${c}"/><path d="M1 -3 L7 -2 L8.5 -8 L6.5 -7.2 L7.5 -12.5 L4.8 -10 L3.6 -14 L2.5 -8 Z" fill="${c}"/>`;
+function cBud(x, y) {
+  return `<g transform="translate(${x} ${y}) scale(1.25)"><path d="M0 2 L0 -4" stroke="#6f8f45" stroke-width="1.6"/><ellipse cx="0" cy="-8.5" rx="3.6" ry="5.2" fill="#b4cf79"/>${bracts('#7fa84f')}</g>`;
+}
+function cFlower(x, y, pink) {
+  const base = pink ? '#f6c6d3' : '#fdf4d4', inner = pink ? '#eaa3b7' : '#f4df9c', edge = pink ? '#e09cb0' : '#e6d394';
+  const petal = 'M0 0 C-4.5 -2 -8.5 -7 -6.5 -12 C-4.5 -16 2.5 -16.5 5.8 -12.5 C8 -9.5 5.5 -3.5 0 0Z';
+  let pet = '';
+  for (let k = 0; k < 5; k++) pet += `<g transform="rotate(${k * 72 + 10})"><path d="${petal}" fill="${base}" stroke="${edge}" stroke-width=".6"/><path d="${petal}" transform="scale(.52)" fill="${inner}"/><path d="M-.6 -3 Q-2.4 -8 -1.6 -12.4" stroke="${edge}" stroke-width=".5" fill="none" opacity=".8"/></g>`;
+  let mid = '<circle r="2.5" fill="#efcf66"/>';
+  for (let k = 0; k < 7; k++) mid += `<circle cx="0" cy="-1.9" r=".6" transform="rotate(${k * 51})" fill="#dcae3c"/>`;
+  return `<g transform="translate(${x} ${y}) scale(1.25)"><path d="M0 2 L0 -5" stroke="#6f8f45" stroke-width="1.6"/>${bracts('#7fa84f')}<g transform="translate(0 -13)">${pet}${mid}<circle r=".9" fill="#fbf0c0"/></g></g>`;
+}
+function cBoll(x, y) {
+  return `<g transform="translate(${x} ${y}) scale(1.25)"><path d="M0 2 L0 -4" stroke="#6f8f45" stroke-width="1.6"/><path d="M0 -3.5 C-7.5 -5 -8.5 -15 0 -23 C8.5 -15 7.5 -5 0 -3.5Z" fill="#7da64c"/><path d="M0 -5 L0 -21 M-3.4 -6 Q-5.6 -13 -1 -20.5 M3.4 -6 Q5.6 -13 1 -20.5" stroke="#b2d17f" stroke-opacity=".7" stroke-width=".8" fill="none"/><ellipse cx="-2.6" cy="-14" rx="1.6" ry="3.4" fill="#fff" opacity=".18"/>${bracts('#6f9845')}</g>`;
+}
+function cOpen(x, y) {
+  let s = `<g transform="translate(${x} ${y}) scale(1.25)"><path d="M0 2 L0 -4" stroke="#8a7146" stroke-width="1.6"/>`;
+  for (let k = 0; k < 4; k++) s += `<path d="M0 0 Q8 -5 11.5 -15.5 Q3 -11 0 0Z" transform="translate(0 -11) rotate(${k * 90 + 45})" fill="#8d6a42"/>`;
+  [[-5, -13, 6], [5, -13, 6], [0, -18.5, 6.2], [-4.2, -7.8, 5.4], [4.2, -7.8, 5.4], [0, -12, 5.2]].forEach(([cx, cy, r]) => {
+    s += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fffefa" stroke="#e4dccb" stroke-width=".8"/>`;
+  });
+  s += `<path d="M-7 -15 q2 -2 4 0 M3 -20 q2 -2 4 0 M-2 -9 q2 -1.6 4 0" stroke="#e9e2d2" stroke-width=".8" fill="none"/>`;
+  return s + `<path d="M-4.5 -2.5 L-7.5 -1 L-6.5 -4.5Z M4.5 -2.5 L7.5 -1 L6.5 -4.5Z" fill="#9b7c4f"/></g>`;
+}
+function buildCotton() {
+  const stem = '#82804a';
+  let s = seed() + sprout([0, .12, .36, .48], '#93c06d', '#7a8f45');
+  // 20~60%: 줄기가 길어지고 가지와 갈라진 잎이 생김
+  s += D([.1, .62], 'M100 190 C101 160 99 120 100 58', stem, 3.6);
+  s += D([.3, .46], 'M100 140 Q86 128 70 108', stem, 2.4);
+  s += D([.38, .52], 'M100 122 Q116 108 128 90', stem, 2.4);
+  s += D([.48, .6], 'M100 96 Q88 86 76 72', stem, 2.1);
+  s += G([.2, .34], [100, 172], cottonLeaf(100, 172, -72, .64));
+  s += G([.27, .4], [100, 156], cottonLeaf(100, 156, 68, .7));
+  s += G([.38, .5], [85, 126], cottonLeaf(85, 126, -58, .62));
+  s += G([.45, .56], [115, 107], cottonLeaf(115, 107, 58, .62));
+  s += G([.54, .64], [88, 85], cottonLeaf(88, 85, -44, .5));
+  s += G([.56, .66], [100, 76], cottonLeaf(100, 76, 26, .5));
+  // 60~100%: 꽃봉오리 → 꽃 → 다래 → 벌어진 다래와 하얀 솜 (가지 끝마다 차례로)
+  const sites = [
+    { x: 100, y: 58, bud: [.62, .67, .67, .7],  fl: [.66, .72, .78, .82], boll: [.78, .84, .9, .94],  open: [.9, .98] },
+    { x: 128, y: 90, bud: [.62, .68, .69, .73], fl: [.69, .75, .82, .85], boll: [.82, .87, .93, .96], open: [.93, 1] },
+    { x: 76,  y: 72, bud: [.64, .7, .73, .77],  fl: [.73, .78, .85, .88], boll: [.85, .9, .95, .98],  open: [.95, 1] }
+  ];
+  sites.forEach(o => {
+    s += G(o.bud, [o.x, o.y], cBud(o.x, o.y));
+    s += G(o.fl, [o.x, o.y], cFlower(o.x, o.y, false));
+    s += G(o.boll, [o.x, o.y], cBoll(o.x, o.y));
+    s += G(o.open, [o.x, o.y], cOpen(o.x, o.y));
+  });
+  // 늦게 핀 꽃은 분홍빛으로 남음 (목화꽃의 특징)
+  s += G([.66, .72, .76, .8], [70, 108], cBud(70, 108));
+  s += G([.76, .86], [70, 108], cFlower(70, 108, true));
+  return s;
+}
+
+/* --- 곡선 줄기 도우미: 줄기를 따라 잎·꽃을 붙일 위치와 '줄기가 그곳까지 자라는 시점'을 계산 --- */
+function Q(x0, y0, cx, cy, x1, y1) {
+  const pt = t => { const u = 1 - t; return [u * u * x0 + 2 * u * t * cx + t * t * x1, u * u * y0 + 2 * u * t * cy + t * t * y1]; };
+  const tan = t => Math.atan2(2 * (1 - t) * (cy - y0) + 2 * t * (y1 - cy), 2 * (1 - t) * (cx - x0) + 2 * t * (x1 - cx)) * 180 / Math.PI;
+  const N = 60, L = [0]; let prev = pt(0);
+  for (let i = 1; i <= N; i++) { const p = pt(i / N); L.push(L[i - 1] + Math.hypot(p[0] - prev[0], p[1] - prev[1])); prev = p; }
+  const tOf = s => { const target = s * L[N]; let i = 1; while (i < N && L[i] < target) i++; return (i - 1 + (target - L[i - 1]) / ((L[i] - L[i - 1]) || 1)) / N; };
+  return {
+    d: `M${x0} ${y0} Q${cx} ${cy} ${x1} ${y1}`,
+    /** 길이 비율 s(0~1) 지점의 좌표와 진행 방향(도) */
+    at(s) { const t = tOf(s), p = pt(t); return { x: +p[0].toFixed(2), y: +p[1].toFixed(2), a: tan(t) }; },
+    /** 처음부터 s 지점까지의 부분 곡선 */
+    sub(s) { const t = tOf(s), p = pt(t); return `M${x0} ${y0} Q${(x0 + (cx - x0) * t).toFixed(2)} ${(y0 + (cy - y0) * t).toFixed(2)} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`; }
+  };
+}
+/** 줄기 g 구간 동안 그려질 때, 길이 비율 s 지점에 줄기가 도착한 직후의 진행률 */
+const along = (g, s, lag = .012) => g[0] + (g[1] - g[0]) * s + lag;
+/** 줄기의 f 지점에서 갈라지는 가지 — 줄기가 그곳에 닿은 뒤에 자라기 시작 */
+function branchFrom(main, f, cx, cy, x1, y1, g) {
+  const p = main.c.at(f);
+  return { c: Q(p.x, p.y, cx, cy, x1, y1), g: [Math.max(g[0], along(main.g, f)), g[1]] };
+}
+
+/* --- 공통: 그림자 면이 있는 비대칭 잎 (오른쪽 방향 기준, curl은 잎 끝이 휘는 정도) --- */
+function leafS(x, y, len, w, ang, c1, c2, curl = 0) {
+  const top = `M0 0 C${(len * .22).toFixed(2)} ${(-w * 1.05 + curl * .2).toFixed(2)} ${(len * .68).toFixed(2)} ${(-w * .95 + curl * .6).toFixed(2)} ${len.toFixed(2)} ${curl}`;
+  const bot = `C${(len * .7).toFixed(2)} ${(w * .7 + curl * .6).toFixed(2)} ${(len * .25).toFixed(2)} ${(w * .9 + curl * .2).toFixed(2)} 0 0Z`;
+  const mid = `M0 0 Q${(len * .5).toFixed(2)} ${(curl * .5 + w * .08).toFixed(2)} ${len.toFixed(2)} ${curl}`;
+  return `<g transform="translate(${(+x).toFixed(2)} ${(+y).toFixed(2)}) rotate(${(+ang).toFixed(2)})"><path d="${top} ${bot}" fill="${c1}"/><path d="${mid} ${bot}" fill="${c2}"/><path d="${mid}" stroke="#fff" stroke-opacity=".32" stroke-width="1" fill="none"/></g>`;
+}
+
+/* --- 푸른별꽃 (10분): 가는 잎이 소복하게 → 가는 꽃대 → 하늘색 봉오리 → 별 모양 꽃 --- */
+function starFlower(x, y, rot, s, sq = 1) {
+  const petal = 'M0 0 C-3.4 -3.5 -3.2 -8 0 -11.5 C3.2 -8 3.4 -3.5 0 0Z';
+  let g = `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s} ${(s * sq).toFixed(2)})">`;
+  [0, 73, 143, 217, 289].forEach((a, i) => { g += `<path d="${petal}" transform="rotate(${a}) scale(${[1, .94, 1.04, .96, 1][i]})" fill="#86b2ef"/>`; });
+  [0, 73, 143, 217, 289].forEach(a => { g += `<path d="${petal}" transform="rotate(${a}) scale(.55)" fill="#b8d3f8"/>`; });
+  return g + `<circle r="2.6" fill="#f3f7ff"/><circle cx=".4" cy=".4" r="1" fill="#e9c75a"/></g>`;
+}
+function starBud(x, y, rot, s) {
+  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})"><path d="M0 2 C-2.4 0 -2.6 -5.5 0 -8.6 C2.6 -5.5 2.4 0 0 2Z" fill="#9bbff2"/><path d="M-1.6 1 L0 -2 L1.6 1Z" fill="#6aa95c"/></g>`;
+}
+function buildBlueStar() {
+  let s = seed() + sprout([0, .1, .24, .34], '#8cc276', '#5a9448');
+  // 20~40% · 40~60%: 가는 잎이 소복하게 (먼저 낮은 잎, 나중에 긴 잎)
+  [[-172, 22, '#5f9e55'], [-150, 26, '#6fae5f'], [-132, 20, '#4f8f4c'], [-118, 28, '#6aa95c'], [-100, 24, '#5f9e55'], [-84, 27, '#7cb866'],
+   [-66, 22, '#5f9e55'], [-50, 26, '#6fae5f'], [-34, 21, '#4f8f4c'], [-16, 24, '#6aa95c'], [-142, 15, '#7cb866'], [-58, 15, '#7cb866']].forEach(([a, l, c], i) => {
+    const x = 100 + (i % 3 - 1) * 3, st = i < 6 ? .16 + i * .025 : .32 + (i - 6) * .03;
+    s += G([st, st + .14], [x, 188], leafS(x, 188, l, 4.6, a, c, '#4c8a46', i % 2 ? 1.5 : -1.5));
+  });
+  // 40~60%: 가는 꽃대 → 60~80%: 봉오리 → 80~100%: 별 모양 꽃
+  const fl = [[104, 118, -4, 1.5, 1], [88, 128, 10, 1.4, .92], [120, 132, 18, 1.35, .9], [74, 148, -14, 1.3, 1], [95, 148, 30, 1.1, .85],
+              [130, 156, -20, 1.2, 1], [113, 152, -30, 1.15, 1], [68, 168, 12, 1, .9], [137, 172, 6, .95, .9]];
+  fl.forEach(([x, y, r, sc, sq], i) => {
+    const g0 = .4 + i * .02, g1 = .6 + i * .02;
+    s += D([g0, g1], `M100 186 Q${((100 + x) / 2).toFixed(1)} ${(y + 18).toFixed(1)} ${x} ${y}`, '#5a9448', 1.3);
+    s += G([g1, g1 + .07, .8 + i * .015, .86 + i * .015], [x, y], starBud(x, y, r, .9 + sc * .2));
+    s += G([.8 + i * .015, .92 + i * .008], [x, y], starFlower(x, y, r, sc, sq));
+  });
+  return s;
+}
+
+/* --- 민트 (20분): 흙 여기저기서 줄기가 올라와 둥근 잎이 마주나고, 끝에 연한 새잎 --- */
+function buildMint() {
+  let s = seed() + sprout([0, .1, .24, .34], '#8fd08a', '#6b9a4c');
+  // [밑동 x, 끝 x, 끝 y, 휘는 정도] — 왼쪽은 키 큰 줄기 셋, 오른쪽은 비스듬한 줄기 둘
+  const stems = [[96, 100, 94, 3], [87, 84, 108, -5], [78, 66, 140, -7], [112, 122, 128, 8], [92, 90, 150, -3], [123, 138, 140, 8]];
+  let seedN = 23; const r = () => (seedN = (seedN * 16807) % 2147483647) / 2147483647;
+  stems.forEach(([bx, x, y, bend], i) => {
+    const q = Q(bx, 188, (bx + x) / 2 + bend, (188 + y) / 2, x, y), g = [.14 + i * .04, .52 + i * .04];
+    s += D(g, q.d, '#6b9a4c', 2);
+    const n = Math.round((188 - y) / 14);
+    for (let k = 1; k <= n; k++) {
+      const t = k / (n + .3), p = q.at(t), st = Math.max(.2, along(g, t));
+      const size = 15 - k * (6 / n) + r() * 2, light = k >= n - 1;
+      const c1 = light ? '#8fd08a' : (r() > .5 ? '#6fbf73' : '#62b066'), c2 = light ? '#74bb70' : '#4f9a55';
+      s += G([st, Math.min(st + .1, .95)], [p.x, p.y], leafS(p.x, p.y, size, size * .5, p.a - 70 - r() * 15, c1, c2, -1.5) + leafS(p.x, p.y, size * .95, size * .5, p.a + 70 + r() * 15, c1, c2, 1.5));
+    }
+    // 80~100%: 줄기 끝에 연한 새잎
+    const tip = q.at(1), a0 = Math.max(.82 + i * .025, along(g, 1));
+    s += G([a0, Math.min(a0 + .06, 1)], [tip.x, tip.y], leafS(tip.x, tip.y, 8, 4, tip.a - 15, '#9ad893', '#7cc276', 0));
+  });
+  // 80~100%: 흙 가장자리에 새로 돋은 작은 싹
+  s += G([.86, .96], [133, 186], leafS(133, 186, 9, 4.2, -35, '#8fd08a', '#74bb70', -1) + leafS(133, 186, 8, 4, 35, '#8fd08a', '#74bb70', 1));
+  return s;
+}
+
+/* --- 남천나무 (11월 한정): 마디 있는 가는 줄기 여러 대, 작은 잎이 모인 겹잎이 층층이,
+       위쪽부터 빨강 → 주홍 → 주황 → 노랑으로 물들고 아래는 초록, 줄기 끝에 빨간 열매 송이 --- */
+function nandinaAutumn(y) {
+  if (y < 88)  return '#c8342a';   // 빨강
+  if (y < 106) return '#d9542f';   // 주홍
+  if (y < 124) return '#e8893a';   // 주황
+  if (y < 142) return '#cdb04a';   // 노랑
+  return null;                     // 아래쪽은 초록 그대로
+}
+function nandinaLeaf(x, y, ang, sc, fill) {
+  const L = (len, w) => `<path d="M0 0 Q${len * .45} ${-w} ${len} 0 Q${len * .45} ${w} 0 0Z" fill="${fill}"/><path d="M1 0 L${len * .82} 0" stroke="#fff" stroke-opacity=".25" stroke-width=".6"/>`;
+  return `<g transform="translate(${x} ${y}) rotate(${ang.toFixed(1)}) scale(${sc})"><path d="M0 0 L22 0" stroke="#7d6d3c" stroke-width="1.1"/>` +
+    `<g transform="translate(3 0) rotate(-70)">${L(11, 4)}</g><g transform="translate(3 0) rotate(70)">${L(11, 4)}</g>` +
+    `<g transform="translate(9 0) rotate(-56)">${L(13, 4.4)}</g><g transform="translate(9 0) rotate(56)">${L(13, 4.4)}</g>` +
+    `<g transform="translate(15.5 0) rotate(-42)">${L(12.5, 4.2)}</g><g transform="translate(15.5 0) rotate(42)">${L(12.5, 4.2)}</g>` +
+    `<g transform="translate(21 0)">${L(14, 4.6)}</g></g>`;
+}
+function nandinaPanicle(x, y, berry) {
+  const pts = [[0, -8], [-4, -6], [4, -6.5], [-6, -2.5], [6, -3], [-2.5, -11], [3, -11.5], [0, -14.8], [-5.6, -9.6], [5.6, -9.2]];
+  let s = `<g transform="translate(${x} ${y})"><path d="M0 0 L0 -12.5 M0 -4 L-5.5 -2.5 M0 -4 L5.5 -3 M0 -7.5 L-5.6 -9.6 M0 -7.5 L5.6 -9.2" stroke="#8a7444" stroke-width=".8" fill="none"/>`;
+  pts.forEach(([px, py]) => {
+    s += berry
+      ? `<circle cx="${px}" cy="${py}" r="2.7" fill="#d4302a"/><circle cx="${px + .4}" cy="${py + .5}" r="2.7" fill="#000" opacity=".08"/><circle cx="${px - .9}" cy="${py - .9}" r=".85" fill="#fff" opacity=".65"/>`
+      : `<circle cx="${px}" cy="${py}" r="1.6" fill="#fffaf0" stroke="#e6dcc0" stroke-width=".4"/><circle cx="${px}" cy="${py}" r=".55" fill="#efcd5c"/>`;
+  });
+  return s + `</g>`;
+}
+function buildNandina() {
+  const cane = '#8a7444';
+  let s = seed() + sprout([0, .1, .24, .34], '#9ccb7c', '#7a8f45');
+  const canes = [
+    { c: Q(100, 190, 98, 140, 93, 68),   g: [.1, .48] },
+    { c: Q(100, 190, 106, 145, 115, 84), g: [.18, .52] },
+    { c: Q(100, 190, 92, 160, 76, 110),  g: [.3, .56] },
+    { c: Q(100, 190, 109, 165, 128, 122), g: [.34, .6] }
+  ];
+  canes.forEach(o => { s += D(o.g, o.c.d, cane, 3); });
+  // 대나무처럼 생긴 마디
+  canes.forEach(o => [.25, .5, .72].forEach(f => {
+    const p = o.c.at(f), st = along(o.g, f);
+    s += G([st, st + .04], [p.x, p.y], `<ellipse cx="${p.x}" cy="${p.y}" rx="2.4" ry=".9" transform="rotate(${(p.a + 90).toFixed(1)} ${p.x} ${p.y})" fill="#6b5a32"/>`);
+  }));
+  // 겹잎이 줄기 위쪽에 층층이 — 초록으로 자란 뒤 높은 곳부터 물듦
+  const spots = [];
+  canes.forEach(o => [[.42, 1, .78], [.6, -1, .86], [.78, 1, .92], [.92, -1, .95], [1, -1, .9], [1, 1, .88]].forEach(([f, side, sc]) => spots.push([o, f, side, sc])));
+  spots.forEach(([o, f, side, sc]) => {
+    const p = o.c.at(f), st = Math.max(along(o.g, f), f < .5 ? 0 : .3);
+    const ang = p.a + side * (f === 1 ? 40 : 62);
+    s += G([st, Math.min(st + .14, .82)], [p.x, p.y], nandinaLeaf(p.x, p.y, ang, sc, '#6f9a4e'));
+    const col = nandinaAutumn(p.y);
+    if (col) { const a0 = .6 + clamp01((p.y - 60) / 100) * .22; s += G([a0, a0 + .1], [p.x, p.y], nandinaLeaf(p.x, p.y, ang, sc, col), 'fade'); }
+  });
+  // 60~80%: 하얀 꽃송이 → 80~100%: 빨간 열매 송이
+  [canes[0], canes[1], canes[2]].forEach((o, i) => {
+    const p = o.c.at(1), a0 = .62 + i * .03;
+    s += G([a0, a0 + .08, .8 + i * .02, .86 + i * .02], [p.x, p.y], nandinaPanicle(p.x, p.y, false));
+    s += G([.82 + i * .03, .94 + i * .02], [p.x, p.y], nandinaPanicle(p.x, p.y, true));
+  });
+  return s;
+}
+
+/* --- 귤나무: 줄기와 가지, 윤기 나는 타원형 잎, 하얀 귤꽃 → 초록 열매 → 주황빛 귤 --- */
+function ovalLeaf(x, y, ang, len, fill) {
+  return `<g transform="translate(${x} ${y}) rotate(${ang.toFixed(1)})"><path d="M0 0 Q${(len * .45).toFixed(2)} ${(-len * .36).toFixed(2)} ${len} 0 Q${(len * .45).toFixed(2)} ${(len * .36).toFixed(2)} 0 0Z" fill="${fill}"/><path d="M1.5 0 L${(len * .85).toFixed(2)} 0" stroke="#cfe6bf" stroke-opacity=".45" stroke-width=".9"/><path d="M${(len * .25).toFixed(2)} ${(-len * .12).toFixed(2)} Q${(len * .45).toFixed(2)} ${(-len * .2).toFixed(2)} ${(len * .65).toFixed(2)} ${(-len * .12).toFixed(2)}" stroke="#fff" stroke-opacity=".28" stroke-width="1.2" fill="none"/></g>`;
+}
+function citrusFlower(x, y) {
+  let s = `<g transform="translate(${x} ${y})"><path d="M0 0 L0 -4" stroke="#6b8f4a" stroke-width="1.2"/><g transform="translate(0 -6.5)">`;
+  for (let k = 0; k < 5; k++) s += `<ellipse cx="0" cy="-3.7" rx="2.5" ry="3.9" transform="rotate(${k * 72})" fill="#fffdf4" stroke="#e5dcc3" stroke-width=".5"/>`;
+  return s + `<circle r="1.9" fill="#f3d36b"/></g></g>`;
+}
+function citrusFruit(x, y, ripe) {
+  return `<g transform="translate(${x} ${y})"><path d="M0 0 L0 5" stroke="#6b8f4a" stroke-width="1.3"/><circle cx="0" cy="11" r="6.9" fill="${ripe ? '#f39a2b' : '#86b45a'}"/>` +
+    (ripe ? `<circle cx="2.6" cy="13" r=".5" fill="#d97b17"/><circle cx="-1.6" cy="14.6" r=".5" fill="#d97b17"/><circle cx="3.4" cy="9.4" r=".5" fill="#d97b17"/>` : '') +
+    `<ellipse cx="-2.3" cy="8.6" rx="2.2" ry="1.7" fill="#fff" opacity=".38"/><circle cx="0" cy="4.6" r="1.1" fill="#6b8f4a"/><ellipse cx="3" cy="4.2" rx="2.9" ry="1.3" transform="rotate(-25 3 4.2)" fill="#5f9c48"/></g>`;
+}
+function buildTangerine() {
+  const bark = '#8b6a48', leafD = '#4c8a3c', leafM = '#5f9c48';
+  let s = seed() + sprout([0, .1, .24, .34], '#8cc276', '#6b8f4a');
+  const trunk = { c: Q(100, 190, 98, 134, 100, 70), g: [.1, .46] };
+  const br = [
+    branchFrom(trunk, .45, 82, 128, 60, 116, [.3, .46]),
+    branchFrom(trunk, .53, 120, 120, 141, 106, [.34, .5]),
+    branchFrom(trunk, .66, 86, 100, 68, 84, [.42, .56]),
+    branchFrom(trunk, .74, 116, 94, 132, 80, [.44, .58])
+  ];
+  s += D(trunk.g, trunk.c.d, bark, 5.2);
+  br.forEach(b => { s += D(b.g, b.c.d, bark, 3.2); });
+  // 20~40%: 줄기 아래쪽에 작은 잎
+  [[.16, 1], [.26, -1], [.35, 1]].forEach(([f, side]) => {
+    const p = trunk.c.at(f), st = along(trunk.g, f);
+    s += G([st, st + .1], [p.x, p.y], ovalLeaf(p.x, p.y, p.a + side * 58, 12, leafM));
+  });
+  // 40~60%: 가지마다 잎이 무성해짐
+  let k = 0;
+  [...br.map(b => [b, [.25, .45, .65, .85, 1]]), [trunk, [.6, .72, .84, .94, 1]]].forEach(([b, fs]) => fs.forEach(f => {
+    const p = b.c.at(f), st = Math.max(.4, along(b.g, f)), side = (k++ % 2) ? 1 : -1;
+    const ang = f === 1 ? p.a + side * 22 : p.a + side * 60;
+    s += G([st, Math.min(st + .12, .76)], [p.x, p.y], ovalLeaf(p.x, p.y, ang, 19 + (k % 3), k % 3 ? leafD : leafM));
+    s += G([st + .02, Math.min(st + .14, .78)], [p.x, p.y], ovalLeaf(p.x, p.y, ang - side * (f === 1 ? 44 : 110), 17, k % 2 ? leafM : leafD));
+  }));
+  // 60~80%: 하얀 귤꽃
+  [[br[0], .8], [br[1], .8], [br[2], .9], [br[3], .9], [trunk, .92], [br[0], .5], [br[1], .55]].forEach(([b, f], i) => {
+    const p = b.c.at(f), a = .6 + i * .02;
+    s += G([a, a + .08, .78 + i * .01, .84 + i * .01], [p.x, p.y], citrusFlower(p.x, p.y));
+  });
+  // 80~100%: 초록 열매가 맺히고 주황빛으로 익음
+  [[br[0], .9], [br[1], .9], [br[2], .8], [br[3], .85], [br[0], .5], [br[1], .55]].forEach(([b, f], i) => {
+    const p = b.c.at(f), a = .78 + i * .012;
+    s += G([a, a + .08], [p.x, p.y], citrusFruit(p.x, p.y, false));
+    s += G([.86 + i * .015, .93 + i * .01], [p.x, p.y], citrusFruit(p.x, p.y, true), 'fade');
+  });
+  return s;
+}
+
+const BUILDERS = {
+  primrose: buildPrimrose, nemophila: buildBlueStar, monstera: buildMonstera, rosemary: buildMint,
+  maple: buildNandina, cotton: buildCotton, tangerine: buildTangerine
+};
+
+/* --- 휴식: 잎 끝에서 떨어지는 물방울이 유리병에 모여 '맑은 물'이 됨 --- */
+const JAR = 'M66 112 Q58 116 58 128 L58 222 Q58 236 72 236 L128 236 Q142 236 142 222 L142 128 Q142 116 134 112 Z';
+function restSVG(level = 0, idSuffix = 'live') {
+  const clip = `sg-jar-${idSuffix}`, h = 6 + level * 104, y = 234 - h;
+  return `<svg class="rest-svg" viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs><clipPath id="${clip}"><path d="${JAR}"/></clipPath>
+      <linearGradient id="${clip}-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cdeaf6"/><stop offset="1" stop-color="#8fcbe6"/></linearGradient></defs>
+    <ellipse cx="100" cy="242" rx="52" ry="5" fill="#5b4a32" opacity=".12"/>
+    <path d="M24 28 Q68 18 99 41" stroke="#8b6a48" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    <path d="M58 24 Q63 12 76 13 Q72 25 58 24Z" fill="#8fc274"/>
+    <path d="M40 26 Q38 38 46 44 Q50 34 40 26Z" fill="#a3cf87"/>
+    <path d="M99 41 C88 47 90 59 100 67 C110 59 112 47 99 41Z" fill="#78a872"/>
+    <path d="M99.5 43 Q100 55 100 65" stroke="#d9edc4" stroke-opacity=".6" stroke-width="1" fill="none"/>
+    <path class="drop d1" d="M100 70 q-3 5 0 7.5 q3 -2.5 0 -7.5z" fill="#9fd3ee"/>
+    <path class="drop d2" d="M100 70 q-3 5 0 7.5 q3 -2.5 0 -7.5z" fill="#9fd3ee"/>
+    <g clip-path="url(#${clip})"><rect class="water" x="50" y="${y.toFixed(1)}" width="100" height="${(h + 4).toFixed(1)}" fill="url(#${clip}-g)"/>
+      <ellipse class="water-top" cx="100" cy="${y.toFixed(1)}" rx="44" ry="3" fill="#e6f6fc"/></g>
+    <path d="${JAR}" fill="#f4fafb" fill-opacity=".3" stroke="#a9c6cf" stroke-width="2.2"/>
+    <rect x="68" y="98" width="64" height="12" rx="4" fill="#e9f3f5" stroke="#a9c6cf" stroke-width="2"/>
+    <path d="M68 130 L68 214" stroke="#fff" stroke-opacity=".75" stroke-width="5" stroke-linecap="round"/>
+    <rect x="79" y="156" width="42" height="22" rx="4" fill="#f6eedc" stroke="#d9c8a6"/>
+    <text x="100" y="171" text-anchor="middle" font-size="10.5" fill="#6b604b" font-family="Gowun Dodum, 'Noto Sans KR', sans-serif">맑은 물</text>
+  </svg>`;
+}
+
+/** 식물 SVG 문자열 생성 (pot: 화분 포함 여부, p: 진행률) */
+function plantSVG(type, { pot = true, p = 1, cls = '' } = {}) {
+  BP = p;
+  const body = BUILDERS[type]();
+  BP = 1;
+  const vb = pot ? '0 0 200 250' : '0 0 200 200';
+  return `<svg class="plant-svg ${cls}" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${pot ? potSVG(type) : groundSVG()}<g class="sway">${body}</g></svg>`;
+}
+// 완성된 모습은 자주 쓰므로 캐시
+const STATIC = {};
+function staticSVG(type, pot) {
+  const k = type + (pot ? '_pot' : '_ground');
+  return STATIC[k] || (STATIC[k] = plantSVG(type, { pot, p: 1 }));
+}
+/** 실시간 성장 반영 */
+function collectParts(root) {
+  return [...root.querySelectorAll('.gp')].map(el => ({ el, g: el.dataset.g.split(',').map(Number), k: el.dataset.k }));
+}
+function applyGrowth(parts, p) {
+  for (const part of parts) {
+    const v = growthValues(part.g, part.k, p);
+    const st = part.el.style;
+    st.opacity = v.opacity.toFixed(3);
+    if (part.k === 'draw') st.strokeDashoffset = v.dash.toFixed(4);
+    if (v.scale !== undefined) st.transform = `scale(${v.scale.toFixed(4)})`;
+  }
+}
+
+/* =========================================================
+   5. 알림음 (Web Audio로 만든 부드러운 차임)
+   - 타이머가 돌아가는 동안 종료 시각에 미리 예약해 두어
+     백그라운드 탭에서도 정확한 때에 울립니다.
+   ========================================================= */
+const Sound = {
+  ctx: null, nodes: [], scheduledFor: null,
+  ensure() {
+    if (!this.ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      try { this.ctx = new AC(); } catch (e) { return null; }
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+    return this.ctx;
+  },
+  chimeAt(delaySec) {
+    const ctx = this.ensure(); if (!ctx) return;
+    const t0 = ctx.currentTime + Math.max(0.05, delaySec);
+    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+      const t = t0 + i * 0.2;
+      [['sine', 1, 0.13], ['triangle', 2, 0.025]].forEach(([wave, mul, vol]) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = wave; o.frequency.value = f * mul;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(vol, t + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
+        o.connect(g).connect(ctx.destination);
+        o.start(t); o.stop(t + 1.9);
+        this.nodes.push(o);
+      });
+    });
+  },
+  cancel() { this.nodes.forEach(n => { try { n.stop(); } catch (e) {} }); this.nodes = []; this.scheduledFor = null; },
+  scheduleForTimer(t) {
+    this.cancel();
+    if (!state.settings.sound || !t || t.status !== 'running' || !this.ctx) return;
+    const rem = (timerEnd(t) - Date.now()) / 1000;
+    if (rem <= 0) return;
+    this.chimeAt(rem);
+    this.scheduledFor = t.id;
+  }
+};
+
+/* =========================================================
+   6. 타이머 — 실제 경과 시간(Date.now) 기준
+   timer = { id, kind:'study'|'rest', type, durationMs, startedAt, status, anchor, accumulated, boosts }
+   공부 타이머와 휴식 타이머는 동시에 하나만 돌아갑니다.
+   ========================================================= */
+function elapsedOf(t, now = Date.now()) {
+  return t.accumulated + (t.status === 'running' ? Math.max(0, now - t.anchor) : 0);
+}
+function timerEnd(t) { return t.anchor + (t.durationMs - t.accumulated); }
+const isStudy = t => !!t && t.kind === 'study';
+const isRest = t => !!t && t.kind === 'rest';
+const bubbleFor = t => isRest(t) ? restBubble : studyBubble;
+function studyMode() { return isStudy(state.timer) ? state.timer.status : (state.done ? 'done' : 'idle'); }
+function restMode() { return isRest(state.timer) ? state.timer.status : (state.restDone ? 'done' : 'idle'); }
+
+function startStudy() {
+  if (state.timer) { toast(isRest(state.timer) ? '휴식 중이에요. 휴식을 마치거나 그만둔 뒤 시작할 수 있어요.' : '이미 공부 중이에요.'); return; }
+  const type = state.settings.selected;
+  if (!canGrow(type)) { toast(isOwned(type) ? '지금은 키울 수 없는 식물이에요.' : '상점에서 모종을 먼저 사 주세요.'); return; }
+  const now = Date.now();
+  const t = { id: 'ss_' + uid(), kind: 'study', type, durationMs: PLANTS[type].minutes * 60000, startedAt: now,
+              status: 'running', anchor: now, accumulated: 0, boosts: { nutrient: false, water: false } };
+  Sound.ensure(); saveTimer(t); Sound.scheduleForTimer(t);
+  state.done = null;
+  buildStage(type, 0);
+  studyBubble.say(pickMessage(type, true), true); studyBubble.schedule();
+  refreshAll();
+}
+function startRest() {
+  if (state.timer) { toast(isStudy(state.timer) ? '공부 타이머가 진행 중이에요. 공부를 마치거나 중단한 뒤 쉴 수 있어요.' : '이미 쉬는 중이에요.'); return; }
+  const now = Date.now();
+  const t = { id: 'rs_' + uid(), kind: 'rest', type: 'rest', durationMs: REST_MINUTES * 60000, startedAt: now,
+              status: 'running', anchor: now, accumulated: 0 };
+  Sound.ensure(); saveTimer(t); Sound.scheduleForTimer(t);
+  state.restDone = null;
+  restBubble.say(pickRestMessage(true), true); restBubble.schedule();
+  refreshAll();
+}
+function pauseTimer() {
+  const t = state.timer; if (!t || t.status !== 'running') return;
+  const now = Date.now();
+  if (elapsedOf(t, now) >= t.durationMs) { completeTimer(t); return; }
+  saveTimer({ ...t, accumulated: elapsedOf(t, now), status: 'paused', anchor: null });
+  Sound.cancel();
+  const B = bubbleFor(t); B.stop();
+  B.say(isRest(t) ? '잠깐 멈췄어. 편할 때 다시 쉬자.' : '잠깐 쉬어도 괜찮아. 여기서 기다릴게.');
+  refreshAll();
+}
+function resumeTimer() {
+  const t = state.timer; if (!t || t.status !== 'paused') return;
+  Sound.ensure();
+  const nt = { ...t, status: 'running', anchor: Date.now() };
+  saveTimer(nt); Sound.scheduleForTimer(nt);
+  const B = bubbleFor(nt);
+  B.say(isRest(nt) ? '다시 천천히 쉬어 보자.' : '다시 시작! 천천히 이어 가 보자.'); B.schedule();
+  refreshAll();
+}
+/** 중단 — 반드시 확인창. 공부를 중단하면 식물은 심어지지 않고, 사용한 아이템은 돌려줌 */
+function askStop() {
+  const t = state.timer; if (!t) return;
+  const el = elapsedOf(t), p = clamp01(el / t.durationMs);
+  if (isRest(t)) {
+    openModal({ art: restSVG(p, 'modal'), title: '휴식을 그만둘까요?',
+      body: `<p>지금 그만두면 맑은 물을 받을 수 없어요.</p><p class="sub">지금까지 ${fmtMS(el)} 동안 쉬었어요.</p>`,
+      actions: [ { label: '계속 쉬기', autofocus: true },
+        { label: '그만두기', cls: 'danger', onClick: () => {
+            if (!state.timer || state.timer.id !== t.id) return;
+            saveTimer(null); Sound.cancel(); restBubble.stop();
+            restBubble.say('괜찮아. 쉬고 싶을 때 언제든 와.');
+            refreshAll(); toast('휴식을 그만뒀어요.');
+          } } ] });
+    return;
+  }
+  const b = t.boosts || {};
+  const used = b.nutrient && b.water ? '영양제와 맑은 물' : b.nutrient ? '영양제' : b.water ? '맑은 물' : '';
+  openModal({
+    art: plantSVG(t.type, { pot: true, p }),
+    title: '공부를 중단할까요?',
+    body: `<p>지금 중단하면 ${josa(PLANTS[t.type].name, '은', '는')} 완성되지 않고<br>정원에도 심어지지 않아요.</p>
+           <p class="sub">지금까지 ${fmtMS(el)} 동안 자랐어요.${used ? `<br>사용한 ${josa(used, '은', '는')} 돌려 드려요.` : ''}</p>`,
+    actions: [ { label: '계속 공부하기', autofocus: true },
+      { label: '중단하기', cls: 'danger', onClick: () => {
+          if (!state.timer || state.timer.id !== t.id) return;
+          const bb = state.timer.boosts || {};
+          if (bb.nutrient || bb.water) updateWallet(w => { if (bb.nutrient) w.nutrients++; if (bb.water) w.water++; }, 'refund_' + t.id);
+          saveTimer(null); Sound.cancel(); studyBubble.stop();
+          buildStage(state.settings.selected, 0);
+          studyBubble.say('괜찮아. 다음에 다시 키워 보자.');
+          refreshAll(); toast('공부를 중단했어요.');
+        } } ]
+  });
+}
+function completeTimer(t) { if (isRest(t)) finishRest(t); else finishStudy(t); }
+
+/** 저장소의 타이머가 이 타이머와 같은지 확인 — 다른 탭에서 이미 처리했다면 화면만 동기화 */
+function claimTimer(t) {
+  const stored = Store.read(LS_KEYS.timer, null);
+  if (stored && stored.id === t.id) return true;
+  state.timer = validTimer(stored) ? normalizeTimer(stored) : null;
+  state.records = Store.read(LS_KEYS.records, {}) || {};
+  state.wallet = loadWallet();
+  timerEndedElsewhere(t);
+  syncStageFromState(); refreshAll();
+  return false;
+}
+function finishChime(t, end) {
+  const live = Date.now() - end < 90000;
+  if (state.settings.sound && live && Sound.scheduledFor !== t.id) Sound.chimeAt(0);
+  Sound.scheduledFor = null;
+  return live;
+}
+
+/** 공부 완료 — 중복 저장 방지, 코인 지급, 정원에 추가, 축하 */
+function finishStudy(t) {
+  if (!claimTimer(t)) return;
+  const end = t.status === 'running' ? timerEnd(t) : Date.now();
+  const boosts = { nutrient: !!(t.boosts && t.boosts.nutrient), water: !!(t.boosts && t.boosts.water) };
+  const coins = coinsFor(t.type, boosts);
+  const gift = giftFor(t.type, t.id);
+  const rec = { id: t.id, type: t.type, startedAt: t.startedAt, completedAt: end, minutes: PLANTS[t.type].minutes, coins, boosts };
+  if (gift) rec.gift = gift;
+  const added = addRecord(rec);
+  if (added) updateWallet(w => { w.coins += coins; if (gift === 'water') w.water++; else if (gift === 'nutrient') w.nutrients++; }, 'earn_' + t.id);   // 기록이 새로 저장될 때만 코인 지급
+  saveTimer(null);
+  const live = finishChime(t, end);
+  studyBubble.stop();
+  state.done = { type: t.type, at: end };
+  state.justPlanted = added ? rec.id : null;
+  if (stageType !== t.type || !live) buildStage(t.type, 0);
+  requestAnimationFrame(() => requestAnimationFrame(() => applyGrowth(stageParts, 1)));
+  studyBubble.say(DONE_MSG[t.type]);
+  celebrate(t.type);
+  refreshAll();
+  document.title = `${josa(PLANTS[t.type].name, '이', '가')} 다 자랐어요! · 나의 공부 정원`;
+  if (added) showStudyDone(t.type, boosts, end, live, true, gift);
+}
+/** 식물 완성 축하 창 — 사용자가 닫을 때까지 계속 보임 */
+function showStudyDone(type, boosts, end, live, withCount, gift) {
+  const P = PLANTS[type]; if (!P) return;
+  boosts = boosts || {};
+  const coins = coinsFor(type, boosts);
+  const parts = [`기본 ${P.coins}`];
+  if (boosts.nutrient) parts.push(`영양제 +${bonusFor(type, 'nutrient')}`);
+  if (boosts.water) parts.push(`맑은 물 +${bonusFor(type, 'water')}`);
+  openModal({
+    art: staticSVG(type, true),
+    title: live ? `${josa(P.name, '이', '가')} 다 자랐어요!` : `자리를 비운 사이 ${josa(P.name, '이', '가')} 다 자랐어요`,
+    body: `<p>${P.minutes}분 공부 완료! 오늘의 정원에 심었어요.</p>
+           <div class="rewards"><div class="reward">${ICON.coin}<b>+${coins}</b>코인</div>${gift ? `<div class="reward gift ${gift}">${ICON[gift]}<b>+1</b>${gift === 'water' ? '맑은 물' : '영양제'}</div>` : ''}</div>
+           ${gift === 'nutrient' ? '<p class="lucky">10% 행운! 남천나무가 영양제를 줬어요.</p>' : gift ? '<p class="sub">남천나무가 맑은 물을 선물했어요.</p>' : ''}
+           <p class="sub">${parts.join(' · ')}<br>${fmtClock(end)}에 완성${withCount ? ` · 오늘 ${daySummary(dateKey()).total}번째 식물` : ''}</p>`,
+    actions: [ { label: '정원 보러 가기', cls: 'soft', onClick: () => { state.gardenKey = null; switchView('garden'); } },
+               { label: '계속 공부하기', autofocus: true } ]
+  });
+}
+
+/** 휴식 완료 — 맑은 물 1병 (같은 휴식으로는 한 번만 지급) */
+function finishRest(t) {
+  if (!claimTimer(t)) return;
+  const end = t.status === 'running' ? timerEnd(t) : Date.now();
+  let added = false;
+  updateWallet(w => {
+    if (w.rewardedRest.includes(t.id)) return;
+    w.water += 1; added = true;
+    w.rewardedRest = [...w.rewardedRest, t.id].slice(-60);
+    const k = dateKey(end); w.restLog[k] = (w.restLog[k] || 0) + 1;
+  }, 'rest_' + t.id);
+  saveTimer(null);
+  const live = finishChime(t, end);
+  restBubble.stop();
+  state.restDone = { at: end };
+  restBubble.say('잘 쉬었어! 맑은 물을 받아 가.');
+  refreshAll();
+  document.title = '휴식 끝! 맑은 물을 얻었어요 · 나의 공부 정원';
+  if (added) showRestDone(live);
+}
+function showRestDone(live) {
+  openModal({
+    art: restSVG(1, 'modal'),
+    title: live ? '맑은 물을 얻었어요!' : '자리를 비운 사이 휴식이 끝났어요',
+    body: `<p>${REST_MINUTES}분 휴식 완료! 맑은 물 한 병을 받았어요.</p>
+           <p class="sub">공부할 때 식물에게 주면 완성 코인이 조금 더 늘어나요.<br>지금 맑은 물 ${state.wallet.water}병 보유</p>`,
+    actions: [ { label: '닫기', cls: 'soft' }, { label: '공부하러 가기', autofocus: true, onClick: () => switchView('study') } ]
+  });
+}
+/** 다른 탭이나 다른 기기에서 타이머가 먼저 끝났을 때도 이 화면에 완성 모습과 축하 창을 보여 줌 */
+function timerEndedElsewhere(prev) {
+  bubbleFor(prev).stop();
+  const done = elapsedOf(prev) >= prev.durationMs - 5000;
+  if (!done) {
+    Sound.cancel();
+    toast(isRest(prev) ? '다른 화면에서 휴식을 그만뒀어요.' : '다른 화면에서 공부를 중단했어요.');
+    return;
+  }
+  const end = prev.status === 'running' ? timerEnd(prev) : Date.now();
+  const live = Date.now() - end < 90000;
+  if (isRest(prev)) {
+    state.restDone = { at: end };
+    restBubble.say('잘 쉬었어! 맑은 물을 받아 가.');
+    document.title = '휴식 끝! 맑은 물을 얻었어요 · 나의 공부 정원';
+    setTimeout(() => showRestDone(live), 300);   // 지갑이 맞춰진 뒤에 표시
+    return;
+  }
+  state.done = { type: prev.type, at: end };
+  if (stageType !== prev.type) buildStage(prev.type, 0);
+  requestAnimationFrame(() => requestAnimationFrame(() => applyGrowth(stageParts, 1)));
+  studyBubble.say(DONE_MSG[prev.type]);
+  celebrate(prev.type);
+  document.title = `${josa(PLANTS[prev.type].name, '이', '가')} 다 자랐어요! · 나의 공부 정원`;
+  showStudyDone(prev.type, prev.boosts, end, live, false, giftFor(prev.type, prev.id));
+}
+
+/** 공부 중 아이템 주기 (영양제 / 맑은 물) — 식물마다 각각 한 번씩 */
+function useItem(key) {
+  const t = state.timer;
+  if (!isStudy(t)) { toast(isRest(t) ? '휴식 중에는 줄 수 없어요. 공부할 때 주세요.' : '공부를 시작한 뒤에 줄 수 있어요.'); return; }
+  if (t.boosts && t.boosts[key]) { toast(`이번 식물에는 이미 ${josa(ITEMS[key].name, '을', '를')} 줬어요.`); return; }
+  const field = key === 'nutrient' ? 'nutrients' : 'water';
+  let ok = false;
+  updateWallet(w => { if (w[field] > 0) { w[field]--; ok = true; } }, `use_${key}_${t.id}`);
+  if (!ok) {
+    toast(key === 'nutrient' ? '영양제가 없어요. 상점에서 살 수 있어요.' : `맑은 물이 없어요. ${REST_MINUTES}분 휴식을 마치면 얻을 수 있어요.`);
+    refreshAll(); return;
+  }
+  saveTimer({ ...t, boosts: { ...(t.boosts || {}), [key]: true } });
+  itemEffect(key);
+  studyBubble.say(key === 'nutrient' ? '영양제 고마워! 힘이 솟아.' : '시원한 물이다. 고마워!');
+  toast(`${josa(ITEMS[key].name, '을', '를')} 줬어요. 다 자라면 +${bonusFor(t.type, key)}코인`);
+  refreshAll();
+}
+
+/* =========================================================
+   7. 말풍선 — 1~3분 간격 무작위, 페이드 인/아웃 (공부용 · 휴식용)
+   ========================================================= */
+function pickMessage(type, first) {
+  if (first) return ['좋아, 같이 자라 보자!', '시작이 반이야. 천천히 가 보자.', '씨앗을 심었어. 이제 함께 자라 보자!'][Math.floor(Math.random() * 3)];
+  const pool = [...MESSAGES.common, ...MESSAGES[type], ...MESSAGES[type]].filter(m => m !== studyBubble.last);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+function pickRestMessage(first) {
+  if (first) return `좋아, ${REST_MINUTES}분 동안 푹 쉬자.`;
+  const pool = REST_MESSAGES.filter(m => m !== restBubble.last);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+function makeBubble(boxSel, textSel, kind) {
+  return {
+    timer: null, fadeTimer: null, last: '',
+    say(text, instant) {
+      const el = $(boxSel), tx = $(textSel);
+      this.last = text;
+      clearTimeout(this.fadeTimer);
+      if (instant || !tx.textContent) { tx.textContent = text; el.classList.remove('hide'); return; }
+      el.classList.add('hide');
+      this.fadeTimer = setTimeout(() => { tx.textContent = text; el.classList.remove('hide'); }, 650);
+    },
+    schedule() {
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => {
+        const t = state.timer;
+        if (t && t.kind === kind && t.status === 'running') {
+          this.say(kind === 'rest' ? pickRestMessage() : pickMessage(t.type));
+          this.schedule();
+        }
+      }, 60000 + Math.random() * 120000);   // 1~3분
+    },
+    stop() { clearTimeout(this.timer); }
+  };
+}
+const studyBubble = makeBubble('#bubble', '#bubbleText', 'study');
+const restBubble = makeBubble('#restBubble', '#restBubbleText', 'rest');
+
+/* =========================================================
+   8. 공부 화면 렌더링
+   ========================================================= */
+let stageParts = [], stageType = null;
+
+function buildStage(type, p) {
+  const host = $('#plantStage');
+  host.innerHTML = plantSVG(type, { pot: true, p: 0, cls: 'live' });
+  stageParts = collectParts(host);
+  stageType = type;
+  // 다음 프레임에 실제 진행률로 → 부드럽게 자라나는 전환
+  requestAnimationFrame(() => requestAnimationFrame(() => applyGrowth(stageParts, p)));
+}
+function studyType() { return isStudy(state.timer) ? state.timer.type : (state.done ? state.done.type : state.settings.selected); }
+function syncStageFromState() {
+  const type = studyType();
+  if (stageType === type) return;
+  const p = isStudy(state.timer) ? clamp01(elapsedOf(state.timer) / state.timer.durationMs) : (state.done ? 1 : 0);
+  buildStage(type, p);
+}
+
+/** 식물 고르기 카드 (보유하지 않은 모종은 잠금, 기간 한정은 표시) */
+let plantCardsSig = '';
+function renderPlantCards() {
+  const growing = isStudy(state.timer) ? state.timer.type : null;
+  const sel = growing || state.settings.selected;
+  const types = ORDER.filter(t => !PLANTS[t].limited || isOwned(t) || inSeason(t));
+  const sig = types.map(t => t + isOwned(t) + inSeason(t)).join() + sel + !!growing;
+  if (sig === plantCardsSig) return;
+  plantCardsSig = sig;
+  $('#plantList').innerHTML = types.map(type => {
+    const P = PLANTS[type], owned = isOwned(type), season = inSeason(type);
+    let meta = `<b>${P.minutes}분</b><span class="dot-sep">·</span>${ICON.coin}${P.coins}`;
+    if (!owned) meta = `${ICON.lock}<span>상점 ${P.price}코인</span>`;
+    else if (P.limited) meta = `<b>${P.minutes}분</b><span class="dot-sep">·</span><span class="ltd">${season ? '11월 한정' : '기간 종료'}</span>`;
+    const cls = ['plant-card', P.limited ? 'limited' : '', type === sel ? 'selected' : '', !owned ? 'locked' : '', owned && !season ? 'off-season' : ''].join(' ').trim();
+    return `<button class="${cls}" type="button" data-type="${type}" aria-pressed="${type === sel}" aria-disabled="${!!growing || !canGrow(type)}"
+        title="${P.name} · ${P.minutes}분${!owned ? ' · 상점에서 살 수 있어요' : ''}">
+        <span class="pc-art">${staticSVG(type, true)}</span>
+        <span class="pc-info"><span class="pc-name">${P.name}</span><span class="pc-meta">${meta}</span></span></button>`;
+  }).join('');
+  $('#dexCount').textContent = `${ORDER.filter(isOwned).length}/${ORDER.length}`;
+}
+function selectPlant(type) {
+  if (isStudy(state.timer) || !canGrow(type)) return;
+  const changed = state.settings.selected !== type || state.done;
+  state.settings.selected = type; saveSettings();
+  state.done = null;
+  if (changed || stageType !== type) buildStage(type, 0);
+  studyBubble.say(IDLE_MSG[type]);
+  refreshAll();
+}
+
+/** 시작 · 일시정지 · 재개 · 중단 버튼 (공부/휴식 공용) */
+const CTRL_ICON = {
+  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>',
+  pause: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4.5" width="4.2" height="15" rx="1.2"/><rect x="13.8" y="4.5" width="4.2" height="15" rx="1.2"/></svg>',
+  stop: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="5.5" y="5.5" width="13" height="13" rx="2.5"/></svg>'
+};
+function paintControls(el, mode, kind) {
+  const key = mode + '|' + kind;
+  if (el.dataset.mode === key) return;
+  el.dataset.mode = key;
+  const rest = kind === 'rest', main = rest ? ' blue' : '';
+  if (mode === 'idle' || mode === 'done') {
+    const label = rest ? (mode === 'done' ? '한 번 더 쉬기' : '휴식 시작') : (mode === 'done' ? '다시 공부 시작' : '공부 시작');
+    el.innerHTML = `<button class="btn${main}" type="button" data-act="start">${CTRL_ICON.play}${label}</button>`;
+  } else {
+    el.innerHTML = (mode === 'running'
+      ? `<button class="btn soft" type="button" data-act="pause">${CTRL_ICON.pause}일시정지</button>`
+      : `<button class="btn${main}" type="button" data-act="resume">${CTRL_ICON.play}재개</button>`)
+      + `<button class="btn danger" type="button" data-act="stop">${CTRL_ICON.stop}${rest ? '그만두기' : '중단'}</button>`;
+  }
+}
+/** 20칸 진행 바 */
+function paintBar(bar, p, mode) {
+  if (!bar.children.length) bar.innerHTML = '<div class="seg"></div>'.repeat(20);
+  const segs = bar.children, filled = Math.floor(p * 20 + 1e-9);
+  for (let i = 0; i < 20; i++) {
+    segs[i].className = 'seg' + (i < filled ? ' on' : (i === filled && (mode === 'running' || mode === 'paused') && p < 1 ? ' cur' : ''));
+  }
+  bar.setAttribute('aria-valuenow', Math.floor(p * 100));
+}
+
+/** 영양제 · 맑은 물 주기 버튼 */
+let itemsSig = '';
+function renderItems() {
+  const t = state.timer, w = state.wallet, type = studyType(), active = isStudy(t);
+  const b = active ? (t.boosts || {}) : {};
+  const sig = [active, b.nutrient, b.water, w.nutrients, w.water, type].join();
+  if (sig === itemsSig) return;
+  itemsSig = sig;
+  const btn = (key, have) => {
+    const used = !!b[key], bonus = bonusFor(type, key);
+    const dim = !used && (!active || !have);
+    const label = used ? `${ITEMS[key].name} 줬어요` : `${ITEMS[key].name} 주기`;
+    const sub = used ? `다 자라면 +${bonus}코인` : `+${bonus}코인 · ${have}${ITEMS[key].unit} 보유`;
+    return `<button class="item-btn ${key}${used ? ' used' : ''}${dim ? ' dim' : ''}" type="button" data-item="${key}" aria-pressed="${used}">
+      ${ICON[key]}<span>${label}<small>${sub}</small></span></button>`;
+  };
+  $('#itemsRow').innerHTML = btn('nutrient', w.nutrients) + btn('water', w.water);
+}
+
+function stageIndex(p) { return p >= 1 ? 5 : Math.min(4, Math.floor(p * 5)); }
+function stageText(type, idx) { const own = STAGE_TEXT[type]; return own.length === 6 ? own[idx] : (idx < 3 ? STAGE_TEXT.common[idx] : own[idx - 3]); }
+
+/** 매 틱마다 공부 타이머 · 진행률 · 식물 성장 갱신 */
+function updateStage() {
+  const mode = studyMode(), type = studyType(), P = PLANTS[type];
+  const t = isStudy(state.timer) ? state.timer : null;
+  const dur = P.minutes * 60000;
+  let p = 0, remaining = dur, elapsed = 0;
+  if (t) { elapsed = elapsedOf(t); p = clamp01(elapsed / t.durationMs); remaining = t.durationMs - elapsed; }
+  else if (state.done) { p = 1; remaining = 0; elapsed = dur; }
+  if (stageType === type && t) applyGrowth(stageParts, p);
+
+  $('#app').classList.toggle('studying', !!t);
+  $('#stage').classList.toggle('paused-mode', mode === 'paused');
+  $('#stageName').innerHTML = `<span>${P.name}</span><span class="chip">${P.minutes}분 코스</span>`;
+  const idx = stageIndex(p);
+  $('#stagePill').innerHTML = mode === 'idle' ? '씨앗 준비 완료' :
+    (idx === 5 ? '<b>완성</b> · ' + stageText(type, 5) : `<b>${idx + 1}단계</b> · ${stageText(type, idx)}`);
+  $('#stageHint').textContent = mode === 'idle' ? (isRest(state.timer) ? '휴식이 끝나면 공부를 시작할 수 있어요' : '공부 시작을 누르면 씨앗이 싹을 틔워요') :
+    mode === 'paused' ? '일시정지 중 · 재개를 누르면 다시 자라요' :
+    mode === 'done' ? '오늘의 정원에 심었어요' : '';
+  $('#timer').textContent = fmtMMSS(remaining);
+  paintBar($('#progressBar'), p, mode);
+  $('#progressPct').textContent = `성장률 ${Math.floor(p * 100)}%`;
+  $('#progressElapsed').textContent = `${fmtMS(elapsed)} / ${fmtMS(dur)}`;
+  paintControls($('#controls'), mode, 'study');
+  renderItems();
+}
+
+/* =========================================================
+   8-2. 휴식 화면 — 15분 동안 맑은 물이 병에 모임
+   ========================================================= */
+function setWater(svg, p) {
+  const w = svg && svg.querySelector('.water'), top = svg && svg.querySelector('.water-top');
+  if (!w) return;
+  const h = 6 + p * 104, y = 234 - h;
+  w.setAttribute('y', y.toFixed(1)); w.setAttribute('height', (h + 4).toFixed(1)); top.setAttribute('cy', y.toFixed(1));
+}
+function updateRest() {
+  const mode = restMode(), t = isRest(state.timer) ? state.timer : null;
+  const dur = REST_MINUTES * 60000;
+  let p = 0, el = 0, rem = dur;
+  if (t) { el = elapsedOf(t); p = clamp01(el / t.durationMs); rem = t.durationMs - el; }
+  else if (mode === 'done') { p = 1; el = dur; rem = 0; }
+  const host = $('#restArt');
+  if (!host.firstElementChild) host.innerHTML = restSVG(p, 'live');
+  setWater(host.firstElementChild, p);
+  const st = $('#restStage');
+  st.classList.toggle('running', mode === 'running');
+  st.classList.toggle('paused-mode', mode === 'paused');
+  $('#restPill').innerHTML = `${ICON.water}맑은 물 <b>${state.wallet.water}</b>병 보유`;
+  $('#restHint').textContent = mode === 'idle' ? (isStudy(state.timer) ? '공부 타이머가 끝나면 쉴 수 있어요' : `${REST_MINUTES}분을 다 쉬면 맑은 물 한 병을 얻어요`) :
+    mode === 'paused' ? '일시정지 중 · 재개를 누르면 다시 모여요' :
+    mode === 'done' ? '맑은 물 한 병을 받았어요' : '물방울이 조금씩 모이고 있어요';
+  $('#restTimer').textContent = fmtMMSS(rem);
+  paintBar($('#restBar'), p, mode);
+  $('#restPct').textContent = `맑은 물 ${Math.floor(p * 100)}%`;
+  $('#restElapsed').textContent = `${fmtMS(el)} / ${fmtMS(dur)}`;
+  paintControls($('#restControls'), mode, 'rest');
+}
+function renderRestSide() {
+  const w = state.wallet;
+  $('#restInv').innerHTML = `
+    <div class="inv">${ICON.water}<div><small>보유한 맑은 물</small><b>${w.water}병</b></div></div>
+    <div class="inv">${ICON.clock}<div><small>오늘 마친 휴식</small><b>${w.restLog[dateKey()] || 0}번</b></div></div>`;
+}
+
+/** 상단 미니 상태 & 브라우저 탭 제목 */
+function updateTopStatus() {
+  const t = state.timer, ms = $('#miniStatus');
+  const own = isRest(t) ? 'rest' : 'study';
+  ms.classList.toggle('show', !!t && state.view !== own);
+  ms.classList.toggle('paused', !!t && t.status === 'paused');
+  ms.classList.toggle('rest', isRest(t));
+  if (t) {
+    const rem = fmtMMSS(t.durationMs - elapsedOf(t));
+    $('#miniStatusName').textContent = isRest(t) ? '휴식' : PLANTS[t.type].name;
+    $('#miniStatusTime').textContent = t.status === 'paused' ? '일시정지' : rem;
+    const what = isRest(t) ? '휴식 중' : `${PLANTS[t.type].name} 키우는 중`;
+    document.title = t.status === 'paused' ? `일시정지 · ${what} — 나의 공부 정원` : `${rem} · ${what}`;
+  } else if (!/다 자랐어요|휴식 끝/.test(document.title)) {
+    document.title = '나의 공부 정원';
+  }
+}
+
+/* =========================================================
+   9. 오늘 통계 & 사이드 미니 정원
+   ========================================================= */
+function renderStats() {
+  const today = dateKey();
+  const sum = daySummary(today);
+  $('#todayLabel').textContent = fmtDateLong(today);
+  $('#statTime').textContent = fmtMinutes(sum.minutes);
+  $('#statCount').textContent = `${sum.total}개`;
+  $('#statCoins').textContent = state.wallet.coins.toLocaleString('ko-KR');
+  const mg = $('#miniGarden');
+  if (!sum.total) mg.innerHTML = '<div class="mini-empty">공부를 마치면 이곳에 식물이 하나씩 심어져요.</div>';
+  else {
+    const max = 12;
+    mg.innerHTML = `<div class="mini-garden">${sum.list.slice(0, max).map(r => PLANTS[r.type] ? staticSVG(r.type, false) : '').join('')}${sum.total > max ? `<span class="more">+${sum.total - max}</span>` : ''}</div>`;
+  }
+  const kinds = ORDER.filter(t => sum.counts[t]);
+  $('#miniCounts').innerHTML = kinds.length ? kinds.map(t => `<span>${PLANTS[t].name} ${sum.counts[t]}</span>`).join('') : '<span>아직 없어요</span>';
+}
+
+/* =========================================================
+   10. 오늘의 정원 화면 (날짜별 보기 · 삭제)
+   ========================================================= */
+/* --- 정원 하늘: 낮 / 밤 --- */
+function skyMode(d = new Date()) { const h = d.getHours(); return h >= 6 && h < 18 ? 'day' : 'night'; }
+function daySkySVG() {
+  const cloud = (x, y, s, c) => `<g transform="translate(${x} ${y}) scale(${s})"><g class="sky-cloud ${c}" opacity=".92">
+    <ellipse cx="0" cy="0" rx="48" ry="15" fill="#fff"/><ellipse cx="-20" cy="-9" rx="22" ry="15" fill="#fff"/>
+    <ellipse cx="10" cy="-16" rx="26" ry="20" fill="#fff"/><ellipse cx="34" cy="-5" rx="18" ry="12" fill="#fff"/>
+    <ellipse cx="0" cy="6" rx="44" ry="7" fill="#e3f1f9"/></g></g>`;
+  return `<svg viewBox="0 0 1200 380" preserveAspectRatio="xMidYMin slice">
+    <circle cx="1090" cy="64" r="74" fill="#fff8d6" opacity=".35"/><circle cx="1090" cy="64" r="48" fill="#fff2b6" opacity=".6"/>
+    <circle cx="1090" cy="64" r="30" fill="#ffd966"/><circle cx="1082" cy="56" r="10" fill="#fff0a8" opacity=".7"/>
+    ${cloud(170, 66, 1, 'c1')}${cloud(520, 40, .78, 'c2')}${cloud(830, 98, .62, 'c3')}</svg>`;
+}
+function nightSkySVG() {
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  let stars = '';
+  for (let i = 0; i < 70; i++) {
+    const x = (rnd() * 1200).toFixed(1), y = (rnd() * 370).toFixed(1), r = (.6 + rnd() * 1.3).toFixed(2);
+    stars += `<circle class="sky-star${i % 3 === 0 ? ' tw' : ''}" cx="${x}" cy="${y}" r="${r}" fill="#fffbe8" style="animation-delay:${(-rnd() * 4.5).toFixed(2)}s"/>`;
+  }
+  return `<svg viewBox="0 0 1200 380" preserveAspectRatio="xMidYMin slice">
+    <defs><mask id="sg-moon"><rect x="0" y="0" width="1200" height="380" fill="#fff"/><circle cx="1102" cy="56" r="27" fill="#000"/></mask></defs>
+    ${stars}
+    <circle cx="1088" cy="68" r="64" fill="#fdf6d8" opacity=".07"/><circle cx="1088" cy="68" r="44" fill="#fdf6d8" opacity=".1"/>
+    <circle cx="1088" cy="68" r="30" fill="#fbf1c9" mask="url(#sg-moon)"/>
+    <path d="M300 40 l2 6 6 2 -6 2 -2 6 -2 -6 -6 -2 6 -2z M760 110 l1.5 4.5 4.5 1.5 -4.5 1.5 -1.5 4.5 -1.5 -4.5 -4.5 -1.5 4.5 -1.5z" fill="#fffbe8" opacity=".9"/></svg>`;
+}
+let skyShown = '';
+function renderSky() {
+  const mode = skyMode();
+  if (skyShown === mode) return;
+  skyShown = mode;
+  const f = $('#gardenFrame');
+  f.classList.toggle('sky-day', mode === 'day');
+  f.classList.toggle('sky-night', mode === 'night');
+  $('#gardenSky').innerHTML = mode === 'day' ? daySkySVG() : nightSkySVG();
+  const chip = $('#skyChip');
+  chip.className = 'sky-chip' + (mode === 'night' ? ' night' : '');
+  chip.innerHTML = mode === 'day'
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>낮 정원'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>밤 정원';
+}
+function renderGarden() {
+  renderSky();
+  const today = dateKey();
+  const key = state.gardenKey || today;
+  const isToday = key === today;
+  const sum = daySummary(key);
+  $('#gardenTitle').textContent = fmtDateLong(key);
+  $('#gardenTodayBadge').style.display = isToday ? '' : 'none';
+  $('#nextDay').disabled = key >= today;
+  $('#todayBtn').disabled = isToday;
+
+  // 기록이 있는 날짜 칩
+  const keys = Object.keys(state.records).filter(k => (state.records[k] || []).length);
+  if (!keys.includes(today)) keys.push(today);
+  if (!keys.includes(key)) keys.push(key);
+  keys.sort().reverse();
+  $('#dateChips').innerHTML = keys.map(k => `<button class="date-chip${k === key ? ' active' : ''}" type="button" data-key="${k}">${k === today ? '오늘' : fmtDateShort(k)} <b>${dayRecords(k).length}</b></button>`).join('');
+
+  // 식물별 개수 · 총 공부 시간 · 받은 코인
+  $('#gardenSummary').innerHTML = ORDER.filter(t => sum.counts[t]).map(t => `
+    <div class="sum">${staticSVG(t, false)}<div><small>${PLANTS[t].name}</small><b>${sum.counts[t]}${PLANTS[t].unit}</b></div></div>`).join('') +
+    `<div class="sum total"><div><small>${isToday ? '오늘의' : '이 날의'} 총 공부 시간</small><b>${fmtMinutes(sum.minutes)}</b></div></div>
+     <div class="sum total"><div><small>완성한 식물</small><b>${sum.total}개</b></div></div>
+     <div class="sum total coin">${ICON.coin}<div><small>받은 코인</small><b>${sum.coins}</b></div></div>`;
+
+  // 화단
+  const bed = $('#gardenBed');
+  if (!sum.total) {
+    bed.innerHTML = `<div class="garden-empty"><span class="sign">${isToday ? '아직 비어 있는 정원이에요' : '이 날은 심은 식물이 없어요'}</span>${isToday ? '공부를 완료하면 식물이 여기에 하나씩 심어져요.' : ''}</div>`;
+  } else {
+    bed.innerHTML = sum.list.map(r => {
+      const P = PLANTS[r.type]; if (!P) return '';
+      const jitter = (hashNum(r.id) % 9) - 4;
+      return `<button class="g-plant${r.id === state.justPlanted ? ' new' : ''}" type="button" data-id="${r.id}" data-key="${key}"
+        style="width:${P.tileW}px;margin-left:${jitter}px" aria-label="${P.name}, ${fmtClock(r.completedAt)}에 심음, ${r.minutes}분 공부">
+        ${staticSVG(r.type, false).replace('<svg ', `<svg style="height:${P.gardenH}px;width:${P.gardenH}px" `)}</button>`;
+    }).join('');
+  }
+  state.justPlanted = null;
+
+  // 공부 기록 목록
+  $('#logSummary').textContent = `공부 기록 자세히 보기 (${sum.total})`;
+  $('#logList').innerHTML = sum.total ? sum.list.filter(r => PLANTS[r.type]).map(r => `
+    <li><span class="muted">${fmtClock(r.startedAt)} – ${fmtClock(r.completedAt)}</span>
+      <span><span class="dotc" style="background:${PLANTS[r.type].color};border:1px solid rgba(0,0,0,.12)"></span>${PLANTS[r.type].name}${boostIcons(r)}</span>
+      <span class="log-min">${r.minutes}분</span>
+      <span class="log-coin">${r.coins != null ? `+${r.coins}코인` : ''}</span>
+      <button class="log-del" type="button" data-id="${r.id}" data-key="${key}">삭제</button></li>`).join('')
+    : '<li><span class="muted">기록이 없어요.</span></li>';
+  $('#clearDayBtn').disabled = !sum.total;
+  $('#clearDayBtn').style.opacity = sum.total ? '' : '.5';
+}
+function boostIcons(r) {
+  const b = r.boosts || {};
+  return (b.nutrient ? `<span class="boost" title="영양제">${ICON.nutrient}</span>` : '') + (b.water ? `<span class="boost" title="맑은 물">${ICON.water}</span>` : '');
+}
+
+/** 정원 식물 툴팁 (마우스 오버 / 키보드 포커스) */
+function showTip(btn) {
+  const r = findRecord(btn.dataset.key, btn.dataset.id); if (!r || !PLANTS[r.type]) return;
+  const tip = $('#tooltip'), b = r.boosts || {};
+  const items = [b.nutrient && '영양제', b.water && '맑은 물'].filter(Boolean).join(' · ');
+  tip.innerHTML = `<b>${PLANTS[r.type].name}</b>
+    <div><span>심은 시각</span><span>${fmtClock(r.completedAt)}</span></div>
+    <div><span>공부 시간</span><span>${r.minutes}분</span></div>
+    <div><span>공부 시작</span><span>${fmtClock(r.startedAt)}</span></div>
+    ${r.coins != null ? `<div><span>받은 코인</span><span>${r.coins}</span></div>` : ''}
+    ${items ? `<div><span>준 아이템</span><span>${items}</span></div>` : ''}
+    ${r.gift ? `<div><span>받은 선물</span><span>${r.gift === 'water' ? '맑은 물' : '영양제'}</span></div>` : ''}`;
+  const svg = btn.querySelector('svg');
+  const rect = (svg || btn).getBoundingClientRect();
+  tip.classList.add('show');
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let x = rect.left + rect.width / 2 - tw / 2;
+  x = Math.max(8, Math.min(window.innerWidth - tw - 8, x));
+  let y = rect.top + rect.height * 0.12 - th - 4;
+  if (y < 8) y = rect.bottom + 8;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+function hideTip() { $('#tooltip').classList.remove('show'); }
+function findRecord(key, id) { return dayRecords(key).find(r => r.id === id); }
+
+/** 식물 하나 삭제 — 2단계 확인 */
+function askDeletePlant(key, id) {
+  const r = findRecord(key, id); if (!r || !PLANTS[r.type]) return;
+  const P = PLANTS[r.type];
+  openModal({
+    art: staticSVG(r.type, true),
+    title: `${P.name}`,
+    body: `<p>${fmtDateShort(key)} ${fmtClock(r.completedAt)}에 심었어요.</p><p class="sub">${fmtClock(r.startedAt)}부터 ${r.minutes}분 공부${r.coins != null ? ` · ${r.coins}코인 받음` : ''}</p>`,
+    actions: [
+      { label: '닫기', cls: 'soft', autofocus: true },
+      { label: '이 식물 삭제', cls: 'danger', keepOpen: true, onClick: () => confirmDelete(key, id) }
+    ]
+  });
+}
+function confirmDelete(key, id) {
+  const r = findRecord(key, id); if (!r) return;
+  const name = PLANTS[r.type] ? PLANTS[r.type].name : '식물';
+  openModal({
+    title: '정말 삭제할까요?',
+    body: `<p>${josa(name, '과', '와')} ${r.minutes}분의 공부 기록이 함께 삭제돼요.<br>삭제한 기록은 되돌릴 수 없어요.</p><p class="sub">이미 받은 코인은 그대로 남아요.</p>`,
+    actions: [
+      { label: '취소', cls: 'soft', autofocus: true },
+      { label: '삭제하기', cls: 'danger', onClick: () => { deleteRecord(key, id); refreshAll(); toast('기록을 삭제했어요.'); } }
+    ]
+  });
+}
+
+/* =========================================================
+   10-2. 상점 — 모종 · 영양제 (맑은 물은 휴식으로만)
+   ========================================================= */
+function renderShop() {
+  const w = state.wallet;
+  $('#shopWallet').innerHTML = `<span>${ICON.coin}<b>${w.coins.toLocaleString('ko-KR')}</b>코인</span>
+    <span>${ICON.nutrient}영양제 <b>${w.nutrients}</b></span><span>${ICON.water}맑은 물 <b>${w.water}</b></span>`;
+  const nov = isNovember(), banner = $('#shopBanner');
+  banner.className = 'shop-banner' + (nov ? '' : ' off');
+  banner.innerHTML = nov
+    ? `${ICON.maple}<div><b>11월 한정 모종 · 남천나무</b><br>빨강부터 초록까지 물드는 잎과 빨간 열매가 예쁜 나무예요. 다 키우면 코인과 함께 맑은 물(90%)이나 영양제(10%)를 선물로 줘요. 11월 30일까지만 사고 키울 수 있어요.</div><span class="dday">${novemberDaysLeft()}일 남음</span>`
+    : `${ICON.maple}<div><b>남천나무는 11월 한정 모종이에요</b><br>11월이 되면 상점에 다시 찾아와요.${isOwned('maple') ? ' 이미 가지고 있으니 11월에 다시 키울 수 있어요.' : ''}</div>`;
+  $('#shopSeeds').innerHTML = ORDER.filter(t => !PLANTS[t].base).map(seedCard).join('');
+  $('#shopItems').innerHTML = nutrientCard() + waterCard();
+}
+function seedCard(type) {
+  const P = PLANTS[type], w = state.wallet, owned = isOwned(type), season = inSeason(type);
+  const price = `<span class="price">${ICON.coin}${P.price}</span>`;
+  let foot;
+  if (owned) foot = `<span class="owned-badge">${ICON.check}보유 중</span>` +
+    (season ? `<button class="btn small" type="button" data-grow="${type}">키우러 가기</button>` : `<span class="si-note">11월에 다시 키울 수 있어요</span>`);
+  else if (!season) foot = price + `<button class="btn small" type="button" disabled>11월 한정</button>`;
+  else if (w.coins < P.price) foot = price + `<button class="btn small" type="button" disabled>${P.price - w.coins}코인 부족</button>`;
+  else foot = price + `<button class="btn small" type="button" data-buy="${type}">구매하기</button>`;
+  return `<article class="shop-item${owned ? ' owned' : ''}" id="shop-${type}">
+    ${P.limited ? '<span class="ribbon">11월 한정</span>' : ''}
+    <div class="si-art">${staticSVG(type, true)}</div>
+    <div class="si-no">No.${P.no} · 모종</div>
+    <div class="si-name">${P.name}</div><div class="si-latin">${P.latin}</div>
+    <p class="si-desc">${P.desc}</p>
+    <div class="si-meta"><span class="chip">${ICON.clock}${P.minutes}분</span><span class="chip">다 자라면 ${ICON.coin}${P.coins}</span>${P.gift ? '<span class="chip gift">선물 · 맑은 물 90% · 영양제 10%</span>' : ''}</div>
+    <div class="si-foot">${foot}</div></article>`;
+}
+function nutrientCard() {
+  const w = state.wallet, it = ITEMS.nutrient, lack = w.coins < it.price;
+  return `<article class="shop-item item" id="shop-nutrient">
+    <div class="si-art icon">${ICON.nutrient}</div>
+    <div class="si-no">아이템</div><div class="si-name">영양제</div><div class="si-latin">상점에서 구매</div>
+    <p class="si-desc">공부 중인 식물에게 주면 다 자랐을 때 코인을 50% 더 받아요 (최소 +${it.min}). 식물 하나에 한 번씩 줄 수 있어요.</p>
+    <div class="si-meta"><span class="chip">보유 ${w.nutrients}개</span><span class="chip">목화 +${bonusFor('cotton', 'nutrient')} · 귤나무 +${bonusFor('tangerine', 'nutrient')}</span></div>
+    <div class="si-foot"><span class="price">${ICON.coin}${it.price}</span>
+      <button class="btn small" type="button" data-buy-item="nutrient" ${lack ? 'disabled' : ''}>${lack ? `${it.price - w.coins}코인 부족` : '구매하기'}</button></div></article>`;
+}
+function waterCard() {
+  const w = state.wallet, it = ITEMS.water;
+  return `<article class="shop-item item" id="shop-water">
+    <div class="si-art icon water">${ICON.water}</div>
+    <div class="si-no">아이템</div><div class="si-name">맑은 물</div><div class="si-latin">휴식으로 얻기</div>
+    <p class="si-desc">상점에서는 살 수 없어요. 휴식 ${REST_MINUTES}분을 끝까지 마치면 한 병씩 생겨요. 공부 중에 주면 코인을 20% 더 받아요 (최소 +${it.min}).</p>
+    <div class="si-meta"><span class="chip">보유 ${w.water}병</span><span class="chip">영양제와 함께 줄 수 있어요</span></div>
+    <div class="si-foot"><span class="si-note">${ICON.water}휴식으로만 얻기</span><button class="btn small blue" type="button" data-go="rest">휴식하러 가기</button></div></article>`;
+}
+function buySeed(type) {
+  const P = PLANTS[type];
+  if (isOwned(type) || !inSeason(type)) return;
+  if (state.wallet.coins < P.price) { toast('코인이 부족해요.'); return; }
+  openModal({
+    art: staticSVG(type, true),
+    title: `${P.name} 모종을 살까요?`,
+    body: `<p><b>${P.price}코인</b>을 사용해요. ${P.minutes}분 공부하면 다 자라요.</p>
+           <p class="sub">구매 후 남는 코인: ${state.wallet.coins - P.price}${P.limited ? '<br>남천나무는 11월에만 키울 수 있어요.' : ''}</p>`,
+    actions: [ { label: '취소', cls: 'soft', autofocus: true },
+      { label: '구매하기', keepOpen: true, onClick: () => {
+          let ok = false;
+          updateWallet(w => { if (!w.owned[type] && w.coins >= P.price) { w.coins -= P.price; w.owned[type] = true; ok = true; } }, 'seed_' + type);
+          refreshAll();
+          if (!ok) { closeModal(); toast('코인이 부족해요.'); return; }
+          openModal({ art: staticSVG(type, true), title: `${P.name} 모종을 샀어요!`,
+            body: `<p>이제 ${josa(P.name, '을', '를')} 키울 수 있어요.</p><p class="sub">식물 고르기 카드에 추가됐어요.</p>`,
+            actions: [ { label: '닫기', cls: 'soft' }, { label: '지금 키우러 가기', autofocus: true, onClick: () => goGrow(type) } ] });
+        } } ]
+  });
+}
+function buyItem(key) {
+  const price = ITEMS[key].price;
+  let ok = false;
+  updateWallet(w => { if (w.coins >= price) { w.coins -= price; w.nutrients++; ok = true; } });
+  toast(ok ? `영양제를 샀어요. (보유 ${state.wallet.nutrients}개)` : '코인이 부족해요.');
+  refreshAll();
+}
+function goGrow(type) {
+  if (isStudy(state.timer)) toast('지금 키우는 식물을 마친 뒤 고를 수 있어요.');
+  else if (canGrow(type)) selectPlant(type);
+  switchView('study');
+}
+function flashShopItem(type) {
+  const el = document.getElementById('shop-' + type); if (!el) return;
+  el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+}
+
+/* =========================================================
+   11. 모달 · 토스트 · 축하 효과
+   ========================================================= */
+function openModal({ art = '', title, body, actions }) {
+  hideTip();
+  $('#modalArt').innerHTML = art;
+  $('#modalTitle').textContent = title;
+  $('#modalBody').innerHTML = body;
+  const box = $('#modalActions');
+  box.innerHTML = '';
+  let focusEl = null;
+  actions.forEach(a => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn ' + (a.cls || ''); b.textContent = a.label;
+    b.addEventListener('click', () => { if (!a.keepOpen) closeModal(); if (a.onClick) a.onClick(); });
+    box.appendChild(b);
+    if (a.autofocus) focusEl = b;
+  });
+  $('#modalBack').classList.add('show');
+  setTimeout(() => (focusEl || box.firstChild).focus(), 50);
+}
+function closeModal() { $('#modalBack').classList.remove('show'); }
+function modalOpen() { return $('#modalBack').classList.contains('show'); }
+
+let toastTimer = null;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function celebrate(type) {
+  const stage = $('#stage');
+  stage.classList.remove('celebrate'); void stage.offsetWidth; stage.classList.add('celebrate');
+  setTimeout(() => stage.classList.remove('celebrate'), 2800);
+  if (reducedMotion()) return;
+  const host = $('#plantStage');
+  const colors = {
+    primrose: ['#f6d247', '#fbe68a', '#a9cf87'], nemophila: ['#86b2ef', '#b8d3f8', '#f3f7ff'],
+    monstera: ['#78b866', '#a9d58f', '#f2e3a0'], rosemary: ['#6fbf73', '#9ad893', '#e3f5dc'],
+    maple: ['#d4302a', '#e8893a', '#cdb04a'], cotton: ['#fffefa', '#f3bccb', '#a9cf87'],
+    tangerine: ['#f39a2b', '#ffd27a', '#5f9c48']
+  }[type] || ['#a9cf87', '#f2e3a0', '#fff'];
+  for (let i = 0; i < 16; i++) {
+    const s = document.createElement('span');
+    s.className = 'spark';
+    s.style.left = (35 + Math.random() * 30) + '%';
+    s.style.top = (25 + Math.random() * 35) + '%';
+    s.style.background = colors[i % colors.length];
+    s.style.boxShadow = '0 0 0 1px rgba(0,0,0,.06)';
+    s.style.setProperty('--dx', (Math.random() * 180 - 90) + 'px');
+    s.style.setProperty('--dy', (-60 - Math.random() * 110) + 'px');
+    s.style.setProperty('--r', (Math.random() * 360) + 'deg');
+    s.style.animationDelay = (Math.random() * .4) + 's';
+    host.appendChild(s);
+    setTimeout(() => s.remove(), 3000);
+  }
+}
+/** 아이템을 줄 때 식물 위로 물방울 / 영양 방울이 살며시 떨어짐 */
+function itemEffect(key) {
+  if (reducedMotion()) return;
+  const host = $('#plantStage');
+  for (let i = 0; i < 9; i++) {
+    const s = document.createElement('span');
+    s.className = 'fx ' + (key === 'water' ? 'fx-drop' : 'fx-nutri');
+    s.style.left = (40 + Math.random() * 20) + '%';
+    s.style.top = (10 + Math.random() * 14) + '%';
+    s.style.animationDelay = (Math.random() * .7) + 's';
+    host.appendChild(s);
+    setTimeout(() => s.remove(), 2800);
+  }
+}
+
+/* =========================================================
+   12. 화면 전환 · 설정 · 전체 갱신
+   ========================================================= */
+const VIEWS = { study: ['#viewStudy', '#tabStudy'], rest: ['#viewRest', '#tabRest'], shop: ['#viewShop', '#tabShop'], garden: ['#viewGarden', '#tabGarden'] };
+function switchView(v) {
+  if (!VIEWS[v]) return;
+  state.view = v;
+  for (const k in VIEWS) {
+    $(VIEWS[k][0]).classList.toggle('active', k === v);
+    $(VIEWS[k][1]).setAttribute('aria-selected', k === v);
+  }
+  hideTip();
+  refreshAll();
+  window.scrollTo({ top: 0 });
+}
+function renderSoundBtn() {
+  const b = $('#soundBtn'), on = state.settings.sound;
+  b.classList.toggle('off', !on);
+  b.setAttribute('aria-pressed', on);
+  b.title = on ? '완료 알림음 켜짐 (누르면 끄기)' : '완료 알림음 꺼짐 (누르면 켜기)';
+  b.setAttribute('aria-label', b.title);
+  b.innerHTML = on
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 9.5-4.9M18 11v5l1.5 2h-15"/><path d="M10 20.5a2 2 0 0 0 4 0M3 3l18 18"/></svg>';
+}
+function refreshAll() {
+  renderPlantCards();
+  renderStats();
+  renderRestSide();
+  if (state.view === 'garden') renderGarden();
+  if (state.view === 'shop') renderShop();
+  updateStage();
+  updateRest();
+  updateTopStatus();
+}
+
+/* =========================================================
+   13. 메인 루프 — 실제 시간 기준으로 0.25초마다 확인
+   ========================================================= */
+function tick() {
+  const t = state.timer;
+  if (t && t.status === 'running' && elapsedOf(t) >= t.durationMs) { completeTimer(t); return; }
+  // 자정이 지나 날짜가 바뀌면 새 날짜의 정원으로 (12월 1일이 되면 11월 한정 모종도 정리)
+  const today = dateKey();
+  if (today !== state.today) {
+    state.today = today;
+    if (!isStudy(state.timer) && !canGrow(state.settings.selected)) { state.settings.selected = 'primrose'; saveSettings(); state.done = null; }
+    syncStageFromState();
+    refreshAll();
+    return;
+  }
+  updateStage();
+  updateRest();
+  updateTopStatus();
+  if (state.view === 'garden') renderSky();
+}
+
+/* =========================================================
+   14. 이벤트 연결 & 초기화
+   ========================================================= */
+function init() {
+  loadAll();
+  renderSoundBtn();
+
+  // 저장된 타이머 복원 (닫혀 있던 동안 완료 시간이 지났다면 완료 처리)
+  syncStageFromState();
+  refreshAll();
+  studyBubble.say(IDLE_MSG[state.settings.selected], true);
+  restBubble.say(`${REST_MINUTES}분 쉬고 맑은 물을 받아 가.`, true);
+  const t = state.timer;
+  if (t) {
+    if (t.status === 'running' && elapsedOf(t) >= t.durationMs) completeTimer(t);
+    else if (isStudy(t)) {
+      if (t.status === 'running') { studyBubble.say('다시 왔구나! 이어서 자라는 중이야.', true); studyBubble.schedule(); }
+      else studyBubble.say('잠깐 쉬어도 괜찮아. 여기서 기다릴게.', true);
+    } else {
+      switchView('rest');
+      if (t.status === 'running') { restBubble.say('다시 왔구나. 이어서 쉬자.', true); restBubble.schedule(); }
+      else restBubble.say('잠깐 멈췄어. 편할 때 다시 쉬자.', true);
+    }
+  }
+  if (state.migratedCoins > 0) setTimeout(() => toast(`지금까지 키운 식물로 ${state.migratedCoins}코인을 받았어요!`), 600);
+
+  // 공부 · 휴식 버튼
+  const act = { pause: pauseTimer, resume: resumeTimer, stop: askStop };
+  $('#controls').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    (b.dataset.act === 'start' ? startStudy : act[b.dataset.act])();
+  });
+  $('#restControls').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    (b.dataset.act === 'start' ? startRest : act[b.dataset.act])();
+  });
+  $('#itemsRow').addEventListener('click', e => { const b = e.target.closest('[data-item]'); if (b) useItem(b.dataset.item); });
+
+  // 식물 고르기
+  $('#plantList').addEventListener('click', e => {
+    const card = e.target.closest('.plant-card'); if (!card) return;
+    const type = card.dataset.type, P = PLANTS[type];
+    if (isStudy(state.timer)) { toast('공부 중에는 식물을 바꿀 수 없어요.'); return; }
+    if (!isOwned(type)) { switchView('shop'); flashShopItem(type); toast(`${P.name} 모종은 상점에서 ${P.price}코인에 살 수 있어요.`); return; }
+    if (!inSeason(type)) { toast(`${josa(P.name, '은', '는')} 11월에만 키울 수 있어요.`); return; }
+    selectPlant(type);
+  });
+
+  // 탭 · 바로가기
+  document.querySelectorAll('.tab').forEach(tb => tb.addEventListener('click', () => switchView(tb.dataset.view)));
+  $('#goGardenBtn').addEventListener('click', () => { state.gardenKey = null; switchView('garden'); });
+  $('#goShopBtn').addEventListener('click', () => switchView('shop'));
+  $('#accountBtn').addEventListener('click', openAccount);
+  $('#miniStatus').addEventListener('click', () => switchView(isRest(state.timer) ? 'rest' : 'study'));
+  $('#soundBtn').addEventListener('click', () => {
+    state.settings.sound = !state.settings.sound; saveSettings(); renderSoundBtn();
+    if (state.settings.sound) { Sound.ensure(); Sound.chimeAt(0); Sound.nodes = []; Sound.scheduleForTimer(state.timer); toast('완료 알림음을 켰어요.'); }
+    else { Sound.cancel(); toast('완료 알림음을 껐어요.'); }
+  });
+
+  // 상점
+  $('#viewShop').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b || b.disabled) return;
+    if (b.dataset.buy) buySeed(b.dataset.buy);
+    else if (b.dataset.buyItem) buyItem(b.dataset.buyItem);
+    else if (b.dataset.grow) goGrow(b.dataset.grow);
+    else if (b.dataset.go) switchView(b.dataset.go);
+  });
+
+  // 정원: 날짜 이동
+  $('#prevDay').addEventListener('click', () => { state.gardenKey = shiftKey(state.gardenKey || dateKey(), -1); renderGarden(); });
+  $('#nextDay').addEventListener('click', () => {
+    const today = dateKey(), next = shiftKey(state.gardenKey || today, 1);
+    state.gardenKey = next >= today ? null : next; renderGarden();
+  });
+  $('#todayBtn').addEventListener('click', () => { state.gardenKey = null; renderGarden(); });
+  $('#dateChips').addEventListener('click', e => {
+    const c = e.target.closest('.date-chip'); if (!c) return;
+    state.gardenKey = c.dataset.key === dateKey() ? null : c.dataset.key; renderGarden();
+  });
+
+  // 정원: 툴팁 & 클릭 삭제
+  const bed = $('#gardenBed');
+  bed.addEventListener('mouseover', e => { const b = e.target.closest('.g-plant'); if (b) showTip(b); });
+  bed.addEventListener('mouseout', e => { const b = e.target.closest('.g-plant'); if (b && !b.contains(e.relatedTarget)) hideTip(); });
+  bed.addEventListener('focusin', e => { const b = e.target.closest('.g-plant'); if (b) showTip(b); });
+  bed.addEventListener('focusout', hideTip);
+  bed.addEventListener('click', e => { const b = e.target.closest('.g-plant'); if (b) askDeletePlant(b.dataset.key, b.dataset.id); });
+  $('#logList').addEventListener('click', e => { const b = e.target.closest('.log-del'); if (b) confirmDelete(b.dataset.key, b.dataset.id); });
+  window.addEventListener('scroll', hideTip, { passive: true });
+
+  // 정원: 날짜 비우기 / 전체 삭제 (확인창 필수)
+  $('#clearDayBtn').addEventListener('click', () => {
+    const key = state.gardenKey || dateKey(), n = dayRecords(key).length; if (!n) return;
+    openModal({ title: '이 날의 정원을 비울까요?',
+      body: `<p>${fmtDateLong(key)}에 심은 식물 ${n}개와<br>공부 기록이 모두 삭제돼요. 되돌릴 수 없어요.</p><p class="sub">코인과 아이템은 그대로 남아요.</p>`,
+      actions: [{ label: '취소', cls: 'soft', autofocus: true },
+        { label: '비우기', cls: 'danger', onClick: () => { Cloud.deleteRecords(dayRecords(key).map(r => r.id)); delete state.records[key]; saveRecords(); refreshAll(); toast('이 날의 정원을 비웠어요.'); } }] });
+  });
+  $('#clearAllBtn').addEventListener('click', () => {
+    const days = Object.keys(state.records).length;
+    if (!days) { toast('삭제할 기록이 없어요.'); return; }
+    openModal({ title: '모든 기록을 삭제할까요?',
+      body: `<p>지금까지 ${days}일 동안 가꾼 모든 정원과<br>공부 기록이 삭제돼요. 되돌릴 수 없어요.</p><p class="sub">코인 · 아이템 · 산 모종과 진행 중인 타이머는 그대로 남아요.</p>`,
+      actions: [{ label: '취소', cls: 'soft', autofocus: true },
+        { label: '전부 삭제', cls: 'danger', onClick: () => { Cloud.deleteRecords(Object.values(state.records).flat().map(r => r.id)); state.records = {}; saveRecords(); state.gardenKey = null; refreshAll(); toast('모든 기록을 삭제했어요.'); } }] });
+  });
+
+  // 모달: 바깥 클릭 · Esc 닫기
+  $('#modalBack').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+  // 키보드: Esc, Space(공부 · 휴식 화면에서 시작 / 일시정지 / 재개)
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modalOpen()) { closeModal(); return; }
+    if (e.code !== 'Space' || modalOpen() || (state.view !== 'study' && state.view !== 'rest')) return;
+    if (e.target.closest && e.target.closest('button, input, textarea, select, summary, a')) return;
+    e.preventDefault();
+    const kind = state.view, t = state.timer;
+    if (t && t.kind === kind) { if (t.status === 'running') pauseTimer(); else resumeTimer(); }
+    else if (kind === 'rest') startRest(); else startStudy();
+  });
+
+  // 첫 상호작용 때 오디오 잠금 해제 → 새로고침 후에도 종료 알림음 예약
+  const unlock = () => { if (Sound.ensure() && state.timer && Sound.scheduledFor !== state.timer.id) Sound.scheduleForTimer(state.timer); };
+  document.addEventListener('pointerdown', unlock);
+  document.addEventListener('keydown', unlock);
+
+  // 다른 탭과 동기화
+  window.addEventListener('storage', e => {
+    if (e.key === LS_KEYS.timer) {
+      const nt = Store.read(LS_KEYS.timer, null);
+      const prev = state.timer;
+      state.timer = validTimer(nt) ? normalizeTimer(nt) : null;
+      if (prev && (!state.timer || state.timer.id !== prev.id)) timerEndedElsewhere(prev);
+      if (state.timer) Sound.scheduleForTimer(state.timer);
+      syncStageFromState(); refreshAll();
+    } else if (e.key === LS_KEYS.records) {
+      state.records = Store.read(LS_KEYS.records, {}) || {}; refreshAll();
+    } else if (e.key === LS_KEYS.wallet) {
+      state.wallet = loadWallet(); refreshAll();
+    }
+  });
+
+  // 탭이 다시 보이면 즉시 갱신 (백그라운드에서도 실제 시간 기준)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return;
+    tick();
+    if (!state.timer && /다 자랐어요|휴식 끝/.test(document.title)) setTimeout(() => { if (!state.timer) document.title = '나의 공부 정원'; }, 4000);
+  });
+  window.addEventListener('focus', tick);
+
+  setInterval(tick, 250);
+}
+
+/* =========================================================
+   15. 구글 로그인 & 기기 간 동기화 — 화면 쪽 연결부
+   - 실제 Firebase 통신은 맨 아래 <script type="module">에서 합니다.
+   - 로그인하지 않았거나 파일로 열었을 때는 지금처럼 이 기기(localStorage)에만 저장됩니다.
+   - 클라우드 구조 (users/{uid})
+       · 문서 자체        : { timer }            — 진행 중인 타이머 (기기끼리 이어 보기)
+       · records/{기록id} : 완성한 식물 하나     — 같은 id는 한 번만 저장
+       · ledger/{거래id}  : 코인·아이템 변화 한 건 — 지갑은 이 장부의 합계
+         (완성 보상 'earn_타이머id', 휴식 보상 'rest_휴식id' 처럼 id가 정해져 있어서
+          두 기기가 동시에 완료해도 코인이 두 번 들어오지 않습니다)
+   ========================================================= */
+const Cloud = {
+  api: null, user: null, status: 'loading', reason: '', error: '',
+  get on() { return !!(this.api && this.user); },
+  /** 이 기기가 계정의 사본인지 (로그인했던 기기) */
+  get mirrored() { return !!Store.read(LS_KEYS.cloud, null); },
+  /** 연결돼 있으면 바로 올리고, 아직 연결 전이면 보낼 목록에 모아 둠 */
+  send(op) {
+    if (this.on) return this.run(op);
+    if (!this.mirrored) return;
+    let q = Store.read(LS_KEYS.outbox, []) || [];
+    if (op.k === 'timer') q = q.filter(o => o.k !== 'timer');
+    q.push(op); Store.write(LS_KEYS.outbox, q);
+  },
+  run(op) {
+    const a = this.api;
+    if (op.k === 'timer') a.pushTimer(op.t); else if (op.k === 'rec') a.putRecord(op.r);
+    else if (op.k === 'del') a.deleteRecords(op.ids); else if (op.k === 'led') a.ledger(op.id, op.e);
+  },
+  flush() { const q = Store.read(LS_KEYS.outbox, []) || []; Store.remove(LS_KEYS.outbox); q.forEach(op => this.run(op)); return q.length; },
+  pushTimer(t) { this.send({ k: 'timer', t: t || null }); },
+  putRecord(r) { this.send({ k: 'rec', r }); },
+  deleteRecords(ids) { if (ids.length) this.send({ k: 'del', ids }); },
+  ledger(id, e) { if (!emptyDiff(e)) this.send({ k: 'led', id, e }); },
+  set(patch) { Object.assign(this, patch); renderAccount(); }
+};
+
+/** 지갑 변화량 (이전 → 이후) */
+function walletDiff(a, b) {
+  const e = { coins: b.coins - a.coins, nutrients: b.nutrients - a.nutrients, water: b.water - a.water,
+              owned: Object.keys(b.owned).filter(k => b.owned[k] && !a.owned[k]), rest: {} };
+  for (const k in b.restLog) { const d = (b.restLog[k] || 0) - (a.restLog[k] || 0); if (d) e.rest[k] = d; }
+  return e;
+}
+function emptyDiff(e) { return !e.coins && !e.nutrients && !e.water && !e.owned.length && !Object.keys(e.rest).length; }
+/** 장부 → 지갑 */
+function walletFromLedger(entries) {
+  const w = { coins: 0, nutrients: 0, water: 0, owned: {}, rewardedRest: [], restLog: {} };
+  entries.forEach(e => {
+    w.coins += Number(e.coins) || 0; w.nutrients += Number(e.nutrients) || 0; w.water += Number(e.water) || 0;
+    (Array.isArray(e.owned) ? e.owned : []).forEach(t => { w.owned[t] = true; });
+    const r = e.rest && typeof e.rest === 'object' ? e.rest : {};
+    for (const k in r) w.restLog[k] = (w.restLog[k] || 0) + (Number(r[k]) || 0);
+    if (typeof e.id === 'string' && e.id.startsWith('rest_')) w.rewardedRest.push(e.id.slice(5));
+  });
+  return normalizeWallet(w);
+}
+
+/* --- 클라우드 → 이 기기 --- */
+function cloudApplyRecords(map) {
+  state.records = map;
+  Store.write(LS_KEYS.records, map);
+  refreshAll();
+}
+function cloudApplyLedger(entries) {
+  state.wallet = walletFromLedger(entries);
+  Store.write(LS_KEYS.wallet, state.wallet);
+  if (!canGrow(state.settings.selected) && !isStudy(state.timer)) state.settings.selected = 'primrose';
+  plantCardsSig = ''; itemsSig = '';
+  syncStageFromState(); refreshAll();
+}
+/** 다른 기기에서 시작 · 일시정지 · 중단 · 완료한 타이머를 이 기기에 반영 */
+function cloudApplyTimer(rt) {
+  const nt = validTimer(rt) ? normalizeTimer(rt) : null, lt = state.timer;
+  const sig = t => t ? [t.id, t.status, t.anchor, t.accumulated, t.boosts && t.boosts.nutrient, t.boosts && t.boosts.water].join('|') : '';
+  if (sig(nt) === sig(lt)) return;
+  if (nt) Store.write(LS_KEYS.timer, nt); else Store.remove(LS_KEYS.timer);
+  state.timer = nt;
+  if (lt && (!nt || nt.id !== lt.id)) timerEndedElsewhere(lt);
+  if (nt) {
+    Sound.scheduleForTimer(nt);
+    if (isStudy(nt)) state.done = null; else state.restDone = null;
+    if (!lt || lt.id !== nt.id) {
+      const B = bubbleFor(nt);
+      B.say(isRest(nt) ? '다른 기기에서 시작한 휴식이야.' : '다른 기기에서 키우던 식물이야. 이어서 자라는 중!');
+      if (nt.status === 'running') B.schedule();
+    }
+  }
+  syncStageFromState(); refreshAll();
+}
+function cloudErrorText(e) {
+  const code = (e && e.code) || '';
+  if (code === 'auth/unauthorized-domain') return `이 주소(${location.hostname})가 Firebase에 등록되지 않았어요. Firebase 콘솔 → Authentication → 설정 → 승인된 도메인에 추가해 주세요.`;
+  if (code === 'auth/operation-not-allowed') return 'Firebase 콘솔 → Authentication → 로그인 방법에서 Google을 사용 설정해 주세요.';
+  if (code === 'auth/network-request-failed' || code === 'unavailable') return '인터넷 연결을 확인해 주세요. 연결되면 자동으로 다시 맞춰져요.';
+  if (code === 'permission-denied') return 'Firestore 보안 규칙을 확인해 주세요. 안내해 드린 규칙을 붙여넣고 [게시]를 눌러야 해요.';
+  if (code === 'not-found' || code === 'failed-precondition') return 'Firestore 데이터베이스가 아직 만들어지지 않았어요. Firebase 콘솔 → Firestore Database에서 만들어 주세요.';
+  return `문제가 생겼어요. (${code || (e && e.message) || '알 수 없는 오류'})`;
+}
+function cloudAlert(e) {
+  openModal({ title: '로그인 설정을 확인해 주세요', body: `<p>${escapeHTML(cloudErrorText(e))}</p>`, actions: [{ label: '확인', autofocus: true }] });
+}
+function escapeHTML(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+/* --- 상단 계정 버튼 --- */
+const G_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2.1-1.9 3.3-4.8 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.7c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.2a6.6 6.6 0 0 1 0-4.3V7.1H2.1a11 11 0 0 0 0 9.9z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7.1l3.7 2.8C6.7 7.3 9.1 5.4 12 5.4z"/></svg>';
+const CLOUD_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18h10.5a4 4 0 0 0 .6-8A6 6 0 0 0 6.6 9.2 4.4 4.4 0 0 0 7 18z"/></svg>';
+const SYNC_TEXT = { synced: '동기화됨', syncing: '동기화 중', offline: '오프라인', error: '확인 필요', loading: '연결 중' };
+function renderAccount() {
+  const b = $('#accountBtn'); if (!b) return;
+  const c = Cloud;
+  b.className = 'icon-btn account';
+  if (c.user) {
+    const name = c.user.displayName || c.user.email || '내 계정';
+    const dot = { synced: 'ok', offline: 'off', error: 'err' }[c.status] || 'busy';
+    b.innerHTML = (c.user.photoURL ? `<img src="${escapeHTML(c.user.photoURL)}" alt="" referrerpolicy="no-referrer">` : `<span class="avatar">${escapeHTML(name.slice(0, 1))}</span>`) +
+      `<span class="acc-dot ${dot}"></span><span class="acc-label">${SYNC_TEXT[c.status] || '동기화 중'}</span>`;
+    b.title = `${name} · ${SYNC_TEXT[c.status] || ''}`;
+    b.classList.add('signed');
+  } else if (c.status === 'loading') {
+    b.innerHTML = `${CLOUD_ICON}<span class="acc-label">연결 중</span>`; b.title = '로그인 기능을 불러오는 중';
+  } else if (c.status === 'unavailable') {
+    b.innerHTML = `${CLOUD_ICON}<span class="acc-label">로그인</span>`; b.title = '이 기기에만 저장 중'; b.classList.add('off');
+  } else {
+    b.innerHTML = `${G_ICON}<span class="acc-label">구글 로그인</span>`; b.title = '구글 계정으로 로그인하면 모든 기기에서 이어져요';
+  }
+}
+function openAccount() {
+  const c = Cloud, sum = Object.values(state.records).reduce((n, l) => n + (l || []).length, 0);
+  if (c.user) {
+    const name = c.user.displayName || '내 계정';
+    openModal({
+      art: c.user.photoURL ? `<img class="modal-avatar" src="${escapeHTML(c.user.photoURL)}" alt="" referrerpolicy="no-referrer">` : '',
+      title: name,
+      body: `<p>${escapeHTML(c.user.email || '')}</p>
+             <p class="sub">${c.status === 'error' ? escapeHTML(c.error) : `상태: ${SYNC_TEXT[c.status] || '동기화 중'} · 이 계정으로 로그인한 폰 · 컴퓨터 · 패드에서 같은 정원이 보여요.`}</p>`,
+      actions: [ { label: '닫기', cls: 'soft', autofocus: true },
+        { label: '로그아웃', cls: 'danger', keepOpen: true, onClick: () => openModal({
+            title: '로그아웃할까요?',
+            body: '<p>기록은 계정에 안전하게 남아 있어요.<br>이 기기에서는 다시 로그인할 때까지 보이지 않아요.</p>',
+            actions: [ { label: '취소', cls: 'soft', autofocus: true }, { label: '로그아웃', cls: 'danger', onClick: () => c.api.signOut() } ] }) } ]
+    });
+  } else if (c.status === 'unavailable') {
+    openModal({ title: '구글 로그인',
+      body: c.reason === 'preview'
+        ? '<p>이 미리보기 페이지에서는 구글 로그인을 쓸 수 없어요.</p><p class="sub">Netlify에 올린 내 사이트에서 로그인하면 폰 · 컴퓨터 · 패드의 기록이 하나로 이어져요.<br>미리보기의 기록은 이 브라우저에만 저장돼요.</p>'
+        : c.reason === 'file'
+        ? '<p>파일을 더블클릭해서 열면 구글 로그인을 쓸 수 없어요.</p><p class="sub">인터넷 주소(https://…)로 올린 사이트에서 로그인하면<br>폰 · 컴퓨터 · 패드의 기록이 하나로 이어져요. 지금은 이 기기에만 저장돼요.</p>'
+        : '<p>로그인 기능을 불러오지 못했어요.</p><p class="sub">인터넷 연결을 확인한 뒤 새로고침해 주세요. 그동안은 이 기기에만 저장돼요.</p>',
+      actions: [{ label: '확인', autofocus: true }] });
+  } else if (c.status === 'loading' || !c.api) {
+    toast('로그인 기능을 불러오는 중이에요. 잠시 후 다시 눌러 주세요.');
+  } else {
+    openModal({ title: '구글 계정으로 로그인',
+      body: `<p>로그인하면 폰 · 컴퓨터 · 패드 어디서든<br>같은 정원과 코인, 진행 중인 타이머를 볼 수 있어요.</p>
+             ${sum || state.wallet.coins ? `<p class="sub">지금 이 기기의 기록(식물 ${sum}개 · 코인 ${state.wallet.coins})은 로그인한 계정으로 옮겨져요.</p>` : ''}`,
+      actions: [ { label: '취소', cls: 'soft' }, { label: '구글로 로그인', autofocus: true, onClick: () => c.api.signIn() } ] });
+  }
+}
+
+/* --- 모듈 스크립트가 쓰는 연결 통로 --- */
+window.SG = {
+  Cloud, dateKey, toast, cloudErrorText, cloudAlert,
+  deviceId() { let d = Store.read(LS_KEYS.device, null); if (!d) { d = 'd' + uid(); Store.write(LS_KEYS.device, d); } return d; },
+  mirrorUid: () => Store.read(LS_KEYS.cloud, null),
+  setMirror: u => Store.write(LS_KEYS.cloud, u),
+  localData: () => ({ records: state.records, wallet: state.wallet, timer: state.timer }),
+  applyRecords: cloudApplyRecords, applyLedger: cloudApplyLedger, applyTimer: cloudApplyTimer,
+  /** 이 기기의 기록 비우기 (로그아웃 · 다른 계정의 사본일 때) */
+  clearLocal(keepPage) {
+    [LS_KEYS.records, LS_KEYS.wallet, LS_KEYS.timer, LS_KEYS.cloud, LS_KEYS.outbox].forEach(k => Store.remove(k));
+    if (!keepPage) return;
+    if (state.timer) { Sound.cancel(); studyBubble.stop(); restBubble.stop(); }
+    state.records = {}; state.timer = null; state.done = null; state.restDone = null;
+    state.wallet = normalizeWallet({}); Store.write(LS_KEYS.wallet, state.wallet);
+    plantCardsSig = ''; syncStageFromState(); refreshAll();
+  }
+};
+renderAccount();
+
+init();
+</script>
+<script type="module">
+/* =========================================================
+   16. Firebase 연결 (구글 로그인 · Firestore 실시간 동기화)
+   - 인터넷 주소(https://)로 열었을 때만 동작합니다. 파일로 열면 이 기기에만 저장됩니다.
+   - Firestore 오프라인 저장을 켜 두어서, 인터넷이 끊겨도 기록되고 연결되면 자동으로 올라갑니다.
+   ========================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyBb3xRFQQzneRHuXkzhGAdeAkHzn_HbfMo",
+  authDomain: "time-planting.firebaseapp.com",
+  projectId: "time-planting",
+  storageBucket: "time-planting.firebasestorage.app",
+  messagingSenderId: "344208565651",
+  appId: "1:344208565651:web:e4d4e2e3cb7fcdffd17466"
+};
+const SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
+const SG = window.SG, Cloud = SG.Cloud, DEVICE = SG.deviceId();
+
+if (!/^https?:$/.test(location.protocol)) {
+  Cloud.set({ status: 'unavailable', reason: 'file' });
+} else {
+  try {
+    const [appMod, A, F] = await Promise.all([
+      import(SDK + 'firebase-app.js'), import(SDK + 'firebase-auth.js'), import(SDK + 'firebase-firestore.js')
+    ]);
+    start(appMod.initializeApp(firebaseConfig), A, F);
+  } catch (e) {
+    console.error('[공부 정원] Firebase를 불러오지 못했어요', e);
+    Cloud.set({ status: 'unavailable', reason: 'load' });
+  }
+}
+
+function start(app, A, F) {
+  const auth = A.getAuth(app);
+  let db;
+  try { db = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); }
+  catch (e) { db = F.getFirestore(app); }
+  const provider = new A.GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+
+  let uid = null, unsubs = [], pendingTimer = null;
+  const clean = o => JSON.parse(JSON.stringify(o));
+  const userDoc = () => F.doc(db, 'users', uid);
+  const sub = (name, id) => id ? F.doc(db, 'users', uid, name, id) : F.collection(db, 'users', uid, name);
+  const fail = e => { console.error('[공부 정원] 동기화 오류', e); Cloud.set({ status: 'error', error: SG.cloudErrorText(e) }); };
+  const stop = () => { unsubs.forEach(u => u()); unsubs = []; };
+  const statusFrom = meta => !navigator.onLine ? 'offline' : (meta.hasPendingWrites || meta.fromCache) ? 'syncing' : 'synced';
+
+  const api = {
+    async signIn() {
+      try { await A.signInWithPopup(auth, provider); }
+      catch (e) {
+        if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') return A.signInWithRedirect(auth, provider);
+        if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') SG.cloudAlert(e);
+      }
+    },
+    async signOut() {
+      // 아직 서버에 못 올린 기록이 있으면 로그아웃하지 않음
+      try { await Promise.race([F.waitForPendingWrites(db), new Promise((_, rej) => setTimeout(() => rej(new Error('pending')), 5000))]); }
+      catch (e) { SG.toast('아직 서버로 보내지 못한 기록이 있어요. 인터넷에 연결한 뒤 다시 로그아웃해 주세요.'); return; }
+      stop();
+      await A.signOut(auth);
+      try { await F.terminate(db); await F.clearIndexedDbPersistence(db); } catch (e) {}
+      SG.clearLocal(false);
+      location.reload();
+    },
+    pushTimer: t => F.setDoc(userDoc(), { timer: t ? clean(t) : null, by: DEVICE, updatedAt: F.serverTimestamp() }, { merge: true }).catch(fail),
+    putRecord: r => F.setDoc(sub('records', r.id), { ...clean(r), date: SG.dateKey(r.completedAt) }).catch(fail),
+    deleteRecords(ids) {
+      for (let i = 0; i < ids.length; i += 400) {
+        const b = F.writeBatch(db);
+        ids.slice(i, i + 400).forEach(id => b.delete(sub('records', id)));
+        b.commit().catch(fail);
+      }
+    },
+    ledger: (id, e) => F.setDoc(sub('ledger', id), { ...clean(e), by: DEVICE, at: F.serverTimestamp() }).catch(fail)
+  };
+
+  /** 로그인 전 이 기기에서 쌓은 기록을 계정으로 옮김 (처음 한 번) */
+  function importGuest() {
+    const L = SG.localData();
+    const recs = Object.values(L.records || {}).flat().filter(r => r && r.id);
+    for (let i = 0; i < recs.length; i += 400) {
+      const b = F.writeBatch(db);
+      recs.slice(i, i + 400).forEach(r => b.set(sub('records', r.id), { ...clean(r), date: SG.dateKey(r.completedAt) }));
+      b.commit().catch(fail);
+    }
+    const w = L.wallet || {};
+    const e = { coins: w.coins || 0, nutrients: w.nutrients || 0, water: w.water || 0,
+                owned: Object.keys(w.owned || {}).filter(k => w.owned[k]), rest: w.restLog || {} };
+    if (e.coins || e.nutrients || e.water || e.owned.length || Object.keys(e.rest).length) api.ledger(`import_${DEVICE}_${Date.now().toString(36)}`, e);
+    pendingTimer = L.timer || null;
+    if (recs.length || e.coins) SG.toast(`이 기기의 기록(식물 ${recs.length}개 · 코인 ${e.coins})을 계정으로 옮겼어요.`);
+  }
+
+  /** 실시간 구독: 기록 · 장부 · 타이머 */
+  function listen() {
+    let firstRec = true, firstLed = true;
+    unsubs.push(F.onSnapshot(sub('records'), { includeMetadataChanges: true }, snap => {
+      Cloud.set({ status: statusFrom(snap.metadata) });
+      if (snap.metadata.fromCache && snap.empty) return;              // 서버 응답 대기
+      if (!firstRec && !snap.docChanges().length) return;           // 상태만 바뀜
+      firstRec = false;
+      const map = {};
+      snap.forEach(d => { const r = d.data(); const k = r.date || SG.dateKey(r.completedAt); delete r.date; (map[k] = map[k] || []).push(r); });
+      for (const k in map) map[k].sort((a, b) => a.completedAt - b.completedAt);
+      SG.applyRecords(map);
+    }, fail));
+    unsubs.push(F.onSnapshot(sub('ledger'), { includeMetadataChanges: true }, snap => {
+      if (snap.metadata.fromCache && snap.empty) return;
+      if (!firstLed && !snap.docChanges().length) return;
+      firstLed = false;
+      SG.applyLedger(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, fail));
+    unsubs.push(F.onSnapshot(userDoc(), snap => {
+      const rt = snap.exists() ? (snap.data().timer ?? null) : null;
+      if (pendingTimer) {                                           // 로그인 전에 돌리던 타이머
+        if (snap.metadata.fromCache) return;
+        const lt = pendingTimer; pendingTimer = null;
+        if (!rt) { api.pushTimer(lt); return; }
+        SG.toast('다른 기기에서 진행 중인 타이머로 바꿨어요.');
+      }
+      if (snap.metadata.fromCache && !snap.exists()) return;
+      SG.applyTimer(rt);
+    }, fail));
+  }
+
+  A.getRedirectResult(auth).catch(e => SG.cloudAlert(e));
+  A.onAuthStateChanged(auth, user => {
+    stop();
+    if (!user) { uid = null; Cloud.set({ user: null, api, status: 'signedout' }); return; }
+    uid = user.uid;
+    Cloud.set({ user: { displayName: user.displayName, email: user.email, photoURL: user.photoURL }, api, status: 'syncing', error: '' });
+    const mirror = SG.mirrorUid();
+    if (mirror !== uid) {
+      if (mirror) SG.clearLocal(true);   // 다른 계정의 사본이면 비우고
+      else importGuest();                // 로그인 전 기록이면 계정으로 옮김
+      SG.setMirror(uid);
+    } else {
+      Cloud.flush();                     // 연결 전에 이 기기에서 생긴 변경을 올림
+    }
+    listen();
+  });
+  const net = () => { if (Cloud.user && Cloud.status !== 'error') Cloud.set({ status: navigator.onLine ? 'syncing' : 'offline' }); };
+  window.addEventListener('online', net);
+  window.addEventListener('offline', net);
+}
+</script>
+</body>
+</html>
