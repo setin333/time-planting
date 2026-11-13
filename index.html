@@ -574,6 +574,29 @@ button{font-family:inherit;color:inherit}
 .dex-name{font-family:var(--font-title);font-size:17px;margin-top:8px;line-height:1.3}
 .dex-sub{font-size:12px;color:var(--ink-2);margin-top:1px}
 .dex-item.unknown .dex-name,.dex-item.unknown .dex-sub{color:var(--muted)}
+.dex-art{position:relative}
+.dex-v{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;transition:opacity .45s ease, transform .45s ease}
+.dex-v.rare{opacity:0;transform:scale(.94)}
+.show-rare .dex-v.base{opacity:0;transform:scale(.94)}
+.show-rare .dex-v.rare{opacity:1;transform:none}
+.dex-name .v-rare,.dex-sub .v-rare{display:none}
+.show-rare .dex-name .v-base,.show-rare .dex-sub .v-base{display:none}
+.show-rare .dex-name .v-rare,.show-rare .dex-sub .v-rare{display:inline}
+.show-rare .dex-sub{color:#a5741a}
+.dex-item.show-rare{border-color:#f0d27a;background:linear-gradient(#fffbea,#fff6f9)}
+.dex-item.show-rare .dex-art{background:linear-gradient(#fff6d6,#ffe9f1)}
+.dex-star{position:absolute;top:7px;right:7px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;cursor:pointer;padding:0;
+  background:#f4eddd;border:1.5px dashed #d8c9a6;color:#cdbf9f;transition:transform .15s, background .2s}
+.dex-star svg{width:20px;height:20px;fill:currentColor}
+.dex-star.found{border:1.5px solid #f0d27a;background:#fff7d9;color:#e3b23c}
+.dex-star.found:hover{transform:scale(1.1)}
+.dex-star.found[aria-pressed="true"]{background:linear-gradient(#ffe48a,#f7c948);color:#fff;border-color:#e3b23c;box-shadow:0 0 0 4px rgba(247,201,72,.25)}
+.dex-star:focus-visible{outline:3px solid #b9d7a9;outline-offset:2px}
+.dex-flip{position:relative;width:150px;height:170px;margin:0 auto}
+.dex-flip .dex-v svg{height:160px;width:auto}
+.dex-flip.unknown .dex-v.base svg{filter:brightness(0);opacity:.15}
+.dex-star.big{position:absolute;top:auto;bottom:-6px;right:-58px;width:auto;height:30px;border-radius:999px;padding:0 11px 0 8px;display:flex;gap:4px;font:inherit;font-size:12.5px;font-weight:700}
+.dex-star.big svg{width:16px;height:16px}
 .dex-rare{position:absolute;top:7px;right:7px;width:36px;height:36px;border-radius:50%;background:#f4eddd;border:1.5px dashed #d8c9a6;display:grid;place-items:center;font-size:14px;font-weight:700;color:#b8a988;overflow:hidden}
 .dex-rare.found{background:linear-gradient(#fff6cf,#ffe9f2);border:1.5px solid #f0d27a}
 .dex-rare svg{width:46px;height:46px;margin-top:8px}
@@ -654,7 +677,9 @@ button{font-family:inherit;color:inherit}
   .dex-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .dex-art{height:112px}
   .dex-art svg{height:124px}
-  .modal-art .dex-pair svg{height:104px}
+  .dex-flip{width:130px;height:150px}
+  .dex-flip .dex-v svg{height:140px}
+  .dex-star.big{right:-50px}
 }
 @media (prefers-reduced-motion:reduce){
   .live .sway,.celebrate .live .sway{animation:none}
@@ -763,7 +788,7 @@ button{font-family:inherit;color:inherit}
         <p class="tip-text">
           <span class="desk-only"><span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br></span>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v2.2.0 · 2026.11.13</span>
+          <span class="app-version">나의 공부 정원 v2.2.1 · 2026.11.13</span>
         </p>
       </aside>
 
@@ -2536,20 +2561,38 @@ function renderDex() {
   const d = dexStats(), found = ORDER.filter(t => d[t].count).length, rares = ORDER.filter(t => d[t].rare).length;
   $('#dexProgress').innerHTML = meter('식물', found, ORDER.length) + meter(`${SPARKLE_ICON}희귀`, rares, ORDER.length, 'rare');
   $('#dexGrid').innerHTML = ORDER.map((t, i) => {
-    const P = PLANTS[t], e = d[t], on = e.count > 0;
-    return `<button class="dex-item${on ? '' : ' unknown'}${P.limited ? ' limited' : ''}" type="button" data-dex="${t}"
+    const P = PLANTS[t], e = d[t], on = e.count > 0, rv = !!e.rare && dexRareView.has(t);
+    return `<div class="dex-item${on ? '' : ' unknown'}${P.limited ? ' limited' : ''}${rv ? ' show-rare' : ''}" role="button" tabindex="0" data-dex="${t}"
         aria-label="${P.name}${on ? `, ${e.count}번 키움` : ', 아직 못 만남'}${e.rare ? ', 희귀 발견' : ''}">
       <span class="dex-no">No.${pad(i + 1)}</span>
-      <span class="dex-art">${staticSVG(t, true)}</span>
-      <span class="dex-name">${P.name}</span>
-      <span class="dex-sub">${on ? `${e.count}번 키움 · ${fmtMinutes(e.minutes)}` : dexHint(t)}</span>
-      <span class="dex-rare${e.rare ? ' found' : ''}" title="${e.rare ? RARE[t].name : '아직 못 찾은 희귀 모습'}">${e.rare ? staticSVG(t, false, true) : '?'}</span>
-    </button>`;
+      <span class="dex-art"><span class="dex-v base">${staticSVG(t, true)}</span>${e.rare ? `<span class="dex-v rare">${staticSVG(t, true, true)}</span>` : ''}</span>
+      <span class="dex-name"><span class="v-base">${P.name}</span>${e.rare ? `<span class="v-rare">${RARE[t].name}</span>` : ''}</span>
+      <span class="dex-sub"><span class="v-base">${on ? `${e.count}번 키움 · ${fmtMinutes(e.minutes)}` : dexHint(t)}</span>${e.rare ? `<span class="v-rare">희귀 · ${e.rare}번 만남</span>` : ''}</span>
+      ${dexStarBtn(t, e, rv)}
+    </div>`;
   }).join('');
+}
+/* 희귀 모습 보기 — 별을 누르면 같은 자리에서 기본 ↔ 희귀로 바뀜 (찾은 식물만) */
+const dexRareView = new Set();
+const STAR_SVG = `<svg viewBox="-9 -9 18 18" aria-hidden="true"><path d="M0 -7.6 Q1.3 -1.3 7.6 0 Q1.3 1.3 0 7.6 Q-1.3 1.3 -7.6 0 Q-1.3 -1.3 0 -7.6Z"/></svg>`;
+function dexStarBtn(t, e, rv, big) {
+  const tip = e.rare ? (rv ? '기본 모습 보기' : `희귀 모습 보기 · ${RARE[t].name}`) : '아직 못 찾은 희귀 모습';
+  return `<button class="dex-star${e.rare ? ' found' : ''}${big ? ' big' : ''}" type="button" data-star="${t}" aria-pressed="${rv}" title="${tip}" aria-label="${tip}">${STAR_SVG}${big ? `<span>${e.rare ? (rv ? '기본 모습' : '희귀 모습') : '희귀 ???'}</span>` : ''}</button>`;
+}
+function toggleDexRare(t) {
+  const e = dexStats()[t];
+  if (!e.rare) { toast('아직 희귀한 모습을 못 찾았어요. 다 키우면 5% 확률로 피어나요.'); return; }
+  const rv = !dexRareView.has(t);
+  if (rv) dexRareView.add(t); else dexRareView.delete(t);
+  document.querySelectorAll(`[data-dex="${t}"], #dexFlip[data-type="${t}"]`).forEach(el => el.classList.toggle('show-rare', rv));
+  document.querySelectorAll(`[data-star="${t}"]`).forEach(b => {
+    const big = b.classList.contains('big'), tmp = document.createElement('div');
+    tmp.innerHTML = dexStarBtn(t, e, rv, big); b.replaceWith(tmp.firstElementChild);
+  });
+  const ttl = $('#modalTitle'); if (modalOpen() && $('#dexFlip')) ttl.textContent = rv ? RARE[t].name : PLANTS[t].name;
 }
 function showDexPlant(type) {
   const P = PLANTS[type], e = dexStats()[type], on = e.count > 0, R = RARE[type];
-  const fig = (svg, cap, hide) => `<figure class="${hide ? 'hidden' : ''}">${svg}<figcaption>${cap}</figcaption></figure>`;
   const rows = on
     ? [['키운 횟수', `${e.count}${P.unit}`], ['함께한 공부 시간', fmtMinutes(e.minutes)], ['처음 만난 날', fmtDateLong(dateKey(e.first))],
        ['희귀 모습', e.rare ? `${R.name} · ${e.rare}번` : '아직 못 찾았어요']]
@@ -2557,9 +2600,10 @@ function showDexPlant(type) {
   const acts = [{ label: '닫기', cls: 'soft', autofocus: true }];
   if (canGrow(type)) acts.push({ label: '키우러 가기', onClick: () => goGrow(type) });
   else if (!isOwned(type)) acts.push({ label: '상점 보기', onClick: () => { switchView('shop'); setTimeout(() => flashShopItem(type), 80); } });
+  const rv = !!e.rare && dexRareView.has(type);
   openModal({
-    art: `<div class="dex-pair">${fig(staticSVG(type, true), '기본', !on)}${fig(staticSVG(type, true, true), e.rare ? R.name : '희귀 ???', !e.rare)}</div>`,
-    title: P.name,
+    art: `<div class="dex-flip${on ? '' : ' unknown'}${rv ? ' show-rare' : ''}" id="dexFlip" data-type="${type}"><span class="dex-v base">${staticSVG(type, true)}</span>${e.rare ? `<span class="dex-v rare">${staticSVG(type, true, true)}</span>` : ''}${dexStarBtn(type, e, rv, true)}</div>`,
+    title: rv ? R.name : P.name,
     body: `<p class="sub">No.${pad(ORDER.indexOf(type) + 1)} · ${P.latin} · ${P.minutes}분</p><p>${P.desc}</p>
            <div class="dex-rows">${rows.map(([a, b]) => `<div><span>${a}</span><span>${b}</span></div>`).join('')}</div>`,
     actions: acts
@@ -2788,7 +2832,14 @@ function init() {
   $('#goGardenBtn').addEventListener('click', () => { state.gardenKey = null; switchView('garden'); });
   $('#goShopBtn').addEventListener('click', () => switchView('shop'));
   $('#dexChip').addEventListener('click', () => switchView('dex'));
-  $('#dexGrid').addEventListener('click', e => { const b = e.target.closest('[data-dex]'); if (b) showDexPlant(b.dataset.dex); });
+  $('#dexGrid').addEventListener('click', e => {
+    const st = e.target.closest('[data-star]'); if (st) { toggleDexRare(st.dataset.star); return; }
+    const b = e.target.closest('[data-dex]'); if (b) showDexPlant(b.dataset.dex);
+  });
+  $('#dexGrid').addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.dex-item')) { e.preventDefault(); showDexPlant(e.target.dataset.dex); }
+  });
+  $('#modalArt').addEventListener('click', e => { const st = e.target.closest('[data-star]'); if (st) toggleDexRare(st.dataset.star); });
   $('#accountBtn').addEventListener('click', openAccount);
   $('#miniStatus').addEventListener('click', () => switchView(isRest(state.timer) ? 'rest' : 'study'));
   $('#soundBtn').addEventListener('click', () => {
