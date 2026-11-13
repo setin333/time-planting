@@ -413,6 +413,31 @@ button{font-family:inherit;color:inherit}
 .harvest-lines li.water{color:#3f7fa3}
 .luck-dot{display:inline-block;margin-left:5px;font-size:10.5px;font-weight:700;color:#a8790c;background:#fff1c2;border-radius:999px;padding:0 6px;vertical-align:1px}
 .luck-dot.jackpot{color:#b1452c;background:#ffe3ec}
+.rare-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(90deg,#fff6cf,#ffe9f2,#e9f3ff);color:#8a5a12;border:1.5px solid #f0d27a;border-radius:999px;padding:3px 14px;font-weight:700;font-size:13.5px;margin:0 4px 6px;animation:attendPop .8s cubic-bezier(.3,1.6,.5,1)}
+.rare-badge svg,.tip-rare svg{width:15px;height:15px}
+.luck-dot.rare{color:#8a5a12;background:linear-gradient(90deg,#fff1c2,#ffe3ec)}
+.plant-svg .rare-spark path{transform-box:fill-box;transform-origin:center;animation:rareTwinkle 2.4s ease-in-out infinite}
+.plant-svg .rare-spark path:nth-child(2){animation-delay:.7s}
+.plant-svg .rare-spark path:nth-child(3){animation-delay:1.3s}
+.plant-svg .rare-spark path:nth-child(4){animation-delay:1.8s}
+@keyframes rareTwinkle{0%,100%{opacity:1;scale:1}50%{opacity:.25;scale:.6}}
+.plant-svg.rare-reveal{animation:rareIn 1.3s ease-out}
+@keyframes rareIn{0%{filter:brightness(1.9) saturate(.3);opacity:.5}100%{filter:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.plant-svg .rare-spark path,.plant-svg.rare-reveal{animation:none}}
+.tip-rare{color:#a5741a !important;font-weight:700;justify-content:flex-start !important;gap:4px !important;align-items:center}
+.tip-memo{margin:6px 0 0;padding:6px 8px;background:#f6f1e3;border-radius:8px;color:var(--ink-2);max-width:220px;white-space:pre-wrap;word-break:keep-all}
+.note-box{margin:12px auto 0;max-width:300px;text-align:left;font-size:13.5px}
+.note-box summary{cursor:pointer;color:var(--ink-2);text-align:center;list-style:none;padding:4px;border-radius:8px}
+.note-box summary::-webkit-details-marker{display:none}
+.note-box summary::before{content:'✎ ';color:var(--muted)}
+.note-box summary small{color:var(--muted);font-size:11.5px;margin-left:3px}
+.note-box summary:hover{background:#f6f1e3}
+.note-box label{display:flex;gap:8px;align-items:flex-start;margin-top:7px}
+.note-box label span{flex:0 0 34px;color:var(--muted);padding-top:7px;font-size:12.5px}
+.note-box input,.note-box textarea{flex:1;font:inherit;font-size:14px;color:var(--ink);background:#fffdf7;border:1.5px solid var(--line-d);border-radius:10px;padding:6px 9px;resize:none;min-width:0}
+.note-box input:focus,.note-box textarea:focus{outline:none;border-color:#9cc48c;box-shadow:0 0 0 3px rgba(156,196,140,.25)}
+.log-name{font-weight:700;margin-right:2px}
+.log-memo{display:inline-block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:-3px;margin-left:6px;color:var(--muted);font-size:12px}
 .import-sum{background:#fff6d8;border:1px solid #f0d98a;border-radius:12px;padding:8px 12px;margin:10px 0 6px;color:#6b5512}
 .modal .sub{color:var(--muted);font-size:13px}
 .reward{display:inline-flex;align-items:center;gap:6px;background:#fff6d8;border:1.5px solid #f0d98a;border-radius:999px;padding:5px 16px;margin:8px 0 4px;font-size:15px;color:#8a6a10}
@@ -650,7 +675,7 @@ button{font-family:inherit;color:inherit}
         <p class="tip-text">
           <span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v2.0.0 · 2026.11.13</span>
+          <span class="app-version">나의 공부 정원 v2.1.0 · 2026.11.13</span>
         </p>
       </aside>
 
@@ -810,6 +835,24 @@ const WATER_RULES = {
   default: base => Math.max(ITEMS.water.min, Math.round(base * ITEMS.water.rate))
 };
 const BONUS_RATE = 0.5, JACKPOT_P = 0.08, JACKPOT_RATE = 1.5;
+/* 희귀 식물 — 수확할 때 5% 확률. 색이 바뀐 모습 + 반짝임 표시 (코인은 같고, 모으는 재미용)
+   swap: 그림 속 색(또는 속성)을 [원래, 희귀] 순서로 바꿈 */
+const RARE_P = 0.05;
+const RARE = {
+  primrose:  { name:'분홍 달맞이꽃', color:'#f0a5c0', swap:[['#fde98a','#fbd3e0'], ['#ebc548','#e59ab6'], ['#f8d64e','#f5b3cb'], ['#e3b331','#d27ea0'], ['#fff8d2','#fff0f6']] },
+  nemophila: { name:'분홍별꽃', color:'#ef9fc3', swap:[['#86b2ef','#ef9fc3'], ['#b8d3f8','#f9d2e3'], ['#9bbff2','#f3b5d0']] },
+  monstera:  { name:'무늬 몬스테라', color:'#e9e6c4', swap:[['fill="#fff" opacity=".08"','fill="#f4f1d8" opacity=".96"']] },
+  rosemary:  { name:'초코민트', color:'#7d6a4c', swap:[['#6b9a4c','#7a4a3c'], ['#6fbf73','#5f8a55'], ['#62b066','#557e4c'], ['#4f9a55','#41673f'], ['#8fd08a','#8aa76d'], ['#74bb70','#6c8f5a'], ['#9ad893','#98b07a'], ['#7cc276','#7a9963']] },
+  maple:     { name:'노란 열매 남천', color:'#efcb52', swap:[['fill="#d4302a"','fill="#f4c838"']] },
+  cotton:    { name:'갈색 목화', color:'#c9a57c', swap:[['#fffefa','#ecd5b2'], ['#e4dccb','#c9a47a'], ['#e9e2d2','#d2b38c']] },
+  tangerine: { name:'황금 귤나무', color:'#f2c230', swap:[['#d97b17','#e3aa12'], ['#f39a2b','#f6cd3c']] }
+};
+const SPARKLE = 'M0 -7 Q1 -1 7 0 Q1 1 0 7 Q-1 1 -7 0 Q-1 -1 0 -7Z';
+function sparkles() {
+  return `<g class="rare-spark">${[[46, 104, 1], [156, 86, 1.25], [150, 158, .8], [62, 150, .6]].map(([x, y, sc]) =>
+    `<path d="${SPARKLE}" transform="translate(${x} ${y}) scale(${sc})" fill="#fff3b0" stroke="#e8be45" stroke-width=".9"/>`).join('')}</g>`;
+}
+const rareName = (type, rare) => rare && RARE[type] ? RARE[type].name : PLANTS[type].name;
 const REST_MINUTES = 15;
 const ATTEND_COINS = 10;   // 매일 오늘의 정원에 처음 들어가면 받는 출석 보상
 
@@ -1053,7 +1096,8 @@ function rollHarvest(type, id, boosts) {
   const watered = !!(boosts && (boosts.water || boosts.nutrient));
   const water = watered ? waterBonus(type) : 0;
   const refund = !!(boosts && boosts.water && boosts.nutrient);   // 예전 버전에서 영양제와 물을 둘 다 준 경우
-  return { base, luck, bonus, water, refund, total: base + bonus + water };
+  const rare = !!RARE[type] && seededRandom(id + ':rare')() < RARE_P;   // 코인 운과는 따로 정함
+  return { base, luck, bonus, water, refund, rare, total: base + bonus + water };
 }
 function coinsFor(type, boosts, id) { return rollHarvest(type, id || '', boosts).total; }
 
@@ -1075,6 +1119,19 @@ function deleteRecord(key, id) {
   if (list.length) state.records[key] = list; else delete state.records[key];
   saveRecords();
   Cloud.deleteRecords([id]);
+}
+/** 기록 하나 고치기 (이름 · 메모) — 계정에도 올림 */
+function updateRecord(id, patch) {
+  state.records = Store.read(LS_KEYS.records, {}) || {};
+  for (const k in state.records) {
+    const r = (state.records[k] || []).find(x => x.id === id);
+    if (!r) continue;
+    for (const f in patch) { if (patch[f]) r[f] = patch[f]; else delete r[f]; }
+    saveRecords();
+    Cloud.putRecord(r);
+    return true;
+  }
+  return false;
 }
 function dayRecords(key) { return state.records[key] || []; }
 function daySummary(key) {
@@ -1515,18 +1572,21 @@ function restSVG(level = 0, idSuffix = 'live') {
 }
 
 /** 식물 SVG 문자열 생성 (pot: 화분 포함 여부, p: 진행률) */
-function plantSVG(type, { pot = true, p = 1, cls = '' } = {}) {
+function plantSVG(type, { pot = true, p = 1, cls = '', rare = false } = {}) {
   BP = p;
-  const body = BUILDERS[type]();
+  let body = BUILDERS[type]();
   BP = 1;
+  rare = rare && !!RARE[type];
+  if (rare) RARE[type].swap.forEach(([a, b]) => { body = body.split(a).join(b); });
   const vb = pot ? '0 0 200 250' : '0 0 200 200';
-  return `<svg class="plant-svg ${cls}" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${pot ? potSVG(type) : groundSVG()}<g class="sway">${body}</g></svg>`;
+  return `<svg class="plant-svg ${cls}${rare ? ' rare' : ''}" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${pot ? potSVG(type) : groundSVG()}<g class="sway">${body}</g>${rare ? sparkles() : ''}</svg>`;
 }
 // 완성된 모습은 자주 쓰므로 캐시
 const STATIC = {};
-function staticSVG(type, pot) {
-  const k = type + (pot ? '_pot' : '_ground');
-  return STATIC[k] || (STATIC[k] = plantSVG(type, { pot, p: 1 }));
+function staticSVG(type, pot, rare = false) {
+  rare = !!rare && !!RARE[type];
+  const k = type + (pot ? '_pot' : '_ground') + (rare ? '_rare' : '');
+  return STATIC[k] || (STATIC[k] = plantSVG(type, { pot, p: 1, rare }));
 }
 /** 실시간 성장 반영 */
 function collectParts(root) {
@@ -1708,25 +1768,28 @@ function finishStudy(t) {
   const rec = { id: t.id, type: t.type, startedAt: t.startedAt, completedAt: end, minutes: PLANTS[t.type].minutes,
                 coins: h.total, base: h.base, bonus: h.bonus, luck: h.luck, boosts };
   if (gift) rec.gift = gift;
+  if (h.rare) rec.rare = true;
   const added = addRecord(rec);
   // 기록이 새로 저장될 때만 지급 (같은 id로 장부에 남아 여러 기기에서도 한 번만)
   if (added) updateWallet(w => { w.coins += h.total; w.water += (gift === 'water' ? 1 : 0) + (h.refund ? 1 : 0); }, 'earn_' + t.id);
   saveTimer(null);
   const live = finishChime(t, end);
   studyBubble.stop();
-  state.done = { type: t.type, at: end };
+  state.done = { type: t.type, at: end, rare: h.rare };
   state.justPlanted = added ? rec.id : null;
-  if (stageType !== t.type || !live) buildStage(t.type, 0);
+  if (stageType !== t.type || stageRare || !live) buildStage(t.type, 0);
   requestAnimationFrame(() => requestAnimationFrame(() => applyGrowth(stageParts, 1)));
+  if (h.rare) setTimeout(() => { if (state.done && state.done.rare) buildStage(t.type, 1, true); }, live ? 900 : 0);
   studyBubble.say(DONE_MSG[t.type]);
   celebrate(t.type);
   refreshAll();
   document.title = `${josa(PLANTS[t.type].name, '이', '가')} 다 자랐어요! · 나의 공부 정원`;
-  if (added) showStudyDone(t.type, h, end, live, true, gift);
+  if (added) showStudyDone(t.type, h, end, live, true, gift, t.id);
 }
 /** 식물 완성 축하 창 — 사용자가 닫을 때까지 계속 보임 */
-function showStudyDone(type, h, end, live, withCount, gift) {
+function showStudyDone(type, h, end, live, withCount, gift, id) {
   const P = PLANTS[type]; if (!P) return;
+  const rare = h.rare && RARE[type];
   const lines = [`<li><span>기본</span><b>${h.base}</b></li>`];
   if (h.luck === 'bonus') lines.push(`<li class="luck"><span>보너스!</span><b>+${h.bonus}</b></li>`);
   if (h.luck === 'jackpot') lines.push(`<li class="luck jackpot"><span>대박!</span><b>+${h.bonus}</b></li>`);
@@ -1735,18 +1798,21 @@ function showStudyDone(type, h, end, live, withCount, gift) {
   const extras = [];
   if (gift === 'water') extras.push(`<div class="reward gift water">${ICON.water}<b>+1</b>맑은 물</div>`);
   if (h.refund) extras.push(`<div class="reward gift water">${ICON.water}<b>+1</b>맑은 물 돌려받음</div>`);
+  const nm = rare ? rare.name : P.name;
   openModal({
-    art: staticSVG(type, true),
-    title: live ? `${josa(P.name, '이', '가')} 다 자랐어요!` : `자리를 비운 사이 ${josa(P.name, '이', '가')} 다 자랐어요`,
-    body: `${badge}<p>${P.minutes}분 공부 완료! 오늘의 정원에 심었어요.</p>
+    art: staticSVG(type, true, h.rare),
+    title: rare ? `희귀한 ${josa(nm, '이', '가')} 자랐어요!` : live ? `${josa(P.name, '이', '가')} 다 자랐어요!` : `자리를 비운 사이 ${josa(P.name, '이', '가')} 다 자랐어요`,
+    onClose: id ? () => saveNoteFromModal(id) : null,
+    body: `${rare ? `<div class="rare-badge">${SPARKLE_ICON}희귀 식물 · ${rare.name}</div>` : ''}${badge}<p>${P.minutes}분 공부 완료! 오늘의 정원에 심었어요.</p>
            <div class="rewards"><div class="reward${h.luck ? ' lucky-' + h.luck : ''}">${ICON.coin}<b>+${h.total}</b>코인</div>${extras.join('')}</div>
            <ul class="harvest-lines">${lines.join('')}</ul>
            ${gift ? '<p class="sub">남천나무가 맑은 물을 선물했어요.</p>' : ''}
-           <p class="sub">${fmtClock(end)}에 완성${withCount ? ` · 오늘 ${daySummary(dateKey()).total}번째 식물` : ''}</p>`,
+           <p class="sub">${fmtClock(end)}에 완성${withCount ? ` · 오늘 ${daySummary(dateKey()).total}번째 식물` : ''}</p>
+           ${id ? noteFields('', '', false) : ''}`,
     actions: [ { label: '정원 보러 가기', cls: 'soft', onClick: () => { state.gardenKey = null; switchView('garden'); } },
                { label: '계속 공부하기', autofocus: true } ]
   });
-  if (h.luck) setTimeout(() => celebrate(type), 200);
+  if (h.luck || h.rare) setTimeout(() => celebrate(type), 200);
 }
 
 /** 휴식 완료 — 맑은 물 1병 (같은 휴식으로는 한 번만 지급) */
@@ -1796,13 +1862,15 @@ function timerEndedElsewhere(prev) {
     setTimeout(() => showRestDone(live), 300);   // 지갑이 맞춰진 뒤에 표시
     return;
   }
-  state.done = { type: prev.type, at: end };
-  if (stageType !== prev.type) buildStage(prev.type, 0);
+  const h = rollHarvest(prev.type, prev.id, prev.boosts);
+  state.done = { type: prev.type, at: end, rare: h.rare };
+  if (stageType !== prev.type || stageRare) buildStage(prev.type, 0);
   requestAnimationFrame(() => requestAnimationFrame(() => applyGrowth(stageParts, 1)));
+  if (h.rare) setTimeout(() => { if (state.done && state.done.rare) buildStage(prev.type, 1, true); }, 900);
   studyBubble.say(DONE_MSG[prev.type]);
   celebrate(prev.type);
   document.title = `${josa(PLANTS[prev.type].name, '이', '가')} 다 자랐어요! · 나의 공부 정원`;
-  showStudyDone(prev.type, rollHarvest(prev.type, prev.id, prev.boosts), end, live, false, giftFor(prev.type, prev.id));
+  showStudyDone(prev.type, h, end, live, false, giftFor(prev.type, prev.id), prev.id);
 }
 
 /** 공부 중 맑은 물 주기 — 식물마다 한 번 */
@@ -1864,22 +1932,22 @@ const restBubble = makeBubble('#restBubble', '#restBubbleText', 'rest');
 /* =========================================================
    8. 공부 화면 렌더링
    ========================================================= */
-let stageParts = [], stageType = null;
+let stageParts = [], stageType = null, stageRare = false;
 
-function buildStage(type, p) {
+function buildStage(type, p, rare = false) {
   const host = $('#plantStage');
-  host.innerHTML = plantSVG(type, { pot: true, p: 0, cls: 'live' });
+  host.innerHTML = plantSVG(type, { pot: true, p: rare ? 1 : 0, cls: rare ? 'live rare-reveal' : 'live', rare });
   stageParts = collectParts(host);
-  stageType = type;
+  stageType = type; stageRare = !!rare;
   // 다음 프레임에 실제 진행률로 → 부드럽게 자라나는 전환
   requestAnimationFrame(() => requestAnimationFrame(() => applyGrowth(stageParts, p)));
 }
 function studyType() { return isStudy(state.timer) ? state.timer.type : (state.done ? state.done.type : state.settings.selected); }
 function syncStageFromState() {
-  const type = studyType();
-  if (stageType === type) return;
+  const type = studyType(), rare = !isStudy(state.timer) && !!(state.done && state.done.rare);
+  if (stageType === type && stageRare === rare) return;
   const p = isStudy(state.timer) ? clamp01(elapsedOf(state.timer) / state.timer.durationMs) : (state.done ? 1 : 0);
-  buildStage(type, p);
+  buildStage(type, p, rare);
 }
 
 /** 식물 고르기 카드 (보유하지 않은 모종은 잠금, 기간 한정은 표시) */
@@ -2059,7 +2127,7 @@ function renderStats() {
   if (!sum.total) mg.innerHTML = '<div class="mini-empty">공부를 마치면 이곳에 식물이 하나씩 심어져요.</div>';
   else {
     const max = 12;
-    mg.innerHTML = `<div class="mini-garden">${sum.list.slice(0, max).map(r => PLANTS[r.type] ? staticSVG(r.type, false) : '').join('')}${sum.total > max ? `<span class="more">+${sum.total - max}</span>` : ''}</div>`;
+    mg.innerHTML = `<div class="mini-garden">${sum.list.slice(0, max).map(r => PLANTS[r.type] ? staticSVG(r.type, false, r.rare) : '').join('')}${sum.total > max ? `<span class="more">+${sum.total - max}</span>` : ''}</div>`;
   }
   const kinds = ORDER.filter(t => sum.counts[t]);
   $('#miniCounts').innerHTML = kinds.length ? kinds.map(t => `<span>${PLANTS[t].name} ${sum.counts[t]}</span>`).join('') : '<span>아직 없어요</span>';
@@ -2150,8 +2218,8 @@ function renderGarden() {
       const P = PLANTS[r.type]; if (!P) return '';
       const jitter = (hashNum(r.id) % 9) - 4;
       return `<button class="g-plant${r.id === state.justPlanted ? ' new' : ''}" type="button" data-id="${r.id}" data-key="${key}"
-        style="width:${P.tileW}px;margin-left:${jitter}px" aria-label="${P.name}, ${fmtClock(r.completedAt)}에 심음, ${r.minutes}분 공부">
-        ${staticSVG(r.type, false).replace('<svg ', `<svg style="height:${P.gardenH}px;width:${P.gardenH}px" `)}</button>`;
+        style="width:${P.tileW}px;margin-left:${jitter}px" aria-label="${r.name ? escapeHTML(r.name) + ', ' : ''}${rareName(r.type, r.rare)}${r.rare ? '(희귀)' : ''}, ${fmtClock(r.completedAt)}에 심음, ${r.minutes}분 공부">
+        ${staticSVG(r.type, false, r.rare).replace('<svg ', `<svg style="height:${P.gardenH}px;width:${P.gardenH}px" `)}</button>`;
     }).join('');
   }
   state.justPlanted = null;
@@ -2160,7 +2228,7 @@ function renderGarden() {
   $('#logSummary').textContent = `공부 기록 자세히 보기 (${sum.total})`;
   $('#logList').innerHTML = sum.total ? sum.list.filter(r => PLANTS[r.type]).map(r => `
     <li><span class="muted">${fmtClock(r.startedAt)} – ${fmtClock(r.completedAt)}</span>
-      <span><span class="dotc" style="background:${PLANTS[r.type].color};border:1px solid rgba(0,0,0,.12)"></span>${PLANTS[r.type].name}${boostIcons(r)}</span>
+      <span><span class="dotc" style="background:${r.rare && RARE[r.type] ? RARE[r.type].color : PLANTS[r.type].color};border:1px solid rgba(0,0,0,.12)"></span>${r.name ? `<b class="log-name">${escapeHTML(r.name)}</b>` : rareName(r.type, r.rare)}${boostIcons(r)}${r.memo ? `<span class="log-memo" title="${escapeHTML(r.memo)}">${escapeHTML(r.memo)}</span>` : ''}</span>
       <span class="log-min">${r.minutes}분</span>
       <span class="log-coin">${r.coins != null ? `+${r.coins}코인` : ''}</span>
       <button class="log-del" type="button" data-id="${r.id}" data-key="${key}">삭제</button></li>`).join('')
@@ -2170,8 +2238,30 @@ function renderGarden() {
 }
 function boostIcons(r) {
   const b = r.boosts || {};
-  return (b.nutrient ? `<span class="boost" title="영양제(맑은 물로 통합)">${ICON.nutrient}</span>` : '') + (b.water ? `<span class="boost" title="맑은 물">${ICON.water}</span>` : '') +
+  return (r.rare ? `<span class="luck-dot rare" title="희귀 식물">희귀</span>` : '') + (b.nutrient ? `<span class="boost" title="영양제(맑은 물로 통합)">${ICON.nutrient}</span>` : '') + (b.water ? `<span class="boost" title="맑은 물">${ICON.water}</span>` : '') +
     (r.luck === 'jackpot' ? '<span class="luck-dot jackpot" title="대박">대박</span>' : r.luck === 'bonus' ? '<span class="luck-dot" title="보너스">보너스</span>' : '');
+}
+
+/** 이름 · 메모 입력칸 (선택 사항 — 비워 둬도 됨) */
+const NOTE_MAX = { name: 12, memo: 60 };
+const SPARKLE_ICON = `<svg class="ico" viewBox="-8 -8 16 16" aria-hidden="true"><path d="${SPARKLE}" fill="#ffe680" stroke="#d9a929" stroke-width="1"/></svg>`;
+function noteFields(name, memo, open) {
+  return `<details class="note-box"${open ? ' open' : ''}><summary>이름 · 메모 남기기 <small>선택</small></summary>
+    <label><span>이름</span><input id="noteName" maxlength="${NOTE_MAX.name}" placeholder="예: 첫 몬스테라" value="${escapeHTML(name || '')}" autocomplete="off"></label>
+    <label><span>메모</span><textarea id="noteMemo" maxlength="${NOTE_MAX.memo}" rows="2" placeholder="오늘 공부한 내용을 한 줄로">${escapeHTML(memo || '')}</textarea></label></details>`;
+}
+/** 창을 닫을 때, 입력칸을 고쳤으면 저장 (안 건드렸으면 그대로 둠 — 다른 기기에서 쓴 메모를 지우지 않도록) */
+function saveNoteFromModal(id, tries = 0) {
+  const n = $('#noteName'), m = $('#noteMemo');
+  if (!n || !m || (n.dataset.dirty !== '1' && m.dataset.dirty !== '1')) return;
+  const patch = { name: n.value.trim().slice(0, NOTE_MAX.name), memo: m.value.trim().slice(0, NOTE_MAX.memo) };
+  n.dataset.dirty = m.dataset.dirty = '';
+  const save = (left) => {
+    if (updateRecord(id, patch)) { refreshAll(); toast(patch.name || patch.memo ? '이름과 메모를 남겼어요.' : '이름과 메모를 지웠어요.'); }
+    else if (left > 0) setTimeout(() => save(left - 1), 1500);   // 다른 기기에서 수확해 기록이 아직 도착하지 않은 경우
+    else toast('메모를 저장하지 못했어요. 정원에서 식물을 눌러 다시 남겨 주세요.');
+  };
+  save(4);
 }
 
 /** 정원 식물 툴팁 (마우스 오버 / 키보드 포커스) */
@@ -2179,13 +2269,17 @@ function showTip(btn) {
   const r = findRecord(btn.dataset.key, btn.dataset.id); if (!r || !PLANTS[r.type]) return;
   const tip = $('#tooltip'), b = r.boosts || {};
   const items = [b.nutrient && '영양제', b.water && '맑은 물'].filter(Boolean).join(' · ');
-  tip.innerHTML = `<b>${PLANTS[r.type].name}</b>
+  const species = rareName(r.type, r.rare);
+  tip.innerHTML = `<b>${r.name ? escapeHTML(r.name) : species}</b>
+    ${r.name ? `<div><span>식물</span><span>${species}</span></div>` : ''}
+    ${r.rare ? `<div class="tip-rare">${SPARKLE_ICON}희귀 식물</div>` : ''}
     <div><span>심은 시각</span><span>${fmtClock(r.completedAt)}</span></div>
     <div><span>공부 시간</span><span>${r.minutes}분</span></div>
     <div><span>공부 시작</span><span>${fmtClock(r.startedAt)}</span></div>
     ${r.coins != null ? `<div><span>받은 코인</span><span>${r.coins}${r.luck === 'jackpot' ? ' (대박)' : r.luck === 'bonus' ? ' (보너스)' : ''}</span></div>` : ''}
     ${items ? `<div><span>준 아이템</span><span>${items}</span></div>` : ''}
-    ${r.gift ? `<div><span>받은 선물</span><span>${r.gift === 'water' ? '맑은 물' : '영양제'}</span></div>` : ''}`;
+    ${r.gift ? `<div><span>받은 선물</span><span>${r.gift === 'water' ? '맑은 물' : '영양제'}</span></div>` : ''}
+    ${r.memo ? `<p class="tip-memo">${escapeHTML(r.memo)}</p>` : ''}`;
   const svg = btn.querySelector('svg');
   const rect = (svg || btn).getBoundingClientRect();
   tip.classList.add('show');
@@ -2202,11 +2296,14 @@ function findRecord(key, id) { return dayRecords(key).find(r => r.id === id); }
 /** 식물 하나 삭제 — 2단계 확인 */
 function askDeletePlant(key, id) {
   const r = findRecord(key, id); if (!r || !PLANTS[r.type]) return;
-  const P = PLANTS[r.type];
+  const species = rareName(r.type, r.rare);
   openModal({
-    art: staticSVG(r.type, true),
-    title: `${P.name}`,
-    body: `<p>${fmtDateShort(key)} ${fmtClock(r.completedAt)}에 심었어요.</p><p class="sub">${fmtClock(r.startedAt)}부터 ${r.minutes}분 공부${r.coins != null ? ` · ${r.coins}코인 받음` : ''}</p>`,
+    art: staticSVG(r.type, true, r.rare),
+    title: r.name || species,
+    onClose: () => saveNoteFromModal(id),
+    body: `${r.rare ? `<div class="rare-badge">${SPARKLE_ICON}희귀 식물 · ${species}</div>` : r.name ? `<p class="sub">${species}</p>` : ''}
+           <p>${fmtDateShort(key)} ${fmtClock(r.completedAt)}에 심었어요.</p><p class="sub">${fmtClock(r.startedAt)}부터 ${r.minutes}분 공부${r.coins != null ? ` · ${r.coins}코인 받음` : ''}</p>
+           ${noteFields(r.name, r.memo, true)}`,
     actions: [
       { label: '닫기', cls: 'soft', autofocus: true },
       { label: '이 식물 삭제', cls: 'danger', keepOpen: true, onClick: () => confirmDelete(key, id) }
@@ -2317,6 +2414,8 @@ const pendingModals = [];
 function openModal(opts) {
   if (modalLocked && !opts.locked) { pendingModals.push(opts); return; }
   modalLocked = !!opts.locked;
+  if (modalOnClose && modalOpen()) { const f = modalOnClose; modalOnClose = null; f(); }   // 앞 창의 메모 등을 먼저 저장
+  modalOnClose = opts.onClose || null;
   const { art = '', title, body, actions } = opts;
   hideTip();
   $('#modalArt').innerHTML = art;
@@ -2332,10 +2431,16 @@ function openModal(opts) {
     box.appendChild(b);
     if (a.autofocus) focusEl = b;
   });
+  $('#modalBody').querySelectorAll('#noteName, #noteMemo').forEach(el => el.addEventListener('input', () => { el.dataset.dirty = '1'; }));
   $('#modalBack').classList.add('show');
   setTimeout(() => (focusEl || box.firstChild).focus(), 50);
 }
-function closeModal() { $('#modalBack').classList.remove('show'); }
+let modalOnClose = null;
+function closeModal() {
+  const f = modalOnClose; modalOnClose = null;
+  $('#modalBack').classList.remove('show');
+  if (f) f();
+}
 function modalOpen() { return $('#modalBack').classList.contains('show'); }
 
 let toastTimer = null;
