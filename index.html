@@ -788,7 +788,7 @@ button{font-family:inherit;color:inherit}
         <p class="tip-text">
           <span class="desk-only"><span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br></span>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v2.2.2 · 2026.11.13</span>
+          <span class="app-version">나의 공부 정원 v2.2.3 · 2026.11.13</span>
         </p>
       </aside>
 
@@ -1197,7 +1197,7 @@ const inSeason = type => PLANTS[type].limited !== 'november' || isNovember();
 const canGrow = type => isOwned(type) && inSeason(type);
 
 /* --- 코인 계산 --- */
-/** 남천나무 선물: 맑은 물 1병 (v2.0.0부터 영양제가 맑은 물로 통합) */
+/** 남천나무 추가 보상: 맑은 물 1병 (v2.0.0부터 영양제가 맑은 물로 통합) */
 function giftFor(type, id) {
   return PLANTS[type] && PLANTS[type].gift ? 'water' : null;
 }
@@ -1935,7 +1935,7 @@ function showStudyDone(type, h, end, live, withCount, gift, id) {
     body: `${rare ? `<div class="rare-badge">${SPARKLE_ICON}희귀 식물 · ${rare.name}</div>` : ''}${badge}<p>${P.minutes}분 공부 완료! 오늘의 정원에 심었어요.</p>
            <div class="rewards"><div class="reward${h.luck ? ' lucky-' + h.luck : ''}">${ICON.coin}<b>+${h.total}</b>코인</div>${extras.join('')}</div>
            <ul class="harvest-lines">${lines.join('')}</ul>
-           ${gift ? '<p class="sub">남천나무가 맑은 물을 선물했어요.</p>' : ''}
+           ${gift ? '<p class="sub">남천나무 추가 보상으로 맑은 물 1병을 받았어요.</p>' : ''}
            <p class="sub">${fmtClock(end)}에 완성${withCount ? ` · 오늘 ${daySummary(dateKey()).total}번째 식물` : ''}</p>
            ${id ? noteFields('', '', false) : ''}`,
     actions: [ { label: '정원 보러 가기', cls: 'soft', onClick: () => { state.gardenKey = null; switchView('garden'); } },
@@ -2407,7 +2407,7 @@ function showTip(btn) {
     <div><span>공부 시작</span><span>${fmtClock(r.startedAt)}</span></div>
     ${r.coins != null ? `<div><span>받은 코인</span><span>${r.coins}${r.luck === 'jackpot' ? ' (대박)' : r.luck === 'bonus' ? ' (보너스)' : ''}</span></div>` : ''}
     ${items ? `<div><span>준 아이템</span><span>${items}</span></div>` : ''}
-    ${r.gift ? `<div><span>받은 선물</span><span>${r.gift === 'water' ? '맑은 물' : '영양제'}</span></div>` : ''}
+    ${r.gift ? `<div><span>추가 보상</span><span>${r.gift === 'water' ? '맑은 물' : '영양제'}</span></div>` : ''}
     ${r.memo ? `<p class="tip-memo">${escapeHTML(r.memo)}</p>` : ''}`;
   const svg = btn.querySelector('svg');
   const rect = (svg || btn).getBoundingClientRect();
@@ -2462,7 +2462,7 @@ function renderShop() {
   const nov = isNovember(), banner = $('#shopBanner');
   banner.className = 'shop-banner' + (nov ? '' : ' off');
   banner.innerHTML = nov
-    ? `${ICON.maple}<div><b>11월 한정 모종 · 남천나무</b><br>빨강부터 초록까지 물드는 잎과 빨간 열매가 예쁜 나무예요. 다 키우면 코인과 함께 맑은 물 1병을 선물로 줘요. 11월 30일까지만 사고 키울 수 있어요.</div><span class="dday">${novemberDaysLeft()}일 남음</span>`
+    ? `${ICON.maple}<div><b>11월 한정 모종 · 남천나무</b><br>빨강부터 초록까지 물드는 잎과 빨간 열매가 예쁜 나무예요. 다 키우면 코인과 함께 맑은 물 1병을 추가 보상으로 줘요. 11월 30일까지만 사고 키울 수 있어요.</div><span class="dday">${novemberDaysLeft()}일 남음</span>`
     : `${ICON.maple}<div><b>남천나무는 11월 한정 모종이에요</b><br>11월이 되면 상점에 다시 찾아와요.${isOwned('maple') ? ' 이미 가지고 있으니 11월에 다시 키울 수 있어요.' : ''}</div>`;
   $('#shopSeeds').innerHTML = ORDER.filter(t => !PLANTS[t].base).map(seedCard).join('');
   $('#shopItems').innerHTML = waterCard();
@@ -2482,7 +2482,7 @@ function seedCard(type) {
     <div class="si-no">No.${P.no} · 모종</div>
     <div class="si-name">${P.name}</div><div class="si-latin">${P.latin}</div>
     <p class="si-desc">${P.desc}</p>
-    <div class="si-meta"><span class="chip">${ICON.clock}${P.minutes}분</span><span class="chip">기본 ${ICON.coin}${P.coins} + 보너스</span>${P.gift ? '<span class="chip gift">선물 · 맑은 물 1병</span>' : ''}</div>
+    <div class="si-meta"><span class="chip">${ICON.clock}${P.minutes}분</span><span class="chip">기본 ${ICON.coin}${P.coins} + 보너스</span>${P.gift ? '<span class="chip gift">추가 보상 · 맑은 물 1병</span>' : ''}</div>
     <div class="si-foot">${foot}</div></article>`;
 }
 function waterCard() {
@@ -2594,7 +2594,7 @@ function toggleDexRare(t) {
 function showDexPlant(type) {
   const P = PLANTS[type], e = dexStats()[type], on = e.count > 0, R = RARE[type];
   const rows = on
-    ? [['키운 횟수', `${e.count}${P.unit}`], ['함께한 공부 시간', fmtMinutes(e.minutes)], ['처음 만난 날', fmtDateLong(dateKey(e.first))],
+    ? [['키운 횟수', `${e.count}번`], ['함께한 공부 시간', fmtMinutes(e.minutes)], ['처음 만난 날', fmtDateLong(dateKey(e.first))],
        ['희귀 모습', e.rare ? `${R.name} · ${e.rare}번` : '미발견']]
     : [['만나는 방법', dexHint(type)], ['희귀 모습', '미발견']];
   const acts = [{ label: '닫기', cls: 'soft', autofocus: true }];
