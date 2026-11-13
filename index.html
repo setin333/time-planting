@@ -595,8 +595,8 @@ button{font-family:inherit;color:inherit}
 .dex-flip{position:relative;width:150px;height:170px;margin:0 auto}
 .dex-flip .dex-v svg{height:160px;width:auto}
 .dex-flip.unknown .dex-v.base svg{filter:brightness(0);opacity:.15}
-.dex-star.big{position:absolute;top:auto;bottom:-6px;right:-58px;width:auto;height:30px;border-radius:999px;padding:0 11px 0 8px;display:flex;gap:4px;font:inherit;font-size:12.5px;font-weight:700}
-.dex-star.big svg{width:16px;height:16px}
+.dex-star.big{top:2px;right:-40px}
+.dex-star.big svg{width:20px;height:20px}
 .dex-rare{position:absolute;top:7px;right:7px;width:36px;height:36px;border-radius:50%;background:#f4eddd;border:1.5px dashed #d8c9a6;display:grid;place-items:center;font-size:14px;font-weight:700;color:#b8a988;overflow:hidden}
 .dex-rare.found{background:linear-gradient(#fff6cf,#ffe9f2);border:1.5px solid #f0d27a}
 .dex-rare svg{width:46px;height:46px;margin-top:8px}
@@ -679,7 +679,7 @@ button{font-family:inherit;color:inherit}
   .dex-art svg{height:124px}
   .dex-flip{width:130px;height:150px}
   .dex-flip .dex-v svg{height:140px}
-  .dex-star.big{right:-50px}
+  .dex-star.big{right:-34px}
 }
 @media (prefers-reduced-motion:reduce){
   .live .sway,.celebrate .live .sway{animation:none}
@@ -788,7 +788,7 @@ button{font-family:inherit;color:inherit}
         <p class="tip-text">
           <span class="desk-only"><span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br></span>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v2.2.1 · 2026.11.13</span>
+          <span class="app-version">나의 공부 정원 v2.2.2 · 2026.11.13</span>
         </p>
       </aside>
 
@@ -2576,12 +2576,12 @@ function renderDex() {
 const dexRareView = new Set();
 const STAR_SVG = `<svg viewBox="-9 -9 18 18" aria-hidden="true"><path d="M0 -7.6 Q1.3 -1.3 7.6 0 Q1.3 1.3 0 7.6 Q-1.3 1.3 -7.6 0 Q-1.3 -1.3 0 -7.6Z"/></svg>`;
 function dexStarBtn(t, e, rv, big) {
-  const tip = e.rare ? (rv ? '기본 모습 보기' : `희귀 모습 보기 · ${RARE[t].name}`) : '아직 못 찾은 희귀 모습';
-  return `<button class="dex-star${e.rare ? ' found' : ''}${big ? ' big' : ''}" type="button" data-star="${t}" aria-pressed="${rv}" title="${tip}" aria-label="${tip}">${STAR_SVG}${big ? `<span>${e.rare ? (rv ? '기본 모습' : '희귀 모습') : '희귀 ???'}</span>` : ''}</button>`;
+  const tip = e.rare ? (rv ? '기본 모습 보기' : `희귀 모습 보기 · ${RARE[t].name}`) : '희귀 모습 · 미발견';
+  return `<button class="dex-star${e.rare ? ' found' : ''}${big ? ' big' : ''}" type="button" data-star="${t}" aria-pressed="${rv}" title="${tip}" aria-label="${tip}">${STAR_SVG}</button>`;
 }
 function toggleDexRare(t) {
   const e = dexStats()[t];
-  if (!e.rare) { toast('아직 희귀한 모습을 못 찾았어요. 다 키우면 5% 확률로 피어나요.'); return; }
+  if (!e.rare) { toast('희귀 모습 미발견 · 다 키우면 5% 확률로 피어나요'); return; }
   const rv = !dexRareView.has(t);
   if (rv) dexRareView.add(t); else dexRareView.delete(t);
   document.querySelectorAll(`[data-dex="${t}"], #dexFlip[data-type="${t}"]`).forEach(el => el.classList.toggle('show-rare', rv));
@@ -2595,8 +2595,8 @@ function showDexPlant(type) {
   const P = PLANTS[type], e = dexStats()[type], on = e.count > 0, R = RARE[type];
   const rows = on
     ? [['키운 횟수', `${e.count}${P.unit}`], ['함께한 공부 시간', fmtMinutes(e.minutes)], ['처음 만난 날', fmtDateLong(dateKey(e.first))],
-       ['희귀 모습', e.rare ? `${R.name} · ${e.rare}번` : '아직 못 찾았어요']]
-    : [['만나는 방법', dexHint(type)], ['희귀 모습', '???']];
+       ['희귀 모습', e.rare ? `${R.name} · ${e.rare}번` : '미발견']]
+    : [['만나는 방법', dexHint(type)], ['희귀 모습', '미발견']];
   const acts = [{ label: '닫기', cls: 'soft', autofocus: true }];
   if (canGrow(type)) acts.push({ label: '키우러 가기', onClick: () => goGrow(type) });
   else if (!isOwned(type)) acts.push({ label: '상점 보기', onClick: () => { switchView('shop'); setTimeout(() => flashShopItem(type), 80); } });
