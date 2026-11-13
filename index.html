@@ -399,6 +399,20 @@ button{font-family:inherit;color:inherit}
 .btn.blue:active{box-shadow:0 1px 0 #4f8fb4}
 .btn.small.blue{box-shadow:0 3px 0 #4f8fb4}
 .btn:disabled{background:var(--beige);color:var(--muted);box-shadow:0 3px 0 var(--beige-d);cursor:default;transform:none}
+.luck-badge{display:inline-block;background:#fff1c2;color:#8a6a10;border:1.5px solid #f0d98a;border-radius:999px;padding:3px 14px;font-weight:700;font-size:13.5px;margin-bottom:6px;animation:attendPop .8s cubic-bezier(.3,1.6,.5,1)}
+.luck-badge.jackpot{background:linear-gradient(90deg,#ffe6a3,#ffd0de,#d6ecff);border-color:#f2b8c9;color:#8a3a52}
+.reward.lucky-bonus{background:#fff1c2}
+.reward.lucky-jackpot{background:linear-gradient(90deg,#fff1c2,#ffe3ec);border-color:#f2b8c9}
+.harvest-lines{list-style:none;margin:8px auto 4px;padding:0;max-width:220px;font-size:13.5px;color:var(--ink-2)}
+.harvest-lines li{display:flex;justify-content:space-between;align-items:center;padding:3px 2px;border-bottom:1px dashed var(--line)}
+.harvest-lines li:last-child{border-bottom:0}
+.harvest-lines li span{display:flex;align-items:center;gap:4px}
+.harvest-lines li svg{width:15px;height:15px}
+.harvest-lines li.luck{color:#a8790c;font-weight:700}
+.harvest-lines li.luck.jackpot{color:#b1452c}
+.harvest-lines li.water{color:#3f7fa3}
+.luck-dot{display:inline-block;margin-left:5px;font-size:10.5px;font-weight:700;color:#a8790c;background:#fff1c2;border-radius:999px;padding:0 6px;vertical-align:1px}
+.luck-dot.jackpot{color:#b1452c;background:#ffe3ec}
 .import-sum{background:#fff6d8;border:1px solid #f0d98a;border-radius:12px;padding:8px 12px;margin:10px 0 6px;color:#6b5512}
 .modal .sub{color:var(--muted);font-size:13px}
 .reward{display:inline-flex;align-items:center;gap:6px;background:#fff6d8;border:1.5px solid #f0d98a;border-radius:999px;padding:5px 16px;margin:8px 0 4px;font-size:15px;color:#8a6a10}
@@ -636,7 +650,7 @@ button{font-family:inherit;color:inherit}
         <p class="tip-text">
           <span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v1.3.0 · 2026.11.05</span>
+          <span class="app-version">나의 공부 정원 v2.0.0 · 2026.11.13</span>
         </p>
       </aside>
 
@@ -725,7 +739,7 @@ button{font-family:inherit;color:inherit}
         <h2>상점</h2>
         <div class="wallet" id="shopWallet"></div>
       </div>
-      <p class="shop-desc">오래 걸리는 식물일수록 1분당 코인을 더 많이 받아요. 영양제나 맑은 물을 주면 코인이 더 늘어나요. 매일 오늘의 정원에 들르면 출석 보상 10코인도 받아요.</p>
+      <p class="shop-desc">다 키우면 기본 코인을 받고, 가끔 보너스나 대박 코인이 터져요. 맑은 물을 주면 코인이 더 늘어나요. 매일 오늘의 정원에 들르면 출석 보상 10코인도 받아요.</p>
       <div class="shop-banner" id="shopBanner"></div>
       <h3 class="shop-sec">새로운 모종</h3>
       <div class="shop-grid" id="shopSeeds"></div>
@@ -758,37 +772,44 @@ const LS_KEYS = {
   wallet:  'studyGarden.wallet.v1',    // { coins, nutrients, water, owned, rewardedRest, restLog }
   cloud:   'studyGarden.cloudUser.v1', // 이 기기의 기록이 어느 구글 계정의 사본인지 (uid)
   outbox:  'studyGarden.outbox.v1',    // 연결 전에 생긴 변경 (연결되면 올림)
-  device:  'studyGarden.device.v1'     // 기기 구분용 id
+  device:  'studyGarden.device.v1',    // 기기 구분용 id
+  schema:  'studyGarden.schema',       // 저장 구조 버전 (2 = v2.0.0)
+  backup:  'studyGarden.backup.v1'     // v2로 처음 열 때 남기는 v1.3.0 데이터 백업
 };
 
-/* 식물 정보 — coins: 다 키웠을 때 받는 기본 코인. 오래 걸리는 식물일수록 1분당 코인이 많아집니다
-   (5분 1.0 → 10분 1.2 → 15분 1.3 → 20분 1.4 → 30분 1.5 → 40분 1.6 → 60분 2.0 코인/분).
+/* 식물 정보 — coins: 다 키웠을 때 확정으로 받는 기본 코인 · bonusP: 수확 보너스(+50%) 확률
+   대박(+150%)은 모든 식물 8%. 오래 걸리는 식물일수록 기본 코인과 보너스 확률이 조금씩 높아요
+   (기대값 1분당 약 1.4 → 1.9 코인).
    base: 처음부터 키울 수 있음 · price: 상점 모종 가격 · limited: 기간 한정 */
 const PLANTS = {
-  primrose:  { name:'달맞이꽃', latin:'Oenothera biennis', minutes:5, coins:5, unit:'송이', base:true,
+  primrose:  { name:'달맞이꽃', latin:'Oenothera biennis', minutes:5, coins:6, bonusP:.15, unit:'송이', base:true,
                desc:'노란 네 장의 꽃잎이 피는 꽃', pot:'#e8d9b8', band:'#a9c792', color:'#f2c94c', gardenH:118, tileW:62 },
-  nemophila: { name:'푸른별꽃', latin:'Isotoma axillaris', minutes:10, coins:12, unit:'포기', price:60,
+  nemophila: { name:'푸른별꽃', latin:'Isotoma axillaris', minutes:10, coins:13, bonusP:.18, unit:'포기', price:60,
                desc:'가는 잎 위로 하늘색 별 모양 꽃이 피어요', pot:'#e6e8ef', band:'#86b2ef', color:'#86b2ef', gardenH:116, tileW:66 },
-  monstera:  { name:'몬스테라', latin:'Monstera deliciosa', minutes:15, coins:20, unit:'그루', base:true,
+  monstera:  { name:'몬스테라', latin:'Monstera deliciosa', minutes:15, coins:20, bonusP:.20, unit:'그루', base:true,
                desc:'갈라지고 구멍 난 커다란 잎', pot:'#cf8f69', band:'#e8b996', color:'#5f9a52', gardenH:150, tileW:116 },
-  rosemary:  { name:'민트', latin:'Mentha', minutes:20, coins:28, unit:'포기', price:100,
+  rosemary:  { name:'민트', latin:'Mentha', minutes:20, coins:27, bonusP:.23, unit:'포기', price:100,
                desc:'둥근 잎이 마주나는 싱그러운 허브', pot:'#e3efe6', band:'#6fbf73', color:'#6fbf73', gardenH:126, tileW:68 },
-  maple:     { name:'남천나무', latin:'Nandina domestica · 11월 한정', minutes:30, coins:45, unit:'그루', price:200, limited:'november', gift:true,
+  maple:     { name:'남천나무', latin:'Nandina domestica · 11월 한정', minutes:30, coins:42, bonusP:.27, unit:'그루', price:200, limited:'november', gift:true,
                desc:'빨강부터 초록까지 물드는 잎과 빨간 열매', pot:'#cdb48c', band:'#c9573c', color:'#d2452f', gardenH:160, tileW:84 },
-  cotton:    { name:'목화', latin:'Gossypium hirsutum', minutes:40, coins:65, unit:'그루', base:true,
+  cotton:    { name:'목화', latin:'Gossypium hirsutum', minutes:40, coins:56, bonusP:.30, unit:'그루', base:true,
                desc:'다래가 벌어지면 하얀 목화솜', pot:'#d7bf96', band:'#f3ead6', color:'#ebe3d2', gardenH:168, tileW:100 },
-  tangerine: { name:'귤나무', latin:'Citrus unshiu', minutes:60, coins:120, unit:'그루', price:500,
+  tangerine: { name:'귤나무', latin:'Citrus unshiu', minutes:60, coins:90, bonusP:.35, unit:'그루', price:500,
                desc:'하얀 꽃 뒤에 주황빛 귤이 열리는 나무', pot:'#b98b62', band:'#dcb88c', color:'#f08a24', gardenH:180, tileW:104 }
 };
 const ORDER = ['primrose','nemophila','monstera','rosemary','maple','cotton','tangerine'];
 ORDER.forEach((t, i) => { PLANTS[t].no = String(i + 1).padStart(2, '0'); });
 
-/* 아이템 — 영양제는 상점에서 사고, 맑은 물은 15분 휴식을 마치면 얻습니다.
-   공부 중인 식물에게 각각 한 번씩 줄 수 있고, 완성할 때 코인이 늘어납니다. */
+/* 아이템 — 맑은 물 (v2.0.0에서 영양제와 통합). 상점 구매 · 15분 휴식 · 남천나무에서 얻어요.
+   공부 중인 식물에게 한 번 주면, 다 자랐을 때 기본 코인의 +30% (최소 +5)를 확정으로 더 받아요. */
 const ITEMS = {
-  nutrient: { name:'영양제', price:10, rate:0.5, min:3, unit:'개' },   // 완성 코인 +50% (최소 +3)
-  water:    { name:'맑은 물', rate:0.2, min:2, unit:'병' }             // 완성 코인 +20% (최소 +2)
+  water: { name:'맑은 물', price:15, rate:0.3, min:5, unit:'병' }
 };
+/* 맑은 물 효과 규칙 — 식물마다 waterRule로 바꿀 수 있어요 (예: 나중에 선인장은 오히려 줄어드는 규칙) */
+const WATER_RULES = {
+  default: base => Math.max(ITEMS.water.min, Math.round(base * ITEMS.water.rate))
+};
+const BONUS_RATE = 0.5, JACKPOT_P = 0.08, JACKPOT_RATE = 1.5;
 const REST_MINUTES = 15;
 const ATTEND_COINS = 10;   // 매일 오늘의 정원에 처음 들어가면 받는 출석 보상
 
@@ -867,15 +888,19 @@ const easeOut = t => 1 - Math.pow(1 - t, 3);
 const pad = n => String(n).padStart(2, '0');
 const WEEK = ['일','월','화','수','목','금','토'];
 
-function dateKey(ms = Date.now()) {
-  const d = new Date(ms);
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+/* 날짜와 시각은 모두 한국 시간(Asia/Seoul, UTC+9) 기준 — 일일 초기화 · 계절도 같은 기준 */
+const KST_OFFSET = 9 * 3600000;
+function kst(ms = Date.now()) {
+  const d = new Date(ms + KST_OFFSET);
+  return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, d: d.getUTCDate(), h: d.getUTCHours(), min: d.getUTCMinutes() };
 }
-function parseKey(k) { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); }
-function shiftKey(k, days) { const d = parseKey(k); d.setDate(d.getDate() + days); return dateKey(d.getTime()); }
-function fmtDateLong(k) { const d = parseKey(k); return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 ${WEEK[d.getDay()]}요일`; }
-function fmtDateShort(k) { const d = parseKey(k); return `${d.getMonth() + 1}/${d.getDate()} (${WEEK[d.getDay()]})`; }
-function fmtClock(ms) { const d = new Date(ms); const h = d.getHours(); return `${h < 12 ? '오전' : '오후'} ${h % 12 || 12}:${pad(d.getMinutes())}`; }
+function dateKey(ms = Date.now()) { const k = kst(ms); return `${k.y}-${pad(k.m)}-${pad(k.d)}`; }
+function keyParts(k) { const [y, m, d] = k.split('-').map(Number); return { y, m, d, dow: new Date(Date.UTC(y, m - 1, d)).getUTCDay() }; }
+function parseKey(k) { const p = keyParts(k); return new Date(Date.UTC(p.y, p.m - 1, p.d) - KST_OFFSET); }
+function shiftKey(k, days) { return dateKey(parseKey(k).getTime() + days * 86400000 + 3600000); }
+function fmtDateLong(k) { const p = keyParts(k); return `${p.y}년 ${p.m}월 ${p.d}일 ${WEEK[p.dow]}요일`; }
+function fmtDateShort(k) { const p = keyParts(k); return `${p.m}/${p.d} (${WEEK[p.dow]})`; }
+function fmtClock(ms) { const k = kst(ms); return `${k.h < 12 ? '오전' : '오후'} ${k.h % 12 || 12}:${pad(k.min)}`; }
 function fmtMMSS(ms) { const s = Math.max(0, Math.ceil(ms / 1000)); return `${pad(Math.floor(s / 60))}:${pad(s % 60)}`; }
 function fmtMS(ms) { const s = Math.max(0, Math.floor(ms / 1000)); return `${Math.floor(s / 60)}:${pad(s % 60)}`; }
 function fmtMinutes(min) {
@@ -921,7 +946,23 @@ const state = {
   migratedCoins: 0      // 첫 실행 때 기존 기록으로 받은 코인
 };
 
+/** v2로 처음 열 때 기존(v1.3.0) 데이터를 통째로 한 번 복사해 둠 — 원본은 그대로 둠 */
+function backupBeforeV2() {
+  if (Store.read(LS_KEYS.schema, 0) >= 2) return;
+  try {
+    if (!localStorage.getItem(LS_KEYS.backup)) {
+      const data = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('studyGarden.') && k !== LS_KEYS.backup) data[k] = localStorage.getItem(k);
+      }
+      if (Object.keys(data).length) localStorage.setItem(LS_KEYS.backup, JSON.stringify({ at: Date.now(), from: '1.3.0', data }));
+    }
+  } catch (e) { /* 저장 공간이 부족해도 앱은 계속 동작 */ }
+  Store.write(LS_KEYS.schema, 2);
+}
 function loadAll() {
+  backupBeforeV2();
   const rec = Store.read(LS_KEYS.records, {});
   state.records = (rec && typeof rec === 'object' && !Array.isArray(rec)) ? rec : {};
   // 지갑이 처음 생길 때: 이전 버전에서 키운 식물만큼 코인을 지급
@@ -947,6 +988,7 @@ function validTimer(t) {
 /** 이전 버전 타이머(kind 없음)도 공부 타이머로 이어서 사용 */
 function normalizeTimer(t) {
   const n = { ...t, kind: t.kind === 'rest' ? 'rest' : 'study' };
+  // 예전 타이머에 준 영양제는 맑은 물을 준 것으로 봄 (둘 다 줬다면 완료할 때 맑은 물 1병을 돌려줌)
   if (n.kind === 'study') n.boosts = { nutrient: !!(t.boosts && t.boosts.nutrient), water: !!(t.boosts && t.boosts.water) };
   return n;
 }
@@ -954,12 +996,12 @@ const saveRecords = () => Store.write(LS_KEYS.records, state.records);
 const saveSettings = () => Store.write(LS_KEYS.settings, state.settings);
 function saveTimer(t) { state.timer = t; t ? Store.write(LS_KEYS.timer, t) : Store.remove(LS_KEYS.timer); Cloud.pushTimer(t); }
 
-/* --- 지갑: 코인 · 영양제 · 맑은 물 · 보유 모종 --- */
+/* --- 지갑: 코인 · 맑은 물 · 보유 모종 (영양제는 v2.0.0에서 맑은 물로 합산) --- */
 function normalizeWallet(w) {
   w = (w && typeof w === 'object') ? w : {};
   const num = v => (typeof v === 'number' && isFinite(v) && v > 0) ? Math.floor(v) : 0;
   return {
-    coins: num(w.coins), nutrients: num(w.nutrients), water: num(w.water),
+    coins: num(w.coins), nutrients: 0, water: num(w.water) + num(w.nutrients),   // v2: 영양제 1개 = 맑은 물 1개로 합산
     owned: (w.owned && typeof w.owned === 'object') ? w.owned : {},
     rewardedRest: Array.isArray(w.rewardedRest) ? w.rewardedRest : [],
     restLog: (w.restLog && typeof w.restLog === 'object') ? w.restLog : {},
@@ -979,28 +1021,41 @@ function updateWallet(fn, id) {
 }
 
 /* --- 모종 보유 · 기간 한정 --- */
-function isNovember(ms = Date.now()) { return new Date(ms).getMonth() === 10; }
-function novemberDaysLeft() {
-  const d = new Date(), today = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  return Math.round((new Date(d.getFullYear(), 11, 1) - today) / 86400000);
-}
+function isNovember(ms = Date.now()) { return kst(ms).m === 11; }
+function novemberDaysLeft() { const k = kst(); return 30 - k.d + 1; }
 const isOwned = type => !!PLANTS[type] && (!!PLANTS[type].base || !!(state.wallet && state.wallet.owned[type]));
 const inSeason = type => PLANTS[type].limited !== 'november' || isNovember();
 const canGrow = type => isOwned(type) && inSeason(type);
 
 /* --- 코인 계산 --- */
-/** 남천나무 선물: 90% 맑은 물, 10% 영양제 — 타이머 id로 정해서 어느 기기에서 완료해도 같은 결과 */
+/** 남천나무 선물: 맑은 물 1병 (v2.0.0부터 영양제가 맑은 물로 통합) */
 function giftFor(type, id) {
-  if (!PLANTS[type] || !PLANTS[type].gift) return null;
-  return hashNum(String(id) + ':gift') % 10 === 0 ? 'nutrient' : 'water';
+  return PLANTS[type] && PLANTS[type].gift ? 'water' : null;
 }
-function bonusFor(type, key) { const it = ITEMS[key]; return Math.max(it.min, Math.round(PLANTS[type].coins * it.rate)); }
-function coinsFor(type, boosts) {
-  let c = PLANTS[type].coins;
-  if (boosts && boosts.nutrient) c += bonusFor(type, 'nutrient');
-  if (boosts && boosts.water) c += bonusFor(type, 'water');
-  return c;
+/** 맑은 물을 줬을 때 더 받는 코인 */
+function waterBonus(type) { const P = PLANTS[type]; return (WATER_RULES[P.waterRule] || WATER_RULES.default)(P.coins); }
+/** 타이머 id로 만드는 고정 난수 — 어느 기기에서 수확해도 결과가 같아 중복 · 불일치가 생기지 않음 */
+function seededRandom(seed) {
+  let h = 2166136261;
+  for (const c of String(seed)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+  return () => {
+    h = (h + 0x6D2B79F5) | 0; let t = h;
+    t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
+/** 수확 결과 — 기본 코인(확정) + 보너스/대박(랜덤) + 맑은 물(확정). 결과는 수확할 때만 정해짐 */
+function rollHarvest(type, id, boosts) {
+  const P = PLANTS[type], r = seededRandom(id + ':harvest'), roll = r();
+  const luck = roll < JACKPOT_P ? 'jackpot' : roll < JACKPOT_P + P.bonusP ? 'bonus' : null;
+  const base = P.coins;
+  const bonus = luck === 'jackpot' ? Math.round(base * JACKPOT_RATE) : luck === 'bonus' ? Math.max(3, Math.round(base * BONUS_RATE)) : 0;
+  const watered = !!(boosts && (boosts.water || boosts.nutrient));
+  const water = watered ? waterBonus(type) : 0;
+  const refund = !!(boosts && boosts.water && boosts.nutrient);   // 예전 버전에서 영양제와 물을 둘 다 준 경우
+  return { base, luck, bonus, water, refund, total: base + bonus + water };
+}
+function coinsFor(type, boosts, id) { return rollHarvest(type, id || '', boosts).total; }
 
 /** 완성 기록 추가 — 같은 세션 id가 이미 있으면 중복 저장하지 않음 */
 function addRecord(rec) {
@@ -1605,7 +1660,7 @@ function askStop() {
     return;
   }
   const b = t.boosts || {};
-  const used = b.nutrient && b.water ? '영양제와 맑은 물' : b.nutrient ? '영양제' : b.water ? '맑은 물' : '';
+  const used = (b.nutrient || b.water) ? '맑은 물' : '';
   openModal({
     art: plantSVG(t.type, { pot: true, p }),
     title: '공부를 중단할까요?',
@@ -1615,7 +1670,7 @@ function askStop() {
       { label: '중단하기', cls: 'danger', onClick: () => {
           if (!state.timer || state.timer.id !== t.id) return;
           const bb = state.timer.boosts || {};
-          if (bb.nutrient || bb.water) updateWallet(w => { if (bb.nutrient) w.nutrients++; if (bb.water) w.water++; }, 'refund_' + t.id);
+          if (bb.nutrient || bb.water) updateWallet(w => { w.water += (bb.nutrient ? 1 : 0) + (bb.water ? 1 : 0); }, 'refund_' + t.id);
           saveTimer(null); Sound.cancel(); studyBubble.stop();
           buildStage(state.settings.selected, 0);
           studyBubble.say('괜찮아. 다음에 다시 키워 보자.');
@@ -1648,12 +1703,14 @@ function finishStudy(t) {
   if (!claimTimer(t)) return;
   const end = t.status === 'running' ? timerEnd(t) : Date.now();
   const boosts = { nutrient: !!(t.boosts && t.boosts.nutrient), water: !!(t.boosts && t.boosts.water) };
-  const coins = coinsFor(t.type, boosts);
+  const h = rollHarvest(t.type, t.id, boosts);
   const gift = giftFor(t.type, t.id);
-  const rec = { id: t.id, type: t.type, startedAt: t.startedAt, completedAt: end, minutes: PLANTS[t.type].minutes, coins, boosts };
+  const rec = { id: t.id, type: t.type, startedAt: t.startedAt, completedAt: end, minutes: PLANTS[t.type].minutes,
+                coins: h.total, base: h.base, bonus: h.bonus, luck: h.luck, boosts };
   if (gift) rec.gift = gift;
   const added = addRecord(rec);
-  if (added) updateWallet(w => { w.coins += coins; if (gift === 'water') w.water++; else if (gift === 'nutrient') w.nutrients++; }, 'earn_' + t.id);   // 기록이 새로 저장될 때만 코인 지급
+  // 기록이 새로 저장될 때만 지급 (같은 id로 장부에 남아 여러 기기에서도 한 번만)
+  if (added) updateWallet(w => { w.coins += h.total; w.water += (gift === 'water' ? 1 : 0) + (h.refund ? 1 : 0); }, 'earn_' + t.id);
   saveTimer(null);
   const live = finishChime(t, end);
   studyBubble.stop();
@@ -1665,26 +1722,31 @@ function finishStudy(t) {
   celebrate(t.type);
   refreshAll();
   document.title = `${josa(PLANTS[t.type].name, '이', '가')} 다 자랐어요! · 나의 공부 정원`;
-  if (added) showStudyDone(t.type, boosts, end, live, true, gift);
+  if (added) showStudyDone(t.type, h, end, live, true, gift);
 }
 /** 식물 완성 축하 창 — 사용자가 닫을 때까지 계속 보임 */
-function showStudyDone(type, boosts, end, live, withCount, gift) {
+function showStudyDone(type, h, end, live, withCount, gift) {
   const P = PLANTS[type]; if (!P) return;
-  boosts = boosts || {};
-  const coins = coinsFor(type, boosts);
-  const parts = [`기본 ${P.coins}`];
-  if (boosts.nutrient) parts.push(`영양제 +${bonusFor(type, 'nutrient')}`);
-  if (boosts.water) parts.push(`맑은 물 +${bonusFor(type, 'water')}`);
+  const lines = [`<li><span>기본</span><b>${h.base}</b></li>`];
+  if (h.luck === 'bonus') lines.push(`<li class="luck"><span>보너스!</span><b>+${h.bonus}</b></li>`);
+  if (h.luck === 'jackpot') lines.push(`<li class="luck jackpot"><span>대박!</span><b>+${h.bonus}</b></li>`);
+  if (h.water) lines.push(`<li class="water"><span>${ICON.water}맑은 물</span><b>+${h.water}</b></li>`);
+  const badge = h.luck === 'jackpot' ? '<div class="luck-badge jackpot">대박! 코인 2.5배</div>' : h.luck === 'bonus' ? '<div class="luck-badge">보너스 코인!</div>' : '';
+  const extras = [];
+  if (gift === 'water') extras.push(`<div class="reward gift water">${ICON.water}<b>+1</b>맑은 물</div>`);
+  if (h.refund) extras.push(`<div class="reward gift water">${ICON.water}<b>+1</b>맑은 물 돌려받음</div>`);
   openModal({
     art: staticSVG(type, true),
     title: live ? `${josa(P.name, '이', '가')} 다 자랐어요!` : `자리를 비운 사이 ${josa(P.name, '이', '가')} 다 자랐어요`,
-    body: `<p>${P.minutes}분 공부 완료! 오늘의 정원에 심었어요.</p>
-           <div class="rewards"><div class="reward">${ICON.coin}<b>+${coins}</b>코인</div>${gift ? `<div class="reward gift ${gift}">${ICON[gift]}<b>+1</b>${gift === 'water' ? '맑은 물' : '영양제'}</div>` : ''}</div>
-           ${gift === 'nutrient' ? '<p class="lucky">10% 행운! 남천나무가 영양제를 줬어요.</p>' : gift ? '<p class="sub">남천나무가 맑은 물을 선물했어요.</p>' : ''}
-           <p class="sub">${parts.join(' · ')}<br>${fmtClock(end)}에 완성${withCount ? ` · 오늘 ${daySummary(dateKey()).total}번째 식물` : ''}</p>`,
+    body: `${badge}<p>${P.minutes}분 공부 완료! 오늘의 정원에 심었어요.</p>
+           <div class="rewards"><div class="reward${h.luck ? ' lucky-' + h.luck : ''}">${ICON.coin}<b>+${h.total}</b>코인</div>${extras.join('')}</div>
+           <ul class="harvest-lines">${lines.join('')}</ul>
+           ${gift ? '<p class="sub">남천나무가 맑은 물을 선물했어요.</p>' : ''}
+           <p class="sub">${fmtClock(end)}에 완성${withCount ? ` · 오늘 ${daySummary(dateKey()).total}번째 식물` : ''}</p>`,
     actions: [ { label: '정원 보러 가기', cls: 'soft', onClick: () => { state.gardenKey = null; switchView('garden'); } },
                { label: '계속 공부하기', autofocus: true } ]
   });
+  if (h.luck) setTimeout(() => celebrate(type), 200);
 }
 
 /** 휴식 완료 — 맑은 물 1병 (같은 휴식으로는 한 번만 지급) */
@@ -1740,25 +1802,22 @@ function timerEndedElsewhere(prev) {
   studyBubble.say(DONE_MSG[prev.type]);
   celebrate(prev.type);
   document.title = `${josa(PLANTS[prev.type].name, '이', '가')} 다 자랐어요! · 나의 공부 정원`;
-  showStudyDone(prev.type, prev.boosts, end, live, false, giftFor(prev.type, prev.id));
+  showStudyDone(prev.type, rollHarvest(prev.type, prev.id, prev.boosts), end, live, false, giftFor(prev.type, prev.id));
 }
 
-/** 공부 중 아이템 주기 (영양제 / 맑은 물) — 식물마다 각각 한 번씩 */
+/** 공부 중 맑은 물 주기 — 식물마다 한 번 */
 function useItem(key) {
+  key = 'water';
   const t = state.timer;
   if (!isStudy(t)) { toast(isRest(t) ? '휴식 중에는 줄 수 없어요. 공부할 때 주세요.' : '공부를 시작한 뒤에 줄 수 있어요.'); return; }
-  if (t.boosts && t.boosts[key]) { toast(`이번 식물에는 이미 ${josa(ITEMS[key].name, '을', '를')} 줬어요.`); return; }
-  const field = key === 'nutrient' ? 'nutrients' : 'water';
+  if (t.boosts && (t.boosts.water || t.boosts.nutrient)) { toast('이번 식물에는 이미 맑은 물을 줬어요.'); return; }
   let ok = false;
-  updateWallet(w => { if (w[field] > 0) { w[field]--; ok = true; } }, `use_${key}_${t.id}`);
-  if (!ok) {
-    toast(key === 'nutrient' ? '영양제가 없어요. 상점에서 살 수 있어요.' : `맑은 물이 없어요. ${REST_MINUTES}분 휴식을 마치면 얻을 수 있어요.`);
-    refreshAll(); return;
-  }
-  saveTimer({ ...t, boosts: { ...(t.boosts || {}), [key]: true } });
-  itemEffect(key);
-  studyBubble.say(key === 'nutrient' ? '영양제 고마워! 힘이 솟아.' : '시원한 물이다. 고마워!');
-  toast(`${josa(ITEMS[key].name, '을', '를')} 줬어요. 다 자라면 +${bonusFor(t.type, key)}코인`);
+  updateWallet(w => { if (w.water > 0) { w.water--; ok = true; } }, `use_water_${t.id}`);
+  if (!ok) { toast(`맑은 물이 없어요. ${REST_MINUTES}분 휴식을 마치거나 상점에서 살 수 있어요.`); refreshAll(); return; }
+  saveTimer({ ...t, boosts: { ...(t.boosts || {}), water: true } });
+  itemEffect('water');
+  studyBubble.say('시원한 물이다. 고마워!');
+  toast(`맑은 물을 줬어요. 다 자라면 +${waterBonus(t.type)}코인`);
   refreshAll();
 }
 
@@ -1886,23 +1945,18 @@ function paintBar(bar, p, mode) {
   bar.setAttribute('aria-valuenow', Math.floor(p * 100));
 }
 
-/** 영양제 · 맑은 물 주기 버튼 */
+/** 맑은 물 주기 버튼 */
 let itemsSig = '';
 function renderItems() {
   const t = state.timer, w = state.wallet, type = studyType(), active = isStudy(t);
   const b = active ? (t.boosts || {}) : {};
-  const sig = [active, b.nutrient, b.water, w.nutrients, w.water, type].join();
+  const used = !!(b.water || b.nutrient);
+  const sig = [active, used, w.water, type].join();
   if (sig === itemsSig) return;
   itemsSig = sig;
-  const btn = (key, have) => {
-    const used = !!b[key], bonus = bonusFor(type, key);
-    const dim = !used && (!active || !have);
-    const label = used ? `${ITEMS[key].name} 줬어요` : `${ITEMS[key].name} 주기`;
-    const sub = used ? `다 자라면 +${bonus}코인` : `+${bonus}코인 · ${have}${ITEMS[key].unit} 보유`;
-    return `<button class="item-btn ${key}${used ? ' used' : ''}${dim ? ' dim' : ''}" type="button" data-item="${key}" aria-pressed="${used}">
-      ${ICON[key]}<span>${label}<small>${sub}</small></span></button>`;
-  };
-  $('#itemsRow').innerHTML = btn('nutrient', w.nutrients) + btn('water', w.water);
+  const bonus = waterBonus(type), dim = !used && (!active || !w.water);
+  $('#itemsRow').innerHTML = `<button class="item-btn water${used ? ' used' : ''}${dim ? ' dim' : ''}" type="button" data-item="water" aria-pressed="${used}">
+      ${ICON.water}<span>${used ? '맑은 물 줬어요' : '맑은 물 주기'}<small>${used ? `다 자라면 +${bonus}코인` : `+${bonus}코인 · ${w.water}병 보유`}</small></span></button>`;
 }
 
 function stageIndex(p) { return p >= 1 ? 5 : Math.min(4, Math.floor(p * 5)); }
@@ -2116,7 +2170,8 @@ function renderGarden() {
 }
 function boostIcons(r) {
   const b = r.boosts || {};
-  return (b.nutrient ? `<span class="boost" title="영양제">${ICON.nutrient}</span>` : '') + (b.water ? `<span class="boost" title="맑은 물">${ICON.water}</span>` : '');
+  return (b.nutrient ? `<span class="boost" title="영양제(맑은 물로 통합)">${ICON.nutrient}</span>` : '') + (b.water ? `<span class="boost" title="맑은 물">${ICON.water}</span>` : '') +
+    (r.luck === 'jackpot' ? '<span class="luck-dot jackpot" title="대박">대박</span>' : r.luck === 'bonus' ? '<span class="luck-dot" title="보너스">보너스</span>' : '');
 }
 
 /** 정원 식물 툴팁 (마우스 오버 / 키보드 포커스) */
@@ -2128,7 +2183,7 @@ function showTip(btn) {
     <div><span>심은 시각</span><span>${fmtClock(r.completedAt)}</span></div>
     <div><span>공부 시간</span><span>${r.minutes}분</span></div>
     <div><span>공부 시작</span><span>${fmtClock(r.startedAt)}</span></div>
-    ${r.coins != null ? `<div><span>받은 코인</span><span>${r.coins}</span></div>` : ''}
+    ${r.coins != null ? `<div><span>받은 코인</span><span>${r.coins}${r.luck === 'jackpot' ? ' (대박)' : r.luck === 'bonus' ? ' (보너스)' : ''}</span></div>` : ''}
     ${items ? `<div><span>준 아이템</span><span>${items}</span></div>` : ''}
     ${r.gift ? `<div><span>받은 선물</span><span>${r.gift === 'water' ? '맑은 물' : '영양제'}</span></div>` : ''}`;
   const svg = btn.querySelector('svg');
@@ -2172,19 +2227,19 @@ function confirmDelete(key, id) {
 }
 
 /* =========================================================
-   10-2. 상점 — 모종 · 영양제 (맑은 물은 휴식으로만)
+   10-2. 상점 — 모종 · 맑은 물
    ========================================================= */
 function renderShop() {
   const w = state.wallet;
   $('#shopWallet').innerHTML = `<span>${ICON.coin}<b>${w.coins.toLocaleString('ko-KR')}</b>코인</span>
-    <span>${ICON.nutrient}영양제 <b>${w.nutrients}</b></span><span>${ICON.water}맑은 물 <b>${w.water}</b></span>`;
+    <span>${ICON.water}맑은 물 <b>${w.water}</b></span>`;
   const nov = isNovember(), banner = $('#shopBanner');
   banner.className = 'shop-banner' + (nov ? '' : ' off');
   banner.innerHTML = nov
-    ? `${ICON.maple}<div><b>11월 한정 모종 · 남천나무</b><br>빨강부터 초록까지 물드는 잎과 빨간 열매가 예쁜 나무예요. 다 키우면 코인과 함께 맑은 물(90%)이나 영양제(10%)를 선물로 줘요. 11월 30일까지만 사고 키울 수 있어요.</div><span class="dday">${novemberDaysLeft()}일 남음</span>`
+    ? `${ICON.maple}<div><b>11월 한정 모종 · 남천나무</b><br>빨강부터 초록까지 물드는 잎과 빨간 열매가 예쁜 나무예요. 다 키우면 코인과 함께 맑은 물 1병을 선물로 줘요. 11월 30일까지만 사고 키울 수 있어요.</div><span class="dday">${novemberDaysLeft()}일 남음</span>`
     : `${ICON.maple}<div><b>남천나무는 11월 한정 모종이에요</b><br>11월이 되면 상점에 다시 찾아와요.${isOwned('maple') ? ' 이미 가지고 있으니 11월에 다시 키울 수 있어요.' : ''}</div>`;
   $('#shopSeeds').innerHTML = ORDER.filter(t => !PLANTS[t].base).map(seedCard).join('');
-  $('#shopItems').innerHTML = nutrientCard() + waterCard();
+  $('#shopItems').innerHTML = waterCard();
 }
 function seedCard(type) {
   const P = PLANTS[type], w = state.wallet, owned = isOwned(type), season = inSeason(type);
@@ -2201,27 +2256,19 @@ function seedCard(type) {
     <div class="si-no">No.${P.no} · 모종</div>
     <div class="si-name">${P.name}</div><div class="si-latin">${P.latin}</div>
     <p class="si-desc">${P.desc}</p>
-    <div class="si-meta"><span class="chip">${ICON.clock}${P.minutes}분</span><span class="chip">다 자라면 ${ICON.coin}${P.coins}</span>${P.gift ? '<span class="chip gift">선물 · 맑은 물 90% · 영양제 10%</span>' : ''}</div>
+    <div class="si-meta"><span class="chip">${ICON.clock}${P.minutes}분</span><span class="chip">기본 ${ICON.coin}${P.coins} + 보너스</span>${P.gift ? '<span class="chip gift">선물 · 맑은 물 1병</span>' : ''}</div>
     <div class="si-foot">${foot}</div></article>`;
 }
-function nutrientCard() {
-  const w = state.wallet, it = ITEMS.nutrient, lack = w.coins < it.price;
-  return `<article class="shop-item item" id="shop-nutrient">
-    <div class="si-art icon">${ICON.nutrient}</div>
-    <div class="si-no">아이템</div><div class="si-name">영양제</div><div class="si-latin">상점에서 구매</div>
-    <p class="si-desc">공부 중인 식물에게 주면 다 자랐을 때 코인을 50% 더 받아요 (최소 +${it.min}). 식물 하나에 한 번씩 줄 수 있어요.</p>
-    <div class="si-meta"><span class="chip">보유 ${w.nutrients}개</span><span class="chip">목화 +${bonusFor('cotton', 'nutrient')} · 귤나무 +${bonusFor('tangerine', 'nutrient')}</span></div>
-    <div class="si-foot"><span class="price">${ICON.coin}${it.price}</span>
-      <button class="btn small" type="button" data-buy-item="nutrient" ${lack ? 'disabled' : ''}>${lack ? `${it.price - w.coins}코인 부족` : '구매하기'}</button></div></article>`;
-}
 function waterCard() {
-  const w = state.wallet, it = ITEMS.water;
+  const w = state.wallet, it = ITEMS.water, lack = w.coins < it.price;
   return `<article class="shop-item item" id="shop-water">
     <div class="si-art icon water">${ICON.water}</div>
-    <div class="si-no">아이템</div><div class="si-name">맑은 물</div><div class="si-latin">휴식으로 얻기</div>
-    <p class="si-desc">상점에서는 살 수 없어요. 휴식 ${REST_MINUTES}분을 끝까지 마치면 한 병씩 생겨요. 공부 중에 주면 코인을 20% 더 받아요 (최소 +${it.min}).</p>
-    <div class="si-meta"><span class="chip">보유 ${w.water}병</span><span class="chip">영양제와 함께 줄 수 있어요</span></div>
-    <div class="si-foot"><span class="si-note">${ICON.water}휴식으로만 얻기</span><button class="btn small blue" type="button" data-go="rest">휴식하러 가기</button></div></article>`;
+    <div class="si-no">아이템</div><div class="si-name">맑은 물</div><div class="si-latin">구매 · 휴식 · 남천나무</div>
+    <p class="si-desc">공부 중인 식물에게 주면 다 자랐을 때 기본 코인의 30%를 더 받아요 (최소 +${it.min}). 짧은 식물에 줘도 든든해요. 휴식 ${REST_MINUTES}분을 마쳐도 한 병씩 생겨요.</p>
+    <div class="si-meta"><span class="chip">보유 ${w.water}병</span><span class="chip">달맞이꽃 +${waterBonus('primrose')} · 귤나무 +${waterBonus('tangerine')}</span></div>
+    <div class="si-foot"><span class="price">${ICON.coin}${it.price}</span>
+      <span style="display:flex;gap:6px"><button class="btn small blue" type="button" data-go="rest">휴식하기</button>
+      <button class="btn small" type="button" data-buy-item="water" ${lack ? 'disabled' : ''}>${lack ? `${it.price - w.coins}코인 부족` : '구매하기'}</button></span></div></article>`;
 }
 function buySeed(type) {
   const P = PLANTS[type];
@@ -2245,10 +2292,10 @@ function buySeed(type) {
   });
 }
 function buyItem(key) {
-  const price = ITEMS[key].price;
+  const price = ITEMS.water.price;
   let ok = false;
-  updateWallet(w => { if (w.coins >= price) { w.coins -= price; w.nutrients++; ok = true; } });
-  toast(ok ? `영양제를 샀어요. (보유 ${state.wallet.nutrients}개)` : '코인이 부족해요.');
+  updateWallet(w => { if (w.coins >= price) { w.coins -= price; w.water++; ok = true; } });
+  toast(ok ? `맑은 물을 샀어요. (보유 ${state.wallet.water}병)` : '코인이 부족해요.');
   refreshAll();
 }
 function goGrow(type) {
@@ -2625,7 +2672,7 @@ function emptyDiff(e) { return !e.coins && !e.nutrients && !e.water && !e.owned.
 function walletFromLedger(entries) {
   const w = { coins: 0, nutrients: 0, water: 0, owned: {}, rewardedRest: [], restLog: {}, attended: [] };
   entries.forEach(e => {
-    w.coins += Number(e.coins) || 0; w.nutrients += Number(e.nutrients) || 0; w.water += Number(e.water) || 0;
+    w.coins += Number(e.coins) || 0; w.water += (Number(e.water) || 0) + (Number(e.nutrients) || 0);   // 예전 영양제 기록도 맑은 물로 합산
     (Array.isArray(e.owned) ? e.owned : []).forEach(t => { w.owned[t] = true; });
     const r = e.rest && typeof e.rest === 'object' ? e.rest : {};
     for (const k in r) w.restLog[k] = (w.restLog[k] || 0) + (Number(r[k]) || 0);
