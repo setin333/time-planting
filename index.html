@@ -549,6 +549,47 @@ button{font-family:inherit;color:inherit}
 .log-coin{color:#a87b0c;font-size:12.5px;font-weight:500}
 
 /* =========================================================
+   도감
+   ========================================================= */
+.dex-card{padding:24px 28px 28px}
+.dex-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.dex-head h2{font-family:var(--font-title);font-weight:400;font-size:26px;margin:0;letter-spacing:-.5px}
+.dex-progress{display:flex;gap:10px;margin-left:auto;flex-wrap:wrap}
+.dex-meter{display:grid;grid-template-columns:1fr auto;align-items:center;gap:3px 12px;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:6px 12px 8px;min-width:132px;font-size:12.5px;color:var(--ink-2)}
+.dex-meter span{display:flex;align-items:center;gap:4px}
+.dex-meter svg{width:14px;height:14px}
+.dex-meter b{font-family:var(--font-title);font-weight:400;font-size:17px;color:var(--ink)}
+.dex-meter i{grid-column:1/-1;height:6px;border-radius:99px;background:linear-gradient(90deg,var(--green) calc(var(--p) * 100%),var(--beige) 0)}
+.dex-meter.rare i{background:linear-gradient(90deg,#e8be45 calc(var(--p) * 100%),var(--beige) 0)}
+.dex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.dex-item{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:10px 10px 13px;cursor:pointer;font:inherit;color:inherit;transition:transform .15s,border-color .2s}
+.dex-item:hover{transform:translateY(-2px);border-color:var(--line-d)}
+.dex-item:focus-visible{outline:3px solid #b9d7a9;outline-offset:2px}
+.dex-no{align-self:flex-start;font-size:11px;color:var(--muted);letter-spacing:.3px;line-height:1.2}
+.dex-art{width:100%;height:132px;display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(#fff9ee,#f6eedc);border-radius:13px;overflow:hidden;margin-top:5px}
+.dex-art svg{height:146px;width:auto;margin-bottom:-4px}
+.dex-item.limited .dex-art{background:linear-gradient(#fff0e4,#f8ddca)}
+.dex-item.unknown .dex-art{background:#f0e9da}
+.dex-item.unknown .dex-art svg,.dex-pair figure.hidden svg{filter:brightness(0);opacity:.15}
+.dex-name{font-family:var(--font-title);font-size:17px;margin-top:8px;line-height:1.3}
+.dex-sub{font-size:12px;color:var(--ink-2);margin-top:1px}
+.dex-item.unknown .dex-name,.dex-item.unknown .dex-sub{color:var(--muted)}
+.dex-rare{position:absolute;top:7px;right:7px;width:36px;height:36px;border-radius:50%;background:#f4eddd;border:1.5px dashed #d8c9a6;display:grid;place-items:center;font-size:14px;font-weight:700;color:#b8a988;overflow:hidden}
+.dex-rare.found{background:linear-gradient(#fff6cf,#ffe9f2);border:1.5px solid #f0d27a}
+.dex-rare svg{width:46px;height:46px;margin-top:8px}
+.modal-art .dex-pair{display:flex;gap:16px;justify-content:center}
+.dex-pair figure{margin:0;display:flex;flex-direction:column;align-items:center}
+.modal-art .dex-pair svg{height:122px}
+.dex-pair figcaption{font-size:12px;color:var(--muted);margin-top:2px}
+.dex-rows{margin:10px auto 0;max-width:290px;font-size:13.5px;text-align:left}
+.dex-rows div{display:flex;justify-content:space-between;gap:12px;padding:5px 2px;border-bottom:1px dashed var(--line)}
+.dex-rows div:last-child{border-bottom:0}
+.dex-rows div span:first-child{color:var(--muted);flex:none}
+.dex-rows div span:last-child{text-align:right}
+.chip-btn{border:0;cursor:pointer;font:inherit;font-size:12px;font-family:var(--font-body)}
+.chip-btn:hover{background:var(--beige-d)}
+
+/* =========================================================
    6. 반응형
    ========================================================= */
 @media (max-width:1080px){
@@ -570,6 +611,50 @@ button{font-family:inherit;color:inherit}
   .log li{grid-template-columns:1fr auto;}
   .log li .log-min,.log li .log-coin{display:none}
   .date-nav{margin-left:0}
+}
+/* 휴대폰: 아래 탭바 · 식물과 타이머 먼저 · 식물 고르기는 가로로 넘기기 */
+@media (max-width:760px){
+  body{padding-bottom:calc(76px + env(safe-area-inset-bottom, 0px))}
+  .brand{flex:1;order:0}
+  .account,#soundBtn{order:1}
+  .stats{order:2}
+  .mini-status{order:3;width:100%;justify-content:center}
+  .stat{padding:6px 8px;gap:6px;min-width:0}
+  .stat small{font-size:10.5px}
+  .stat-ico{display:none}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:60;border-radius:18px 18px 0 0;background:var(--paper);
+        border-top:1.5px solid var(--line);box-shadow:0 -4px 16px rgba(80,62,30,.10);padding:6px 6px calc(6px + env(safe-area-inset-bottom, 0px));gap:2px}
+  .tab{flex:1;flex-direction:column;gap:1px;padding:6px 2px 5px;font-size:11.5px;border-radius:12px;justify-content:center}
+  .tab svg{width:22px;height:22px}
+  .tab[aria-selected="true"]{background:var(--green-ll);box-shadow:none}
+  .toast{bottom:calc(88px + env(safe-area-inset-bottom, 0px));max-width:calc(100vw - 32px)}
+  .mini-garden-card,.desk-only{display:none}
+  .topbar{padding:10px 12px;margin-bottom:12px}
+  .brand{gap:9px}
+  .brand-logo{width:38px;height:38px;border-radius:12px}
+  .brand-logo svg{width:26px;height:26px}
+  .brand h1{font-size:20px}
+  .brand .today-date{font-size:11.5px}
+  .account .acc-label{display:none}
+  .icon-btn{height:38px;padding:0 10px}
+  .stat b{font-size:17px}
+  .stage{padding:14px 14px 18px}
+  .bubble-wrap{min-height:54px;margin-top:6px}
+  .bubble{font-size:15.5px;padding:9px 16px}
+  .plant-stage{height:min(27vh,250px);min-height:190px}
+  .timer{font-size:54px;margin-top:4px}
+  .progress{margin-top:10px}
+  .controls{margin-top:16px}
+  .plant-list{display:flex;overflow-x:auto;scroll-snap-type:x proximity;gap:8px;margin:0 -18px;padding:10px 18px 6px;scrollbar-width:none;overscroll-behavior-x:contain}
+  .plant-list::-webkit-scrollbar{display:none}
+  .plant-card{flex:0 0 150px;scroll-snap-align:start}
+  .dex-card,.shop-card{padding:18px 14px 20px}
+  .dex-progress{margin-left:0;width:100%}
+  .dex-meter{flex:1;min-width:0}
+  .dex-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .dex-art{height:112px}
+  .dex-art svg{height:124px}
+  .modal-art .dex-pair svg{height:104px}
 }
 @media (prefers-reduced-motion:reduce){
   .live .sway,.celebrate .live .sway{animation:none}
@@ -637,16 +722,19 @@ button{font-family:inherit;color:inherit}
 
     <nav class="tabs" role="tablist" aria-label="화면 전환">
       <button class="tab" role="tab" id="tabStudy" aria-selected="true" data-view="study">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2"/></svg>공부하기
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2"/></svg><span>공부</span>
       </button>
       <button class="tab" role="tab" id="tabRest" aria-selected="false" data-view="rest">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5C9.5 7 7 9.8 7 13a5 5 0 0 0 10 0c0-3.2-2.5-6-5-9.5z"/></svg>휴식
-      </button>
-      <button class="tab" role="tab" id="tabShop" aria-selected="false" data-view="shop">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l1.5-4.5h13L20 9"/><path d="M4 9h16v2a2.7 2.7 0 0 1-5.3 0 2.7 2.7 0 0 1-5.4 0A2.7 2.7 0 0 1 4 11z"/><path d="M5.5 13v6.5h13V13M10 19.5v-4h4v4"/></svg>상점
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5C9.5 7 7 9.8 7 13a5 5 0 0 0 10 0c0-3.2-2.5-6-5-9.5z"/></svg><span>휴식</span>
       </button>
       <button class="tab" role="tab" id="tabGarden" aria-selected="false" data-view="garden">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M7 20v-5M7 15c0-3-2-4-4-4 0 2 1 4 4 4zM7 15c0-3 2-4 4-4 0 2-1 4-4 4z"/><path d="M16 20V9M16 9a3 3 0 1 0 0-.1"/></svg>오늘의 정원
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M7 20v-5M7 15c0-3-2-4-4-4 0 2 1 4 4 4zM7 15c0-3 2-4 4-4 0 2-1 4-4 4z"/><path d="M16 20V9M16 9a3 3 0 1 0 0-.1"/></svg><span>정원</span>
+      </button>
+      <button class="tab" role="tab" id="tabShop" aria-selected="false" data-view="shop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l1.5-4.5h13L20 9"/><path d="M4 9h16v2a2.7 2.7 0 0 1-5.3 0 2.7 2.7 0 0 1-5.4 0A2.7 2.7 0 0 1 4 11z"/><path d="M5.5 13v6.5h13V13M10 19.5v-4h4v4"/></svg><span>상점</span>
+      </button>
+      <button class="tab" role="tab" id="tabDex" aria-selected="false" data-view="dex">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"/><path d="M12 14v-4M12 10c0-2-1.4-3-3-3 0 1.7 1.3 3 3 3zM12 11.5c0-1.6 1.2-2.5 2.6-2.5 0 1.5-1.1 2.5-2.6 2.5z"/></svg><span>도감</span>
       </button>
     </nav>
 
@@ -659,11 +747,11 @@ button{font-family:inherit;color:inherit}
     <div class="study-grid">
       <aside class="side">
         <section class="card">
-          <h2 class="card-title">식물 고르기 <span class="chip">도감 <b id="dexCount"></b></span></h2>
+          <h2 class="card-title">식물 고르기 <button class="chip chip-btn" type="button" id="dexChip" title="도감 보기">도감 <b id="dexCount"></b></button></h2>
           <div class="plant-list" id="plantList"></div>
         </section>
 
-        <section class="card">
+        <section class="card mini-garden-card">
           <h2 class="card-title">오늘의 작은 정원</h2>
           <div id="miniGarden"></div>
           <div class="side-foot">
@@ -673,9 +761,9 @@ button{font-family:inherit;color:inherit}
         </section>
 
         <p class="tip-text">
-          <span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br>
+          <span class="desk-only"><span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br></span>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v2.1.2 · 2026.11.13</span>
+          <span class="app-version">나의 공부 정원 v2.2.0 · 2026.11.13</span>
         </p>
       </aside>
 
@@ -755,6 +843,18 @@ button{font-family:inherit;color:inherit}
         <div class="controls" id="restControls"></div>
       </section>
     </div>
+  </main>
+
+  <!-- ===== 도감 화면 (식물 · 나중에 업적) ===== -->
+  <main class="view" id="viewDex">
+    <section class="card dex-card">
+      <div class="dex-head">
+        <h2>도감</h2>
+        <div class="dex-progress" id="dexProgress"></div>
+      </div>
+      <p class="shop-desc">처음 다 키운 식물이 도감에 등록돼요. 가끔 피는 희귀한 모습도 찾아보세요.</p>
+      <div class="dex-grid" id="dexGrid"></div>
+    </section>
   </main>
 
   <!-- ===== 상점 화면 ===== -->
@@ -1974,7 +2074,6 @@ function renderPlantCards() {
         <span class="pc-art">${staticSVG(type, true)}</span>
         <span class="pc-info"><span class="pc-name">${P.name}</span><span class="pc-meta">${meta}</span></span></button>`;
   }).join('');
-  $('#dexCount').textContent = `${ORDER.filter(isOwned).length}/${ORDER.length}`;
 }
 function selectPlant(type) {
   if (isStudy(state.timer) || !canGrow(type)) return;
@@ -2121,6 +2220,7 @@ function updateTopStatus() {
    9. 오늘 통계 & 사이드 미니 정원
    ========================================================= */
 function renderStats() {
+  $('#dexCount').textContent = `${ORDER.filter(t => dexStats()[t].count).length}/${ORDER.length}`;
   const today = dateKey();
   const sum = daySummary(today);
   $('#todayLabel').textContent = fmtDateLong(today);
@@ -2411,6 +2511,62 @@ function flashShopItem(type) {
 }
 
 /* =========================================================
+   10-3. 도감 — 처음 다 키우면 등록 (과거 기록 포함 · 보상 없음)
+   ========================================================= */
+function dexStats() {
+  const d = {};
+  ORDER.forEach(t => { d[t] = { count: 0, minutes: 0, first: 0, rare: 0, rareFirst: 0 }; });
+  for (const k in state.records) (state.records[k] || []).forEach(r => {
+    const e = d[r.type]; if (!e) return;
+    e.count++; e.minutes += Number(r.minutes) || 0;
+    if (!e.first || r.completedAt < e.first) e.first = r.completedAt;
+    if (r.rare) { e.rare++; if (!e.rareFirst || r.completedAt < e.rareFirst) e.rareFirst = r.completedAt; }
+  });
+  return d;
+}
+function dexHint(type) {
+  const P = PLANTS[type];
+  if (P.limited && !inSeason(type)) return '11월에만 키울 수 있어요';
+  if (!isOwned(type)) return `상점에서 ${P.price}코인`;
+  return `${P.minutes}분 공부하면 만나요`;
+}
+const meter = (label, n, total, cls = '') =>
+  `<div class="dex-meter ${cls}"><span>${label}</span><b>${n}/${total}</b><i style="--p:${(n / total).toFixed(3)}"></i></div>`;
+function renderDex() {
+  const d = dexStats(), found = ORDER.filter(t => d[t].count).length, rares = ORDER.filter(t => d[t].rare).length;
+  $('#dexProgress').innerHTML = meter('식물', found, ORDER.length) + meter(`${SPARKLE_ICON}희귀`, rares, ORDER.length, 'rare');
+  $('#dexGrid').innerHTML = ORDER.map((t, i) => {
+    const P = PLANTS[t], e = d[t], on = e.count > 0;
+    return `<button class="dex-item${on ? '' : ' unknown'}${P.limited ? ' limited' : ''}" type="button" data-dex="${t}"
+        aria-label="${P.name}${on ? `, ${e.count}번 키움` : ', 아직 못 만남'}${e.rare ? ', 희귀 발견' : ''}">
+      <span class="dex-no">No.${pad(i + 1)}</span>
+      <span class="dex-art">${staticSVG(t, true)}</span>
+      <span class="dex-name">${P.name}</span>
+      <span class="dex-sub">${on ? `${e.count}번 키움 · ${fmtMinutes(e.minutes)}` : dexHint(t)}</span>
+      <span class="dex-rare${e.rare ? ' found' : ''}" title="${e.rare ? RARE[t].name : '아직 못 찾은 희귀 모습'}">${e.rare ? staticSVG(t, false, true) : '?'}</span>
+    </button>`;
+  }).join('');
+}
+function showDexPlant(type) {
+  const P = PLANTS[type], e = dexStats()[type], on = e.count > 0, R = RARE[type];
+  const fig = (svg, cap, hide) => `<figure class="${hide ? 'hidden' : ''}">${svg}<figcaption>${cap}</figcaption></figure>`;
+  const rows = on
+    ? [['키운 횟수', `${e.count}${P.unit}`], ['함께한 공부 시간', fmtMinutes(e.minutes)], ['처음 만난 날', fmtDateLong(dateKey(e.first))],
+       ['희귀 모습', e.rare ? `${R.name} · ${e.rare}번` : '아직 못 찾았어요']]
+    : [['만나는 방법', dexHint(type)], ['희귀 모습', '???']];
+  const acts = [{ label: '닫기', cls: 'soft', autofocus: true }];
+  if (canGrow(type)) acts.push({ label: '키우러 가기', onClick: () => goGrow(type) });
+  else if (!isOwned(type)) acts.push({ label: '상점 보기', onClick: () => { switchView('shop'); setTimeout(() => flashShopItem(type), 80); } });
+  openModal({
+    art: `<div class="dex-pair">${fig(staticSVG(type, true), '기본', !on)}${fig(staticSVG(type, true, true), e.rare ? R.name : '희귀 ???', !e.rare)}</div>`,
+    title: P.name,
+    body: `<p class="sub">No.${pad(ORDER.indexOf(type) + 1)} · ${P.latin} · ${P.minutes}분</p><p>${P.desc}</p>
+           <div class="dex-rows">${rows.map(([a, b]) => `<div><span>${a}</span><span>${b}</span></div>`).join('')}</div>`,
+    actions: acts
+  });
+}
+
+/* =========================================================
    11. 모달 · 토스트 · 축하 효과
    ========================================================= */
 let modalLocked = false;
@@ -2522,7 +2678,7 @@ function claimAttendance() {
 /* =========================================================
    12. 화면 전환 · 설정 · 전체 갱신
    ========================================================= */
-const VIEWS = { study: ['#viewStudy', '#tabStudy'], rest: ['#viewRest', '#tabRest'], shop: ['#viewShop', '#tabShop'], garden: ['#viewGarden', '#tabGarden'] };
+const VIEWS = { study: ['#viewStudy', '#tabStudy'], rest: ['#viewRest', '#tabRest'], garden: ['#viewGarden', '#tabGarden'], shop: ['#viewShop', '#tabShop'], dex: ['#viewDex', '#tabDex'] };
 function switchView(v) {
   if (!VIEWS[v]) return;
   state.view = v;
@@ -2551,6 +2707,7 @@ function refreshAll() {
   renderRestSide();
   if (state.view === 'garden') renderGarden();
   if (state.view === 'shop') renderShop();
+  if (state.view === 'dex') renderDex();
   updateStage();
   updateRest();
   updateTopStatus();
@@ -2630,6 +2787,8 @@ function init() {
   document.querySelectorAll('.tab').forEach(tb => tb.addEventListener('click', () => switchView(tb.dataset.view)));
   $('#goGardenBtn').addEventListener('click', () => { state.gardenKey = null; switchView('garden'); });
   $('#goShopBtn').addEventListener('click', () => switchView('shop'));
+  $('#dexChip').addEventListener('click', () => switchView('dex'));
+  $('#dexGrid').addEventListener('click', e => { const b = e.target.closest('[data-dex]'); if (b) showDexPlant(b.dataset.dex); });
   $('#accountBtn').addEventListener('click', openAccount);
   $('#miniStatus').addEventListener('click', () => switchView(isRest(state.timer) ? 'rest' : 'study'));
   $('#soundBtn').addEventListener('click', () => {
