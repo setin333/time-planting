@@ -458,7 +458,7 @@ button{font-family:inherit;color:inherit}
 .reward.season.winter{background:#e3effa;border-color:#bcd6ec;color:#2f6195}
 .reward.season.winter b{color:#2f6195}
 .harvest-lines li.season{color:#9c4a26}
-.wallet .ico.maple,.wallet .ico.snow,.wallet .ico.petal,.wallet .ico.sun{width:18px;height:18px}
+.wallet .ico.leaf,.wallet .ico.snow,.wallet .ico.petal,.wallet .ico.sun{width:18px;height:18px}
 .reward b{font-family:var(--font-title);font-weight:400;font-size:22px;color:#a87b0c}
 
 /* 공부 중 아이템 버튼 */
@@ -534,6 +534,16 @@ button{font-family:inherit;color:inherit}
 .si-art svg{height:164px;width:auto;margin-bottom:-4px}
 .si-art.icon{align-items:center;background:linear-gradient(#f6fbef,#e9f3df)}
 .si-art.icon.water{background:linear-gradient(#f3fafd,#e0f1f9)}
+.si-art.icon.exchange{background:linear-gradient(#fff4e6,#fbe6d2);gap:6px}
+.shop-item.winter .si-art.icon.exchange{background:linear-gradient(#f2f7fd,#e0edf9)}
+.si-art.icon.exchange svg{width:58px;height:58px}
+.ex-arrow{font-size:26px;color:var(--muted);font-weight:700}
+.ex-row{display:flex;align-items:center;gap:8px;margin:2px 0 10px}
+.ex-row[hidden]{display:none}
+.ex-step{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line-d);background:var(--card);font:inherit;font-size:18px;font-weight:700;color:var(--ink-2);cursor:pointer;display:grid;place-items:center;padding:0}
+.ex-step:hover:not(:disabled){background:var(--beige)}
+.ex-step:disabled{opacity:.4;cursor:default}
+.ex-amt{min-width:52px;text-align:center;font-family:var(--font-title);font-size:20px;color:var(--ink)}
 .si-art.icon svg{height:76px;width:76px;margin:0}
 .shop-item.owned .si-art{background:linear-gradient(#f4f9ee,#e6efda)}
 .si-no{font-size:11px;color:var(--muted);margin-top:10px;letter-spacing:.3px}
@@ -807,7 +817,7 @@ button{font-family:inherit;color:inherit}
         <p class="tip-text">
           <span class="desk-only"><span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br></span>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v2.3.0 · 2026.11.16</span>
+          <span class="app-version">나의 공부 정원 v2.3.1 · 2026.11.16</span>
         </p>
       </aside>
 
@@ -914,7 +924,7 @@ button{font-family:inherit;color:inherit}
       <div class="shop-grid" id="shopSeason"></div>
       <h3 class="shop-sec">새로운 모종</h3>
       <div class="shop-grid" id="shopSeeds"></div>
-      <h3 class="shop-sec">아이템</h3>
+      <h3 class="shop-sec">아이템 · 환전소</h3>
       <div class="shop-grid" id="shopItems"></div>
     </section>
   </main>
@@ -1098,6 +1108,7 @@ const MAPLE = 'M0 0 L-3 -4 L-13 -2 L-11 -7 L-17 -13 L-12 -14 L-13 -21 L-7 -17 L-
 
 // 작은 아이콘 모음
 const ICON = {
+  leaf: `<svg class="ico leaf" viewBox="-19 -33 38 38" aria-hidden="true"><path d="M0 0 L0 4.5" stroke="#b5512b" stroke-width="2.2" stroke-linecap="round"/><path d="${MAPLE}" fill="#e8743c" stroke="#c4552b" stroke-width="1.6" stroke-linejoin="round"/><path d="M0 -2 L0 -24 M0 -9 L-9 -15 M0 -9 L9 -15" stroke="#c4552b" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".6"/></svg>`,
   snow: '<svg class="ico snow" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#6aa3d4" stroke-width="1.8" stroke-linecap="round" fill="none"><path d="M12 2.5v19M3.8 7.2l16.4 9.6M3.8 16.8l16.4-9.6"/><path d="M9.6 4.2 12 6.4l2.4-2.2M9.6 19.8 12 17.6l2.4 2.2M4.6 10.4l3.1-.9-.7-3.1M19.4 13.6l-3.1.9.7 3.1M4.6 13.6l3.1.9-.7 3.1M19.4 10.4l-3.1-.9.7-3.1"/></g></svg>',
   petal: '<svg class="ico petal" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21C6 17 4.5 11.5 7 6.5c1.2-2.3 3-3.5 5-3.5-.6 1.6-.4 3 .6 4.2C14 5.6 15.6 5 17 5.2c2.2 4.8-.2 11.6-5 15.8z" fill="#f6b8cc" stroke="#e48aa8" stroke-width="1.2" stroke-linejoin="round"/></svg>',
   sun: '<svg class="ico sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#f6c83f" stroke="#e0a524" stroke-width="1.2"/><g stroke="#e8b42e" stroke-width="1.8" stroke-linecap="round"><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7 7 17M17 7l1.7-1.7"/></g></svg>',
@@ -1270,8 +1281,9 @@ const seasonInfo = id => { const [y, key] = String(id).split('-'); return SEASON
 const seasonStartMs = (year, key) => Date.UTC(year, SEASONS[key].start - 1, 1) - KST_OFFSET;
 const seasonEndMs = (year, key) => key === 'winter' ? Date.UTC(year + 1, 2, 1) - KST_OFFSET : Date.UTC(year, SEASONS[key].start + 2, 1) - KST_OFFSET;
 const seasonDaysLeft = (s = seasonOf()) => Math.ceil((seasonEndMs(s.year, s.key) - Date.now()) / 86400000);
-const seasonIcon = key => ({ autumn: ICON.maple, winter: ICON.snow, spring: ICON.petal, summer: ICON.sun })[key] || ICON.maple;
+const seasonIcon = key => ({ autumn: ICON.leaf, winter: ICON.snow, spring: ICON.petal, summer: ICON.sun })[key] || ICON.maple;
 const josaSeason = (S, a, b) => josa(S.name, a, b);
+const SEASON_RATE = 2;   // 계절 코인 1개 = 일반 코인 2개 (환전소 · 계절이 끝날 때 자동 환전 모두). 일반 코인 → 계절 코인은 불가
 
 /* --- 모종 보유 · 계절 식물 --- */
 const isSeasonal = type => !!(PLANTS[type] && PLANTS[type].season);
@@ -1298,7 +1310,7 @@ function seasonReward(type, startedAt) {
   const s = seasonOf(startedAt || Date.now());
   return { n: P.sc, id: s.id, key: s.key, coin: s.coin, name: s.name, past: s.id !== seasonOf().id };
 }
-/** 끝난 계절의 계절 코인은 1개당 1코인으로 바꿈 (같은 잔액이면 같은 id → 여러 기기에서도 한 번만) */
+/** 끝난 계절의 계절 코인은 1개당 SEASON_RATE 코인으로 바꿈 (같은 잔액이면 같은 id → 여러 기기에서도 한 번만) */
 function settleSeasons() {
   const w = state.wallet; if (!w || !w.season) return;
   if (Cloud.user && Cloud.status !== 'synced') return;
@@ -1306,9 +1318,9 @@ function settleSeasons() {
   Object.keys(w.season).forEach(id => {
     const n = w.season[id]; if (!n || id === cur) return;
     let moved = 0;
-    updateWallet(x => { const m = x.season[id] || 0; if (m > 0) { x.coins += m; delete x.season[id]; moved = m; } }, `convert_${id}_${n}`);
+    updateWallet(x => { const m = x.season[id] || 0; if (m > 0) { x.coins += m * SEASON_RATE; delete x.season[id]; moved = m; } }, `convert_${id}_${n}`);
     const S = seasonInfo(id);
-    if (moved && S) { toast(`${josaSeason(S, '이', '가')} 끝나서 남은 ${S.coin} ${moved}개를 ${moved}코인으로 바꿨어요.`); refreshAll(); }
+    if (moved && S) { toast(`${josaSeason(S, '이', '가')} 끝나서 남은 ${S.coin} ${moved}개를 ${moved * SEASON_RATE}코인으로 바꿨어요.`); refreshAll(); }
   });
 }
 
@@ -2224,7 +2236,7 @@ function finishStudy(t) {
   // 기록이 새로 저장될 때만 지급 (같은 id로 장부에 남아 여러 기기에서도 한 번만)
   if (added) updateWallet(w => {
     w.coins += h.total; w.water += (gift === 'water' ? 1 : 0) + (h.refund ? 1 : 0);
-    if (sr) { if (sr.past) w.coins += sr.n; else w.season[sr.id] = (w.season[sr.id] || 0) + sr.n; }
+    if (sr) { if (sr.past) w.coins += sr.n * SEASON_RATE; else w.season[sr.id] = (w.season[sr.id] || 0) + sr.n; }
   }, 'earn_' + t.id);
   saveTimer(null);
   const live = finishChime(t, end);
@@ -2249,7 +2261,7 @@ function showStudyDone(type, h, end, live, withCount, gift, id) {
   if (h.luck === 'jackpot') lines.push(`<li class="luck jackpot"><span>대박!</span><b>+${h.bonus}</b></li>`);
   if (h.water) lines.push(`<li class="water"><span>${ICON.water}맑은 물</span><b>+${h.water}</b></li>`);
   const sr = h.sr;
-  if (sr && sr.past) lines.push(`<li class="season"><span>${seasonIcon(sr.key)}${sr.coin} → 코인</span><b>+${sr.n}</b></li>`);
+  if (sr && sr.past) lines.push(`<li class="season"><span>${seasonIcon(sr.key)}${sr.coin} ${sr.n}개 → 코인</span><b>+${sr.n * SEASON_RATE}</b></li>`);
   const badge = h.luck === 'jackpot' ? '<div class="luck-badge jackpot">대박! 코인 2.5배</div>' : h.luck === 'bonus' ? '<div class="luck-badge">보너스 코인!</div>' : '';
   const extras = [];
   if (gift === 'water') extras.push(`<div class="reward gift water">${ICON.water}<b>+1</b>맑은 물</div>`);
@@ -2796,14 +2808,14 @@ function renderShop() {
   banner.className = 'shop-banner ' + cur.key + (seasonal.length ? '' : ' off');
   banner.innerHTML = seasonal.length
     ? `${seasonIcon(cur.key)}<div><b>${cur.name} 계절 모종${rep ? ` · 이달의 대표 ${PLANTS[rep].name}` : ''}</b><br>
-       ${cur.name} 동안만 사고 키울 수 있어요. 키우면 ${cur.coin}을 받고, ${josaSeason(cur, '이', '가')} 끝나면 남은 ${cur.coin}은 1개당 1코인으로 바뀌어요.</div>
+       ${cur.name} 동안만 사고 키울 수 있어요. 키우면 ${cur.coin}을 받고, ${josaSeason(cur, '이', '가')} 끝나면 남은 ${cur.coin}은 1개당 ${SEASON_RATE}코인으로 바뀌어요.</div>
        <span class="dday">${seasonDaysLeft(cur)}일 남음</span>`
     : `${seasonIcon(cur.key)}<div><b>${cur.name} 계절 모종을 준비하고 있어요</b><br>곧 새로운 계절 식물이 찾아와요.</div>`;
   $('#shopSeasonTitle').textContent = `${cur.name} 모종`;
   $('#shopSeasonTitle').hidden = $('#shopSeason').hidden = !seasonal.length;
   $('#shopSeason').innerHTML = seasonal.map(seedCard).join('');
   $('#shopSeeds').innerHTML = ORDER.filter(t => !PLANTS[t].base && !isSeasonal(t)).map(seedCard).join('');
-  $('#shopItems').innerHTML = waterCard();
+  $('#shopItems').innerHTML = waterCard() + exchangeCard();
 }
 function seedCard(type) {
   const P = PLANTS[type], w = state.wallet, owned = isOwned(type), S = plantSeason(type);
@@ -2832,6 +2844,43 @@ function waterCard() {
     <div class="si-foot"><span class="price">${ICON.coin}${it.price}</span>
       <span style="display:flex;gap:6px"><button class="btn small blue" type="button" data-go="rest">휴식하기</button>
       <button class="btn small" type="button" data-buy-item="water" ${lack ? 'disabled' : ''}>${lack ? `${it.price - w.coins}코인 부족` : '구매하기'}</button></span></div></article>`;
+}
+/** 환전소 — 이번 계절 코인 → 일반 코인 (반대로는 바꿀 수 없음) */
+function exchangeCard() {
+  const cur = seasonOf(), have = state.wallet.season[cur.id] || 0;
+  const amt = have ? Math.min(Math.max(1, state.exAmt || have), have) : 0;
+  return `<article class="shop-item item exchange ${cur.key}" id="shop-exchange">
+    <div class="si-art icon exchange">${seasonIcon(cur.key)}<span class="ex-arrow">→</span>${ICON.coin}</div>
+    <div class="si-no">환전소</div><div class="si-name">${cur.coin} → 코인</div><div class="si-latin">1개당 ${SEASON_RATE}코인 · 언제든</div>
+    <p class="si-desc">${cur.coin}을 일반 코인으로 바꿔요. 코인을 ${cur.coin}으로 바꿀 수는 없어요. ${josaSeason(cur, '이', '가')} 끝나면 남은 ${cur.coin}은 같은 비율로 저절로 바뀌어요.</p>
+    <div class="si-meta"><span class="chip season">${seasonIcon(cur.key)}보유 ${have}개</span></div>
+    <div class="ex-row"${have ? '' : ' hidden'}>
+      <button class="ex-step" type="button" data-ex="-" aria-label="하나 빼기" ${amt <= 1 ? 'disabled' : ''}>−</button>
+      <span class="ex-amt" id="exAmt" aria-live="polite">${amt}개</span>
+      <button class="ex-step" type="button" data-ex="+" aria-label="하나 더하기" ${amt >= have ? 'disabled' : ''}>+</button>
+      <button class="btn small soft" type="button" data-ex="all" ${amt >= have ? 'disabled' : ''}>전부</button>
+    </div>
+    <div class="si-foot"><span class="price">${ICON.coin}+${amt * SEASON_RATE}</span>
+      <button class="btn small" type="button" data-ex="go" ${have ? '' : 'disabled'}>${have ? '환전하기' : `${cur.coin}이 없어요`}</button></div></article>`;
+}
+function exchangeStep(op) {
+  const cur = seasonOf(), have = state.wallet.season[cur.id] || 0;
+  if (!have) return;
+  let amt = Math.min(Math.max(1, state.exAmt || have), have);
+  if (op === '-') amt = Math.max(1, amt - 1);
+  else if (op === '+') amt = Math.min(have, amt + 1);
+  else if (op === 'all') amt = have;
+  else if (op === 'go') { doExchange(amt); return; }
+  state.exAmt = amt;
+  $('#shopItems').innerHTML = waterCard() + exchangeCard();
+}
+function doExchange(amt) {
+  const cur = seasonOf();
+  let done = 0;
+  updateWallet(w => { const have = w.season[cur.id] || 0, n = Math.min(amt, have); if (n > 0) { w.season[cur.id] = have - n; if (!w.season[cur.id]) delete w.season[cur.id]; w.coins += n * SEASON_RATE; done = n; } });
+  state.exAmt = 0;
+  toast(done ? `${cur.coin} ${done}개를 ${done * SEASON_RATE}코인으로 바꿨어요.` : `바꿀 ${cur.coin}이 없어요.`);
+  refreshAll();
 }
 function buySeed(type) {
   const P = PLANTS[type];
@@ -3195,6 +3244,7 @@ function init() {
     if (b.dataset.buy) buySeed(b.dataset.buy);
     else if (b.dataset.buyItem) buyItem(b.dataset.buyItem);
     else if (b.dataset.grow) goGrow(b.dataset.grow);
+    else if (b.dataset.ex) exchangeStep(b.dataset.ex);
     else if (b.dataset.go) switchView(b.dataset.go);
   });
 
