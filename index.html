@@ -817,7 +817,7 @@ button{font-family:inherit;color:inherit}
         <p class="tip-text">
           <span class="desk-only"><span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br></span>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v2.3.1 · 2026.11.16</span>
+          <span class="app-version">나의 공부 정원 v2.3.2 · 2026.11.16</span>
         </p>
       </aside>
 
@@ -973,22 +973,22 @@ const PLANTS = {
                desc:'갈라지고 구멍 난 커다란 잎', pot:'#cf8f69', band:'#e8b996', color:'#5f9a52', gardenH:150, tileW:116 },
   rosemary:  { name:'민트', latin:'Mentha', minutes:20, coins:27, bonusP:.23, unit:'포기', price:100,
                desc:'둥근 잎이 마주나는 싱그러운 허브', pot:'#e3efe6', band:'#6fbf73', color:'#6fbf73', gardenH:126, tileW:68 },
-  maple:     { name:'남천나무', latin:'Nandina domestica', minutes:30, coins:22, sc:20, bonusP:.27, unit:'그루', price:200, season:'autumn', year:2026, month:11, gift:true,
+  maple:     { name:'남천나무', latin:'Nandina domestica', minutes:30, coins:22, sc:12, bonusP:.27, unit:'그루', price:200, season:'autumn', year:2026, month:11, gift:true,
                desc:'빨강부터 초록까지 물드는 잎과 빨간 열매', pot:'#cdb48c', band:'#c9573c', color:'#d2452f', gardenH:160, tileW:84 },
   cotton:    { name:'목화', latin:'Gossypium hirsutum', minutes:40, coins:56, bonusP:.30, unit:'그루', base:true,
                desc:'다래가 벌어지면 하얀 목화솜', pot:'#d7bf96', band:'#f3ead6', color:'#ebe3d2', gardenH:168, tileW:100 },
   tangerine: { name:'귤나무', latin:'Citrus unshiu', minutes:60, coins:90, bonusP:.35, unit:'그루', price:500,
                desc:'하얀 꽃 뒤에 주황빛 귤이 열리는 나무', pot:'#b98b62', band:'#dcb88c', color:'#f08a24', gardenH:180, tileW:104 },
   // ----- 계절 식물 -----
-  cosmos:        { name:'코스모스', latin:'Cosmos bipinnatus', minutes:10, coins:8, sc:5, bonusP:.18, unit:'송이', price:100, season:'autumn', year:2026, month:9,
+  cosmos:        { name:'코스모스', latin:'Cosmos bipinnatus', minutes:10, coins:8, sc:3, bonusP:.18, unit:'송이', price:100, season:'autumn', year:2026, month:9,
                    desc:'가는 잎 사이로 분홍 꽃잎 여덟 장이 활짝', pot:'#fbe3ec', band:'#f5a9c6', color:'#f5a9c6', gardenH:136, tileW:74 },
-  chrysanthemum: { name:'퐁퐁 국화', latin:'Chrysanthemum morifolium', minutes:20, coins:15, sc:12, bonusP:.23, unit:'포기', price:150, season:'autumn', year:2026, month:10,
+  chrysanthemum: { name:'퐁퐁 국화', latin:'Chrysanthemum morifolium', minutes:20, coins:15, sc:7, bonusP:.23, unit:'포기', price:150, season:'autumn', year:2026, month:10,
                    desc:'매끈한 잎 위로 동그란 노란 꽃 다섯 송이', pot:'#f3ead2', band:'#f6c43f', color:'#f3c24a', gardenH:134, tileW:78 },
-  poinsettia:    { name:'포인세티아', latin:'Euphorbia pulcherrima', minutes:10, coins:8, sc:5, bonusP:.18, unit:'포기', price:100, season:'winter', year:2026, month:12,
+  poinsettia:    { name:'포인세티아', latin:'Euphorbia pulcherrima', minutes:10, coins:8, sc:3, bonusP:.18, unit:'포기', price:100, season:'winter', year:2026, month:12,
                    desc:'초록 잎 위로 별 모양 잎이 빨갛게 물들어요', pot:'#f6e1de', band:'#d8303c', color:'#d8303c', gardenH:128, tileW:82 },
-  camellia:      { name:'동백꽃', latin:'Camellia japonica', minutes:20, coins:15, sc:12, bonusP:.23, unit:'그루', price:150, season:'winter', year:2026, month:1,
+  camellia:      { name:'동백꽃', latin:'Camellia japonica', minutes:20, coins:15, sc:7, bonusP:.23, unit:'그루', price:150, season:'winter', year:2026, month:1,
                    desc:'윤기 나는 짙은 잎 사이로 빨간 꽃', pot:'#e6ece2', band:'#d9374c', color:'#d9374c', gardenH:140, tileW:80 },
-  plum:          { name:'매화나무', latin:'Prunus mume', minutes:30, coins:22, sc:20, bonusP:.27, unit:'그루', price:200, season:'winter', year:2026, month:2,
+  plum:          { name:'매화나무', latin:'Prunus mume', minutes:30, coins:22, sc:12, bonusP:.27, unit:'그루', price:200, season:'winter', year:2026, month:2,
                    desc:'굽은 가지에 하얀 매화가 하나둘', pot:'#ece4dc', band:'#f3b6c6', color:'#f3b6c6', gardenH:156, tileW:94 }
 };
 const ORDER = ['primrose','nemophila','monstera','rosemary','maple','cotton','tangerine','cosmos','chrysanthemum','poinsettia','camellia','plum'];
@@ -2852,7 +2852,7 @@ function exchangeCard() {
   return `<article class="shop-item item exchange ${cur.key}" id="shop-exchange">
     <div class="si-art icon exchange">${seasonIcon(cur.key)}<span class="ex-arrow">→</span>${ICON.coin}</div>
     <div class="si-no">환전소</div><div class="si-name">${cur.coin} → 코인</div><div class="si-latin">1개당 ${SEASON_RATE}코인 · 언제든</div>
-    <p class="si-desc">${cur.coin}을 일반 코인으로 바꿔요. 코인을 ${cur.coin}으로 바꿀 수는 없어요. ${josaSeason(cur, '이', '가')} 끝나면 남은 ${cur.coin}은 같은 비율로 저절로 바뀌어요.</p>
+    <p class="si-desc">${cur.coin}을 코인으로 바꿔요. 반대로는 바꿀 수 없어요.</p>
     <div class="si-meta"><span class="chip season">${seasonIcon(cur.key)}보유 ${have}개</span></div>
     <div class="ex-row"${have ? '' : ' hidden'}>
       <button class="ex-step" type="button" data-ex="-" aria-label="하나 빼기" ${amt <= 1 ? 'disabled' : ''}>−</button>
