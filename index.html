@@ -826,7 +826,7 @@ button{font-family:inherit;color:inherit}
         <p class="tip-text">
           <span class="desk-only"><span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br></span>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v2.3.5 · 2026.11.16</span>
+          <span class="app-version">나의 공부 정원 v2.3.6 · 2026.11.16</span>
         </p>
       </aside>
 
@@ -915,7 +915,7 @@ button{font-family:inherit;color:inherit}
         <h2>도감</h2>
         <div class="dex-progress" id="dexProgress"></div>
       </div>
-      <p class="shop-desc">처음 다 키운 식물이 도감에 등록돼요. 가끔 피는 희귀한 모습도 찾아보세요.</p>
+      <p class="shop-desc">다 키운 식물은 도감에 등록돼요. 가끔 피는 희귀한 모습을 찾아보세요.</p>
       <div class="dex-grid" id="dexGrid"></div>
     </section>
   </main>
@@ -2520,7 +2520,7 @@ function updateStage() {
 
   $('#app').classList.toggle('studying', !!t);
   $('#stage').classList.toggle('paused-mode', mode === 'paused');
-  $('#stageName').innerHTML = `<span>${P.name}</span><span class="chip">${P.minutes}분 코스</span>`;
+  $('#stageName').innerHTML = `<span>${P.name}</span><span class="chip time">${ICON.clock}${P.minutes}분</span>`;
   const idx = stageIndex(p);
   $('#stagePill').innerHTML = mode === 'idle' ? '씨앗 준비 완료' :
     (idx === 5 ? '<b>완성</b> · ' + stageText(type, 5) : `<b>${idx + 1}단계</b> · ${stageText(type, idx)}`);
@@ -2816,7 +2816,7 @@ function renderShop() {
   const banner = $('#shopBanner'), rep = seasonal.find(isRep);
   banner.className = 'shop-banner ' + cur.key + (seasonal.length ? '' : ' off');
   banner.innerHTML = seasonal.length
-    ? `${seasonIcon(cur.key)}<div><b>${cur.name} 계절 모종${rep ? ` · 이달의 대표 ${PLANTS[rep].name}` : ''}</b><br>
+    ? `${seasonIcon(cur.key)}<div><b>${cur.name} 계절 모종${rep ? ` · 이달의 대표 식물 ${PLANTS[rep].name}` : ''}</b><br>
        ${cur.name} 동안만 사고 키울 수 있어요. 키우면 ${cur.coin}을 받고, ${josaSeason(cur, '이', '가')} 끝나면 남은 ${cur.coin}은 1개당 ${SEASON_RATE}코인으로 바뀌어요.</div>
        <span class="dday">${seasonDaysLeft(cur)}일 남음</span>`
     : `${seasonIcon(cur.key)}<div><b>${cur.name} 계절 모종을 준비하고 있어요</b><br>곧 새로운 계절 식물이 찾아와요.</div>`;
@@ -2833,7 +2833,7 @@ function seedCard(type) {
   if (owned) foot = `<span class="owned-badge">${ICON.check}${S ? `이번 ${S.name} 보유` : '보유 중'}</span><button class="btn small" type="button" data-grow="${type}">키우러 가기</button>`;
   else if (w.coins < P.price) foot = price + `<button class="btn small" type="button" disabled>${P.price - w.coins}코인 부족</button>`;
   else foot = price + `<button class="btn small" type="button" data-buy="${type}">구매하기</button>`;
-  const ribbon = S ? `<span class="ribbon${isRep(type) ? '' : ' plain'}">${isRep(type) ? '이달의 대표' : `${S.name} 한정`}</span>` : '';
+  const ribbon = S ? `<span class="ribbon${isRep(type) ? '' : ' plain'}">${isRep(type) ? '이달의 대표 식물' : `${S.name} 한정`}</span>` : '';
   return `<article class="shop-item${owned ? ' owned' : ''}${S ? ' seasonal ' + P.season : ''}" id="shop-${type}">
     ${ribbon}
     <div class="si-art">${staticSVG(type, true)}</div>
