@@ -502,6 +502,7 @@ button{font-family:inherit;color:inherit}
 /* 상점 */
 .shop-card{padding:24px 28px 28px}
 .shop-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+#viewShop .shop-head{margin-bottom:16px}
 .shop-head h2{font-family:var(--font-title);font-weight:400;font-size:26px;margin:0;letter-spacing:-.5px}
 .wallet{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
 .wallet span{display:flex;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:6px 12px;font-size:13.5px;color:var(--ink-2)}
@@ -817,7 +818,7 @@ button{font-family:inherit;color:inherit}
         <p class="tip-text">
           <span class="desk-only"><span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br></span>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v2.3.2 · 2026.11.16</span>
+          <span class="app-version">나의 공부 정원 v2.3.3 · 2026.11.16</span>
         </p>
       </aside>
 
@@ -918,7 +919,6 @@ button{font-family:inherit;color:inherit}
         <h2>상점</h2>
         <div class="wallet" id="shopWallet"></div>
       </div>
-      <p class="shop-desc">다 키우면 기본 코인을 받고, 가끔 보너스나 대박 코인이 터져요. 맑은 물을 주면 코인이 더 늘어나요. 계절 식물을 키우면 계절 코인도 받아요. 매일 오늘의 정원에 들르면 출석 보상 10코인도 받아요.</p>
       <div class="shop-banner" id="shopBanner"></div>
       <h3 class="shop-sec" id="shopSeasonTitle"></h3>
       <div class="shop-grid" id="shopSeason"></div>
@@ -2839,7 +2839,7 @@ function waterCard() {
   return `<article class="shop-item item" id="shop-water">
     <div class="si-art icon water">${ICON.water}</div>
     <div class="si-no">아이템</div><div class="si-name">맑은 물</div><div class="si-latin">구매 · 휴식 · 남천나무</div>
-    <p class="si-desc">공부 중인 식물에게 주면 다 자랐을 때 기본 코인의 30%를 더 받아요 (최소 +${it.min}). 짧은 식물에 줘도 든든해요. 휴식 ${REST_MINUTES}분을 마쳐도 한 병씩 생겨요.</p>
+    <p class="si-desc">공부 중인 식물에게 주면 다 자랐을 때 코인을 30% 더 받아요 (최소 +${it.min}).</p>
     <div class="si-meta"><span class="chip">보유 ${w.water}병</span><span class="chip">달맞이꽃 +${waterBonus('primrose')} · 귤나무 +${waterBonus('tangerine')}</span></div>
     <div class="si-foot"><span class="price">${ICON.coin}${it.price}</span>
       <span style="display:flex;gap:6px"><button class="btn small blue" type="button" data-go="rest">휴식하기</button>
