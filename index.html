@@ -155,8 +155,8 @@ button{font-family:inherit;color:inherit}
 .plant-card.limited .pc-art{background:linear-gradient(#fff0e4,#f8ddca)}
 .plant-card.limited:hover{border-color:#e0a07d}
 .plant-card.limited.selected{border-color:#d9542f;background:linear-gradient(135deg,#fde5d6,#fff4ec 75%);box-shadow:0 3px 0 #f2c8ae}
-.plant-card.limited::after{content:"이달의 식물";position:absolute;top:-8px;right:8px;background:#c9573c;color:#fff;font-size:10px;line-height:1.5;border-radius:999px;padding:0 7px;box-shadow:0 1px 0 #a5452c}
-.plant-card.limited.off-season::after{content:"기간 종료";background:#b4a991;box-shadow:none}
+.plant-card.limited::after{content:attr(data-badge);position:absolute;top:-8px;right:8px;background:#c9573c;color:#fff;font-size:10px;line-height:1.5;border-radius:999px;padding:0 7px;box-shadow:0 1px 0 #a5452c}
+.plant-card.limited:not(.rep)::after{background:#c99a62}
 .plant-card[aria-disabled="true"]{cursor:not-allowed}
 .plant-card.locked,.plant-card.off-season{cursor:pointer}
 .studying .plant-card:not(.selected){opacity:.5}
@@ -449,6 +449,16 @@ button{font-family:inherit;color:inherit}
 .reward.gift.nutrient b{color:#4f7d48}
 .modal .lucky{color:#b1452c;font-weight:700;font-size:13.5px}
 .chip.gift{background:#fbe3d4;color:#a5452c}
+.chip.season{background:#fbe8d9;color:#9c4a26}
+.chip.season .ico,.reward.season .ico,.harvest-lines li.season svg{width:15px;height:15px}
+.shop-item.winter .chip.season{background:#e3effa;color:#2f6195}
+.ribbon.plain{background:#c99a62;box-shadow:0 2px 0 #a97f4a}
+.reward.season{background:#fbe8d9;border-color:#efc3a2;color:#9c4a26}
+.reward.season b{color:#9c4a26}
+.reward.season.winter{background:#e3effa;border-color:#bcd6ec;color:#2f6195}
+.reward.season.winter b{color:#2f6195}
+.harvest-lines li.season{color:#9c4a26}
+.wallet .ico.maple,.wallet .ico.snow,.wallet .ico.petal,.wallet .ico.sun{width:18px;height:18px}
 .reward b{font-family:var(--font-title);font-weight:400;font-size:22px;color:#a87b0c}
 
 /* 공부 중 아이템 버튼 */
@@ -500,12 +510,21 @@ button{font-family:inherit;color:inherit}
 .shop-desc{color:var(--ink-2);font-size:13.5px;margin:8px 0 16px}
 .shop-banner{display:flex;align-items:center;gap:14px;background:linear-gradient(90deg,#fbe5d6,#fdf3e1 55%,#eef5e4);border:1.5px solid #ecc9ad;border-radius:16px;padding:12px 18px;margin-bottom:20px;font-size:13.5px;color:#7a4a2e;line-height:1.55}
 .shop-banner b{font-family:var(--font-title);font-weight:400;font-size:17px;color:#9c3a22}
-.shop-banner .maple{width:38px;height:38px}
+.shop-banner .ico{width:38px;height:38px;flex:none}
+.shop-banner.winter{background:linear-gradient(90deg,#e3effa,#f4f8fd 55%,#eef5f0);border-color:#bcd6ec;color:#3f5f7c}
+.shop-banner.winter b{color:#2f6195}
+.shop-banner.winter .dday{background:#4f86b8}
+.shop-banner.spring{background:linear-gradient(90deg,#fde6ee,#fff4f6 55%,#eef6e6);border-color:#f2c4d4;color:#7c4458}
+.shop-banner.spring b{color:#b04a70}
+.shop-banner.spring .dday{background:#d8668e}
+.shop-banner.summer{background:linear-gradient(90deg,#fff1cc,#fffaf0 55%,#e6f4f6);border-color:#f0d58e;color:#6e5418}
+.shop-banner.summer b{color:#a0700f}
+.shop-banner.summer .dday{background:#d69a1c}
 .shop-banner > div{flex:1}
 .shop-banner .dday{background:#c9573c;color:#fff;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700;white-space:nowrap}
 .shop-banner.off{background:var(--card);border-color:var(--line);color:var(--muted)}
 .shop-banner.off b{color:var(--ink-2)}
-.shop-banner.off .maple{filter:grayscale(1);opacity:.5}
+.shop-banner.off .ico{filter:grayscale(1);opacity:.5}
 .shop-sec{font-family:var(--font-title);font-weight:400;font-size:19px;margin:4px 0 10px}
 .shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-bottom:22px}
 .shop-item{position:relative;display:flex;flex-direction:column;background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:12px 14px 14px;transition:box-shadow .3s,border-color .3s}
@@ -788,7 +807,7 @@ button{font-family:inherit;color:inherit}
         <p class="tip-text">
           <span class="desk-only"><span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br></span>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v2.2.3 · 2026.11.13</span>
+          <span class="app-version">나의 공부 정원 v2.3.0 · 2026.11.16</span>
         </p>
       </aside>
 
@@ -889,8 +908,10 @@ button{font-family:inherit;color:inherit}
         <h2>상점</h2>
         <div class="wallet" id="shopWallet"></div>
       </div>
-      <p class="shop-desc">다 키우면 기본 코인을 받고, 가끔 보너스나 대박 코인이 터져요. 맑은 물을 주면 코인이 더 늘어나요. 매일 오늘의 정원에 들르면 출석 보상 10코인도 받아요.</p>
+      <p class="shop-desc">다 키우면 기본 코인을 받고, 가끔 보너스나 대박 코인이 터져요. 맑은 물을 주면 코인이 더 늘어나요. 계절 식물을 키우면 계절 코인도 받아요. 매일 오늘의 정원에 들르면 출석 보상 10코인도 받아요.</p>
       <div class="shop-banner" id="shopBanner"></div>
+      <h3 class="shop-sec" id="shopSeasonTitle"></h3>
+      <div class="shop-grid" id="shopSeason"></div>
       <h3 class="shop-sec">새로운 모종</h3>
       <div class="shop-grid" id="shopSeeds"></div>
       <h3 class="shop-sec">아이템</h3>
@@ -930,7 +951,9 @@ const LS_KEYS = {
 /* 식물 정보 — coins: 다 키웠을 때 확정으로 받는 기본 코인 · bonusP: 수확 보너스(+50%) 확률
    대박(+150%)은 모든 식물 8%. 오래 걸리는 식물일수록 기본 코인과 보너스 확률이 조금씩 높아요
    (기대값 1분당 약 1.4 → 1.9 코인).
-   base: 처음부터 키울 수 있음 · price: 상점 모종 가격 · limited: 기간 한정 */
+   base: 처음부터 키울 수 있음 · price: 상점 모종 가격
+   계절 식물: season(계절) · year · month(대표 달) · sc(계절 코인). 계절 동안만 사고 키울 수 있고,
+   일반 코인(coins)은 줄인 대신 계절 코인을 받아 같은 시간 일반 식물과 받는 양이 비슷해요. */
 const PLANTS = {
   primrose:  { name:'달맞이꽃', latin:'Oenothera biennis', minutes:5, coins:6, bonusP:.15, unit:'송이', base:true,
                desc:'노란 네 장의 꽃잎이 피는 꽃', pot:'#e8d9b8', band:'#a9c792', color:'#f2c94c', gardenH:118, tileW:62 },
@@ -940,14 +963,25 @@ const PLANTS = {
                desc:'갈라지고 구멍 난 커다란 잎', pot:'#cf8f69', band:'#e8b996', color:'#5f9a52', gardenH:150, tileW:116 },
   rosemary:  { name:'민트', latin:'Mentha', minutes:20, coins:27, bonusP:.23, unit:'포기', price:100,
                desc:'둥근 잎이 마주나는 싱그러운 허브', pot:'#e3efe6', band:'#6fbf73', color:'#6fbf73', gardenH:126, tileW:68 },
-  maple:     { name:'남천나무', latin:'Nandina domestica · 11월 한정', minutes:30, coins:42, bonusP:.27, unit:'그루', price:200, limited:'november', gift:true,
+  maple:     { name:'남천나무', latin:'Nandina domestica', minutes:30, coins:22, sc:20, bonusP:.27, unit:'그루', price:200, season:'autumn', year:2026, month:11, gift:true,
                desc:'빨강부터 초록까지 물드는 잎과 빨간 열매', pot:'#cdb48c', band:'#c9573c', color:'#d2452f', gardenH:160, tileW:84 },
   cotton:    { name:'목화', latin:'Gossypium hirsutum', minutes:40, coins:56, bonusP:.30, unit:'그루', base:true,
                desc:'다래가 벌어지면 하얀 목화솜', pot:'#d7bf96', band:'#f3ead6', color:'#ebe3d2', gardenH:168, tileW:100 },
   tangerine: { name:'귤나무', latin:'Citrus unshiu', minutes:60, coins:90, bonusP:.35, unit:'그루', price:500,
-               desc:'하얀 꽃 뒤에 주황빛 귤이 열리는 나무', pot:'#b98b62', band:'#dcb88c', color:'#f08a24', gardenH:180, tileW:104 }
+               desc:'하얀 꽃 뒤에 주황빛 귤이 열리는 나무', pot:'#b98b62', band:'#dcb88c', color:'#f08a24', gardenH:180, tileW:104 },
+  // ----- 계절 식물 -----
+  cosmos:        { name:'코스모스', latin:'Cosmos bipinnatus', minutes:10, coins:8, sc:5, bonusP:.18, unit:'송이', price:100, season:'autumn', year:2026, month:9,
+                   desc:'가는 잎 사이로 분홍 꽃잎 여덟 장이 활짝', pot:'#fbe3ec', band:'#f5a9c6', color:'#f5a9c6', gardenH:136, tileW:74 },
+  chrysanthemum: { name:'퐁퐁 국화', latin:'Chrysanthemum morifolium', minutes:20, coins:15, sc:12, bonusP:.23, unit:'포기', price:150, season:'autumn', year:2026, month:10,
+                   desc:'매끈한 잎 위로 동그란 노란 꽃 다섯 송이', pot:'#f3ead2', band:'#f6c43f', color:'#f3c24a', gardenH:134, tileW:78 },
+  poinsettia:    { name:'포인세티아', latin:'Euphorbia pulcherrima', minutes:10, coins:8, sc:5, bonusP:.18, unit:'포기', price:100, season:'winter', year:2026, month:12,
+                   desc:'초록 잎 위로 별 모양 잎이 빨갛게 물들어요', pot:'#f6e1de', band:'#d8303c', color:'#d8303c', gardenH:128, tileW:82 },
+  camellia:      { name:'동백꽃', latin:'Camellia japonica', minutes:20, coins:15, sc:12, bonusP:.23, unit:'그루', price:150, season:'winter', year:2026, month:1,
+                   desc:'윤기 나는 짙은 잎 사이로 빨간 꽃', pot:'#e6ece2', band:'#d9374c', color:'#d9374c', gardenH:140, tileW:80 },
+  plum:          { name:'매화나무', latin:'Prunus mume', minutes:30, coins:22, sc:20, bonusP:.27, unit:'그루', price:200, season:'winter', year:2026, month:2,
+                   desc:'굽은 가지에 하얀 매화가 하나둘', pot:'#ece4dc', band:'#f3b6c6', color:'#f3b6c6', gardenH:156, tileW:94 }
 };
-const ORDER = ['primrose','nemophila','monstera','rosemary','maple','cotton','tangerine'];
+const ORDER = ['primrose','nemophila','monstera','rosemary','maple','cotton','tangerine','cosmos','chrysanthemum','poinsettia','camellia','plum'];
 ORDER.forEach((t, i) => { PLANTS[t].no = String(i + 1).padStart(2, '0'); });
 
 /* 아이템 — 맑은 물 (v2.0.0에서 영양제와 통합). 상점 구매 · 15분 휴식 · 남천나무에서 얻어요.
@@ -971,6 +1005,11 @@ const RARE = {
   maple:     { name:'열매 없는 남천', color:'#e8893a', swap:[],   // 빨간 열매 송이를 빼고 단풍잎만
                strip:/<g transform="translate\([^"]*\)"><path d="M0 0 L0 -12\.5[^>]*\/>(?=<circle[^>]*fill="#d4302a")(?:<circle[^>]*\/>)*<\/g>/g },
   cotton:    { name:'갈색 목화', color:'#c9a57c', swap:[['#fffefa','#ecd5b2'], ['#e4dccb','#c9a47a'], ['#e9e2d2','#d2b38c']] },
+  cosmos:        { name:'초콜릿 코스모스', color:'#8a2f3c', swap:[['#f5a9c6','#8a2f3c'], ['#f7b6cf','#9a3a47'], ['#e47ea4','#5e1a26']] },
+  chrysanthemum: { name:'자주 퐁퐁 국화', color:'#c97bc6', swap:[['#eeb33c','#b45fb0'], ['#f3c24a','#c97bc6'], ['#f7d260','#dea0da'], ['#f9dc7a','#efcdec']] },
+  poinsettia:    { name:'흰 포인세티아', color:'#efe7cf', swap:[['#d8303c','#f6f0dc'], ['#b8202e','#e2d8b8']] },
+  camellia:      { name:'흰 동백꽃', color:'#f2e8dc', swap:[['#d9374c','#fbf4ec'], ['#bf2640','#ead9cc'], ['#f2a0ac','#ffffff']] },
+  plum:          { name:'홍매화', color:'#f27fa0', swap:[['#fdf1f4','#f27fa0'], ['#e9b5c5','#d65a80'], ['#f0a3b8','#b8325a'], ['#f29fb5','#d84a74']] },
   tangerine: { name:'황금 귤나무', color:'#f2c230', swap:[['#d97b17','#e3aa12'], ['#f39a2b','#f6cd3c']] }
 };
 const SPARKLE = 'M0 -7 Q1 -1 7 0 Q1 1 0 7 Q-1 1 -7 0 Q-1 -1 0 -7Z';
@@ -997,6 +1036,11 @@ const MESSAGES = {
   rosemary:  ['잎이 하나씩 마주 돋고 있어.', '상쾌하게 한 줄 더!', '민트처럼 머리가 맑아지길.'],
   maple:     ['잎이 물드는 데도 시간이 걸려.', '빨간 열매는 천천히 영글어.', '가을은 천천히 깊어지는 계절이야.'],
   cotton:    ['솜은 오래 기다려야 열려. 지금 잘하고 있어.', '긴 시간도 한 걸음씩이면 돼.', '천천히 영그는 중이야.', '포근한 솜이 될 때까지 같이 가 보자.'],
+  cosmos:        ['가을바람에도 코스모스는 꼿꼿해.', '가는 줄기도 꽃을 받쳐 줘. 천천히 가자.', '한 송이씩 피어나는 중이야.'],
+  chrysanthemum: ['국화는 서늘할 때 피어. 차분하게 가 보자.', '동글동글, 꽃잎이 한 겹씩 겹쳐지는 중.', '조금만 더 하면 노란 꽃을 보여 줄게.'],
+  poinsettia:    ['추울수록 더 빨갛게 물들어.', '겨울에도 자라고 있어. 너처럼.', '별 모양 잎을 준비하는 중이야.'],
+  camellia:      ['동백은 추운 겨울에 피는 꽃이야.', '윤기 나는 잎처럼 단단하게.', '천천히, 한 겹씩 피어나 보자.'],
+  plum:          ['매화는 겨울 끝에 가장 먼저 피어.', '가지마다 봉오리가 맺히는 중이야.', '기다린 만큼 향기로울 거야.'],
   tangerine: ['귤이 익으려면 긴 햇살이 필요해.', '한 시간도 한 걸음씩이면 돼.', '달콤한 열매는 기다림 끝에 와.', '반쯤 왔어도, 아직 처음이어도 괜찮아.']
 };
 // 휴식 중 말풍선
@@ -1012,7 +1056,12 @@ const IDLE_MSG = {
   rosemary:  '20분 함께하면 싱그러운 잎을 보여 줄게.',
   maple:     '30분 동안 가을빛으로 물들어 볼게.',
   cotton:    '40분 동안 천천히, 하얀 솜을 키워 보자.',
-  tangerine: '한 시간 동안 함께하면 귤이 열릴 거야.'
+  tangerine: '한 시간 동안 함께하면 귤이 열릴 거야.',
+  cosmos:        '10분이면 분홍 코스모스를 피울 수 있어.',
+  chrysanthemum: '20분 함께하면 동그란 국화를 보여 줄게.',
+  poinsettia:    '10분이면 빨간 별 잎을 보여 줄게.',
+  camellia:      '20분 동안 빨간 동백꽃을 피워 볼게.',
+  plum:          '30분 동안 매화 가지를 키워 보자.'
 };
 const DONE_MSG = {
   primrose:  '노란 꽃이 활짝 폈어! 고마워.',
@@ -1021,7 +1070,12 @@ const DONE_MSG = {
   rosemary:  '싱그러운 민트가 다 자랐어. 수고했어!',
   maple:     '빨간 열매가 열리고 잎이 곱게 물들었어!',
   cotton:    '하얀 솜이 열렸어. 정말 수고했어!',
-  tangerine: '주황빛 귤이 주렁주렁 열렸어. 정말 수고했어!'
+  tangerine: '주황빛 귤이 주렁주렁 열렸어. 정말 수고했어!',
+  cosmos:        '분홍 코스모스가 활짝 폈어!',
+  chrysanthemum: '동글동글 퐁퐁 국화가 활짝 폈어!',
+  poinsettia:    '별 모양 잎이 빨갛게 물들었어!',
+  camellia:      '빨간 동백꽃이 활짝 폈어. 수고했어!',
+  plum:          '하얀 매화가 가득 피었어. 정말 수고했어!'
 };
 const STAGE_TEXT = {
   common:    ['흙에서 새싹이 올라오는 중', '줄기가 자라고 작은 잎이 났어요', '잎이 커지고 새 잎이 돋아요'],
@@ -1031,7 +1085,12 @@ const STAGE_TEXT = {
   rosemary:  ['흙에서 새싹이 올라오는 중', '줄기가 올라오고 둥근 잎이 나요', '잎이 마주나며 줄기가 길어져요', '여기저기서 줄기가 자라요', '줄기 끝에 연한 새잎이 돋는 중', '싱그러운 민트가 완성됐어요'],
   maple:     ['하얀 꽃이 피고 잎이 물들기 시작해요', '빨간 열매가 맺히는 중', '빨간 열매와 단풍잎이 완성됐어요'],
   cotton:    ['꽃봉오리와 꽃이 피었어요', '다래가 영글고 벌어지는 중', '하얀 목화솜이 열렸어요'],
-  tangerine: ['하얀 귤꽃이 피었어요', '초록 열매가 맺히고 익는 중', '주황빛 귤이 익었어요']
+  tangerine: ['하얀 귤꽃이 피었어요', '초록 열매가 맺히고 익는 중', '주황빛 귤이 익었어요'],
+  cosmos:        ['흙에서 새싹이 올라오는 중', '가는 줄기가 올라와요', '실 같은 잎이 돋아요', '동그란 봉오리가 맺혔어요', '분홍 꽃잎이 열리는 중', '코스모스가 활짝 피었어요'],
+  chrysanthemum: ['흙에서 새싹이 올라오는 중', '줄기가 갈라져 올라와요', '매끈한 잎이 돋아요', '줄기 끝에 봉오리가 맺혔어요', '노란 꽃잎이 펼쳐지는 중', '퐁퐁 국화가 활짝 피었어요'],
+  poinsettia:    ['흙에서 새싹이 올라오는 중', '줄기가 올라와요', '짙은 초록 잎이 나요', '위쪽 잎이 별처럼 모여요', '잎이 빨갛게 물드는 중', '포인세티아가 빨갛게 물들었어요'],
+  camellia:      ['흙에서 새싹이 올라오는 중', '줄기가 나무처럼 자라요', '윤기 나는 잎이 돋아요', '동그란 봉오리가 맺혔어요', '빨간 꽃잎이 열리는 중', '동백꽃이 활짝 피었어요'],
+  plum:          ['흙에서 새싹이 올라오는 중', '굽은 줄기가 자라요', '가지가 뻗어 나가요', '가지마다 봉오리가 맺혔어요', '하얀 꽃이 하나둘 피는 중', '매화가 활짝 피었어요']
 };
 
 // 단풍잎 모양 (남천나무 · 상점 배너에 사용)
@@ -1039,6 +1098,9 @@ const MAPLE = 'M0 0 L-3 -4 L-13 -2 L-11 -7 L-17 -13 L-12 -14 L-13 -21 L-7 -17 L-
 
 // 작은 아이콘 모음
 const ICON = {
+  snow: '<svg class="ico snow" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#6aa3d4" stroke-width="1.8" stroke-linecap="round" fill="none"><path d="M12 2.5v19M3.8 7.2l16.4 9.6M3.8 16.8l16.4-9.6"/><path d="M9.6 4.2 12 6.4l2.4-2.2M9.6 19.8 12 17.6l2.4 2.2M4.6 10.4l3.1-.9-.7-3.1M19.4 13.6l-3.1.9.7 3.1M4.6 13.6l3.1.9-.7 3.1M19.4 10.4l-3.1-.9.7-3.1"/></g></svg>',
+  petal: '<svg class="ico petal" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21C6 17 4.5 11.5 7 6.5c1.2-2.3 3-3.5 5-3.5-.6 1.6-.4 3 .6 4.2C14 5.6 15.6 5 17 5.2c2.2 4.8-.2 11.6-5 15.8z" fill="#f6b8cc" stroke="#e48aa8" stroke-width="1.2" stroke-linejoin="round"/></svg>',
+  sun: '<svg class="ico sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#f6c83f" stroke="#e0a524" stroke-width="1.2"/><g stroke="#e8b42e" stroke-width="1.8" stroke-linecap="round"><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7 7 17M17 7l1.7-1.7"/></g></svg>',
   coin: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.6" fill="#f2c94c" stroke="#d6a21c" stroke-width="1.4"/><circle cx="12" cy="12" r="6.6" fill="none" stroke="#fff1b8" stroke-width="1.1"/><path d="M12 16.6V11M12 11.2c0-1.9-1.4-2.9-3-2.9 0 1.7 1.3 2.9 3 2.9zM12 12.6c0-1.7 1.4-2.6 3-2.6 0 1.6-1.3 2.6-3 2.6z" fill="#b8860b" stroke="#b8860b" stroke-width=".9" stroke-linejoin="round" stroke-linecap="round"/></svg>',
   nutrient: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="1.8" width="6" height="3.2" rx="1" fill="#a07a56"/><path d="M9.5 5h5v3.2l3.2 3.6v8.2a2 2 0 0 1-2 2H8.3a2 2 0 0 1-2-2v-8.2L9.5 8.2z" fill="#f1f8ea" stroke="#6f9f68" stroke-width="1.3"/><path d="M7.4 13.2h9.2v6.6a1.1 1.1 0 0 1-1.1 1.1h-7a1.1 1.1 0 0 1-1.1-1.1z" fill="#8fc274"/><path d="M12 19.2v-4M12 16.4c0-1.3-1-1.9-2.1-1.9 0 1.1.9 1.9 2.1 1.9zM12 17.2c0-1.1.9-1.7 1.9-1.7 0 1-.8 1.7-1.9 1.7z" stroke="#fff" stroke-width=".9" fill="#fff"/></svg>',
   water: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6C9 6.9 5.7 10.5 5.7 14.6a6.3 6.3 0 0 0 12.6 0C18.3 10.5 15 6.9 12 2.6z" fill="#a6d8f0" stroke="#5aa9d2" stroke-width="1.3"/><path d="M8.9 14.6a3.1 3.1 0 0 0 2.5 3.1" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>',
@@ -1174,7 +1236,8 @@ function normalizeWallet(w) {
     owned: (w.owned && typeof w.owned === 'object') ? w.owned : {},
     rewardedRest: Array.isArray(w.rewardedRest) ? w.rewardedRest : [],
     restLog: (w.restLog && typeof w.restLog === 'object') ? w.restLog : {},
-    attended: Array.isArray(w.attended) ? w.attended : []
+    attended: Array.isArray(w.attended) ? w.attended : [],
+    season: Object.fromEntries(Object.entries((w.season && typeof w.season === 'object') ? w.season : {}).map(([k, v]) => [k, num(v)]).filter(([, v]) => v > 0))
   };
 }
 function loadWallet() { return normalizeWallet(Store.read(LS_KEYS.wallet, null) || state.wallet); }
@@ -1190,11 +1253,64 @@ function updateWallet(fn, id) {
 }
 
 /* --- 모종 보유 · 기간 한정 --- */
-function isNovember(ms = Date.now()) { return kst(ms).m === 11; }
-function novemberDaysLeft() { const k = kst(); return 30 - k.d + 1; }
-const isOwned = type => !!PLANTS[type] && (!!PLANTS[type].base || !!(state.wallet && state.wallet.owned[type]));
-const inSeason = type => PLANTS[type].limited !== 'november' || isNovember();
-const canGrow = type => isOwned(type) && inSeason(type);
+/* --- 계절 (한국 시간) — 봄 3~5월 · 여름 6~8월 · 가을 9~11월 · 겨울 12~2월 (다음 해) --- */
+const SEASONS = {
+  spring: { name:'봄',   coin:'꽃잎',   start:3 },
+  summer: { name:'여름', coin:'햇살',   start:6 },
+  autumn: { name:'가을', coin:'단풍잎', start:9 },
+  winter: { name:'겨울', coin:'눈송이', start:12 }
+};
+const seasonKeyOfMonth = m => (m === 12 || m <= 2) ? 'winter' : m <= 5 ? 'spring' : m <= 8 ? 'summer' : 'autumn';
+/** 지금(또는 ms)의 계절 — id는 '2026-autumn'처럼. 1 · 2월은 앞 해의 겨울 */
+function seasonOf(ms = Date.now()) {
+  const k = kst(ms), key = seasonKeyOfMonth(k.m), year = (key === 'winter' && k.m <= 2) ? k.y - 1 : k.y;
+  return { key, year, id: `${year}-${key}`, ...SEASONS[key] };
+}
+const seasonInfo = id => { const [y, key] = String(id).split('-'); return SEASONS[key] ? { key, year: +y, id, ...SEASONS[key] } : null; };
+const seasonStartMs = (year, key) => Date.UTC(year, SEASONS[key].start - 1, 1) - KST_OFFSET;
+const seasonEndMs = (year, key) => key === 'winter' ? Date.UTC(year + 1, 2, 1) - KST_OFFSET : Date.UTC(year, SEASONS[key].start + 2, 1) - KST_OFFSET;
+const seasonDaysLeft = (s = seasonOf()) => Math.ceil((seasonEndMs(s.year, s.key) - Date.now()) / 86400000);
+const seasonIcon = key => ({ autumn: ICON.maple, winter: ICON.snow, spring: ICON.petal, summer: ICON.sun })[key] || ICON.maple;
+const josaSeason = (S, a, b) => josa(S.name, a, b);
+
+/* --- 모종 보유 · 계절 식물 --- */
+const isSeasonal = type => !!(PLANTS[type] && PLANTS[type].season);
+const plantSeason = type => isSeasonal(type) ? SEASONS[PLANTS[type].season] : null;
+/** 처음 나온 계절이 시작됐는지 (아직 안 나온 계절 식물은 숨김) */
+const released = type => !isSeasonal(type) || Date.now() >= seasonStartMs(PLANTS[type].year, PLANTS[type].season);
+const inSeason = type => !isSeasonal(type) || (released(type) && seasonOf().key === PLANTS[type].season);
+/** 이달의 대표 — 올해 그 계절, 그 달의 식물만 (작년 식물은 같은 계절에 다시 나와도 대표가 아님) */
+const isRep = type => isSeasonal(type) && seasonOf().id === `${PLANTS[type].year}-${PLANTS[type].season}` && kst().m === PLANTS[type].month;
+/** 계절 식물은 계절마다 따로 사요: 'maple@2026-autumn' */
+const ownKey = type => isSeasonal(type) ? `${type}@${seasonOf().id}` : type;
+const isOwned = type => {
+  const P = PLANTS[type], w = state.wallet;
+  if (!P) return false;
+  if (P.base) return true;
+  if (!w) return false;
+  if (!isSeasonal(type)) return !!w.owned[type];
+  return !!w.owned[ownKey(type)] || (type === 'maple' && !!w.owned.maple && seasonOf().id === '2026-autumn');   // v2.2 이전에 산 남천나무
+};
+const canGrow = type => inSeason(type) && isOwned(type);
+/** 계절 코인 — 시작한 계절의 코인으로 주고, 그 계절이 이미 끝났다면 바로 일반 코인으로 */
+function seasonReward(type, startedAt) {
+  const P = PLANTS[type]; if (!P || !P.sc) return null;
+  const s = seasonOf(startedAt || Date.now());
+  return { n: P.sc, id: s.id, key: s.key, coin: s.coin, name: s.name, past: s.id !== seasonOf().id };
+}
+/** 끝난 계절의 계절 코인은 1개당 1코인으로 바꿈 (같은 잔액이면 같은 id → 여러 기기에서도 한 번만) */
+function settleSeasons() {
+  const w = state.wallet; if (!w || !w.season) return;
+  if (Cloud.user && Cloud.status !== 'synced') return;
+  const cur = seasonOf().id;
+  Object.keys(w.season).forEach(id => {
+    const n = w.season[id]; if (!n || id === cur) return;
+    let moved = 0;
+    updateWallet(x => { const m = x.season[id] || 0; if (m > 0) { x.coins += m; delete x.season[id]; moved = m; } }, `convert_${id}_${n}`);
+    const S = seasonInfo(id);
+    if (moved && S) { toast(`${josaSeason(S, '이', '가')} 끝나서 남은 ${S.coin} ${moved}개를 ${moved}코인으로 바꿨어요.`); refreshAll(); }
+  });
+}
 
 /* --- 코인 계산 --- */
 /** 남천나무 추가 보상: 맑은 물 1병 (v2.0.0부터 영양제가 맑은 물로 통합) */
@@ -1667,9 +1783,213 @@ function buildTangerine() {
   return s;
 }
 
+/* =========================================================
+   계절 식물 (v2.3.0) — 코스모스 · 퐁퐁 국화 · 포인세티아 · 동백꽃 · 매화나무
+   ========================================================= */
+/* --- 코스모스 (가을 9월 · 10분): 가는 줄기와 실 같은 잎 → 동그란 봉오리 → 여덟 장 분홍 꽃잎 --- */
+function featherLeaf(x, y, ang, len, c) {
+  let d = `M0 0 L${len} 0`;
+  [[.25, 1], [.42, -1], [.58, 1], [.74, -1], [.88, 1]].forEach(([f, s]) => {
+    const l = len * (1 - f) * .75 + 3;
+    d += ` M${(len * f).toFixed(1)} 0 q${(l * .45).toFixed(1)} ${(s * l * .1).toFixed(1)} ${(l * .8).toFixed(1)} ${(s * l * .55).toFixed(1)}`;
+  });
+  return `<path d="${d}" transform="translate(${x} ${y}) rotate(${ang.toFixed(1)})" stroke="${c}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
+}
+function cosmosFlower(x, y, rot, s, sq = 1) {
+  const petal = 'M0 -3 C-2.6 -6 -5.8 -12.6 -5.2 -16.8 Q-3.8 -18.6 -2.3 -17.1 Q-1.1 -18.9 0 -17.4 Q1.1 -18.9 2.3 -17.1 Q3.8 -18.6 5.2 -16.8 C5.8 -12.6 2.6 -6 0 -3Z';
+  let g = `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s} ${(s * sq).toFixed(2)})">`;
+  for (let i = 0; i < 8; i++) {
+    g += `<path d="${petal}" transform="rotate(${i * 45 + (i % 3) * 2})" fill="${i % 2 ? '#f5a9c6' : '#f7b6cf'}"/>`;
+  }
+  for (let i = 0; i < 8; i++) g += `<path d="M0 -3 C-2.4 -4.8 -2.8 -7.6 0 -9 C2.8 -7.6 2.4 -4.8 0 -3Z" transform="rotate(${i * 45 + (i % 3) * 2})" fill="#e47ea4" opacity=".6"/>`;
+  return g + `<circle r="4" fill="#f2c94c"/><circle r="4" fill="none" stroke="#d9a22a" stroke-width="1.2" stroke-dasharray="1 1.4"/><circle cx="-1" cy="-1" r="1.3" fill="#fbe7a0"/></g>`;
+}
+function cosmosBud(x, y, ang, s) {
+  return `<g transform="translate(${x} ${y}) rotate(${ang}) scale(${s})"><ellipse cx="0" cy="-4" rx="3.6" ry="4.4" fill="#7fae5a"/><path d="M-2.4 -6.4 Q0 -10 2.4 -6.4 Q0 -5.4 -2.4 -6.4Z" fill="#ef9fbe"/><path d="M-3.4 -2 L-5.2 -4.6 M3.4 -2 L5.2 -4.6" stroke="#6a9a48" stroke-width="1" stroke-linecap="round"/></g>`;
+}
+function buildCosmos() {
+  const stem = '#6e9d4c', leaf = '#79ac56';
+  let s = seed() + sprout([0, .1, .24, .34], '#9ccb7c', stem);
+  const stems = [
+    { c: Q(100, 190, 97, 138, 93, 66),  g: [.1, .56] },
+    { c: Q(100, 190, 109, 148, 124, 92), g: [.18, .6] },
+    { c: Q(100, 190, 91, 160, 72, 112), g: [.26, .64] }
+  ];
+  stems.forEach(o => { s += D(o.g, o.c.d, stem, 2.3); });
+  // 20~60%: 줄기를 따라 실 같은 잎이 마주 남
+  stems.forEach((o, i) => [.22, .46, .7].forEach((f, k) => {
+    const p = o.c.at(f), st = Math.max(along(o.g, f), .16), l = 22 - k * 4 - i * 2;
+    s += G([st, Math.min(st + .12, .9)], [p.x, p.y], featherLeaf(p.x, p.y, p.a - 62 - k * 4, l, leaf) + featherLeaf(p.x, p.y, p.a + 62 + k * 4, l * .9, '#6aa049'));
+  }));
+  // 60~80%: 봉오리 → 80~100%: 꽃
+  const heads = [[0, 1.2, -6], [1, 1.08, 14], [2, 1, -16]];
+  heads.forEach(([i, sc, r], n) => {
+    const p = stems[i].c.at(1), a0 = .62 + n * .03;
+    s += G([a0, a0 + .08, .82 + n * .03, .87 + n * .03], [p.x, p.y], cosmosBud(p.x, p.y, r, 1));
+    s += G([.82 + n * .03, .95 + n * .02], [p.x, p.y], cosmosFlower(p.x, p.y - 2, r, sc, .9));
+  });
+  // 곁가지 봉오리 하나
+  const b = stems[0].c.at(.78);
+  s += D([.6, .68], `M${b.x} ${b.y} Q${b.x - 8} ${b.y - 4} ${b.x - 13} ${b.y - 13}`, stem, 1.6);
+  s += G([.68, .78], [b.x - 13, b.y - 13], cosmosBud(b.x - 13, b.y - 13, -24, .85));
+  return s;
+}
+const POM = { out: '#eeb33c', mid: '#f3c24a', inn: '#f7d260', line: '#e2a432' };
+function pomBud(x, y, s) {
+  return `<g transform="translate(${x} ${y}) scale(${s})"><circle r="4.4" fill="#79a557"/><path d="M-3 -1.4 Q0 -5.4 3 -1.4 Q0 -2.8 -3 -1.4Z" fill="${POM.mid}"/><path d="M-4 1.2 Q-4.6 3.2 -3 4 M4 1.2 Q4.6 3.2 3 4" stroke="#628f45" stroke-width=".9" fill="none" stroke-linecap="round"/></g>`;
+}
+/* 부채꽃잎: 가운데서 퍼지는 짧고 둥근 꽃잎이 겹겹 */
+function pomHeadFan(x, y, s, rot = 0) {
+  const pet = (len, w) => `M0 0 C${-w} ${-len * .3} ${-w} ${-len * .85} 0 ${-len} C${w} ${-len * .85} ${w} ${-len * .3} 0 0Z`;
+  let g = `<g transform="translate(${x} ${y}) scale(${s}) rotate(${rot})">`;
+  for (let i = 0; i < 16; i++) g += `<path d="${pet(11, 3.4)}" transform="rotate(${i * 22.5})" fill="#eeb33c"/>`;
+  for (let i = 0; i < 13; i++) g += `<path d="${pet(8.4, 3)}" transform="rotate(${i * 27.7 + 11})" fill="#f3c24a"/>`;
+  for (let i = 0; i < 9; i++) g += `<path d="${pet(5.6, 2.6)}" transform="rotate(${i * 40 + 6})" fill="#f7d260"/>`;
+  for (let i = 0; i < 6; i++) g += `<path d="${pet(3, 1.8)}" transform="rotate(${i * 60 + 30})" fill="#f9dc7a"/>`;
+  return g + `</g>`;
+}
+/* --- 확정안: 퐁퐁 국화 — 매끈한 잎 + 부채 꽃잎 다섯 송이 --- */
+function buildPompon() {
+  const stem = '#5f8d45';
+  let s = seed() + sprout([0, .1, .24, .34], '#94c27a', stem);
+  const heads = [[97, 92, 1.06], [123, 108, .98], [73, 112, .94], [109, 128, .86], [85, 134, .8]];
+  // 줄기는 모두 새싹 자리(가운데)에서 나와 위로 갈수록 벌어짐
+  const stems = heads.map(([x, y], i) => ({ c: Q(100, 189, 100 + (x - 100) * .25, y + 46, x, y), g: [.16 + i * .03, .54 + i * .02] }));
+  stems.forEach(o => { s += D(o.g, o.c.d, stem, 2.1); });
+  // 잎은 줄기 바깥쪽으로만, 높이를 엇갈리게 — [줄기 위치, 방향(-1 왼쪽 · 1 오른쪽)]
+  const leafAt = [[[.7, -1], [.88, 1]], [[.3, 1], [.75, 1]], [[.6, -1]], [[.7, 1]], [[.5, -1]]];   // 양쪽 모두 높이 18~20 간격
+  stems.forEach((o, i) => leafAt[i].forEach(([f, side]) => {
+    const p = o.c.at(f), st = Math.max(along(o.g, f), .2);
+    s += G([st, Math.min(st + .12, .9)], [p.x, p.y], leafS(p.x, p.y, 21 * (1 - f * .2), 7.2 * (1 - f * .2), p.a + side * 60, '#64a052', '#548f47', side * 1.5));
+  }));
+  heads.forEach(([x, y, sc], i) => {
+    const a0 = Math.max(.6, along(stems[i].g, 1));
+    s += G([a0, a0 + .07, .82 + i * .025, .86 + i * .025], [x, y], pomBud(x, y, sc * .95));
+    s += G([.82 + i * .025, .95 + i * .01], [x, y], pomHeadFan(x, y, sc, i * 9));
+  });
+  return s;
+}
+/* --- 포인세티아 (겨울 12월 · 10분): 짙은 초록 잎 → 위쪽 잎(포엽)이 별처럼 나와 빨갛게 물듦 --- */
+function bract(x, y, ang, len, c1, c2) {
+  const w = len * .32;
+  return `<g transform="translate(${x} ${y}) rotate(${ang.toFixed(1)})"><path d="M0 0 C${len * .2} ${-w} ${len * .62} ${-w * 1.05} ${len} 0 C${len * .62} ${w * .9} ${len * .2} ${w * .9} 0 0Z" fill="${c1}"/><path d="M0 0 L${len} 0 C${len * .62} ${w * .9} ${len * .2} ${w * .9} 0 0Z" fill="${c2}"/><path d="M1.5 0 L${len * .8} 0" stroke="#fff" stroke-opacity=".2" stroke-width=".7" fill="none"/></g>`;
+}
+function poinStar(x, y, s, c1, c2, rot = 0) {
+  let g = `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})">`;
+  [[-90, 24], [-30, 22], [25, 23], [85, 20], [145, 22], [205, 21]].forEach(([a, l]) => { g += bract(0, 0, a, l, c1, c2); });
+  [[-60, 14], [0, 13], [60, 14], [120, 12], [180, 13], [240, 12]].forEach(([a, l]) => { g += bract(0, 0, a, l, c1, c2); });
+  for (const [px, py] of [[0, 0], [-2.6, -1.6], [2.6, -1.4], [-1.6, 2.2], [1.8, 2.4]]) g += `<circle cx="${px}" cy="${py}" r="1.5" fill="#cbd24a"/><circle cx="${px}" cy="${py}" r=".6" fill="#e8b830"/>`;
+  return g + `</g>`;
+}
+function buildPoinsettia() {
+  const stem = '#5c7f3f';
+  let s = seed() + sprout([0, .1, .24, .34], '#8cbf74', stem);
+  const stems = [{ c: Q(100, 190, 100, 140, 98, 92), g: [.1, .5] }, { c: Q(100, 190, 112, 160, 128, 122), g: [.2, .56] }, { c: Q(100, 190, 90, 168, 72, 132), g: [.26, .6] }];
+  stems.forEach(o => { s += D(o.g, o.c.d, stem, 2.6); });
+  // 20~60%: 짙은 초록 잎
+  stems.forEach((o, i) => [[.4, -1], [.62, 1], [.82, -1]].forEach(([f, side], k) => {
+    const p = o.c.at(f), st = Math.max(along(o.g, f), .18);
+    s += G([st, Math.min(st + .14, .9)], [p.x, p.y], leafS(p.x, p.y, 26 - k * 3, 9.5 - k, p.a + side * 72, '#3f7f3c', '#32692f', side * 2));
+  }));
+  // 60~80%: 위쪽 잎(포엽)이 초록으로 나옴 → 80~100%: 빨갛게 물듦
+  [[0, 1.05, 0], [1, .8, 18], [2, .74, -14]].forEach(([i, sc, r], n) => {
+    const p = stems[i].c.at(1);
+    s += G([.6 + n * .03, .74 + n * .03], [p.x, p.y], poinStar(p.x, p.y, sc, '#5e9a48', '#4a8440', r));
+    s += G([.8 + n * .03, .93 + n * .02], [p.x, p.y], poinStar(p.x, p.y, sc, '#d8303c', '#b8202e', r), 'fade');
+  });
+  return s;
+}
+/* --- 동백꽃 (겨울 1월 · 20분): 윤기 나는 짙은 잎 → 동그란 봉오리 → 빨간 꽃잎과 노란 꽃술 --- */
+function camLeaf(x, y, ang, len) {
+  return `<g transform="translate(${x} ${y}) rotate(${ang.toFixed(1)})"><path d="M0 0 Q${len * .45} ${-len * .4} ${len} 0 Q${len * .45} ${len * .4} 0 0Z" fill="#2f6a3b"/><path d="M0 0 L${len} 0 Q${len * .45} ${len * .4} 0 0Z" fill="#265a31"/><path d="M${len * .2} ${-len * .14} Q${len * .45} ${-len * .24} ${len * .68} ${-len * .13}" stroke="#fff" stroke-opacity=".3" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>`;
+}
+function camFlower(x, y, rot, s) {
+  const petal = 'M0 -1 C-6.5 -2 -9 -9 -6.4 -13.2 C-4 -16.4 4 -16.4 6.4 -13.2 C9 -9 6.5 -2 0 -1Z';
+  let g = `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})">`;
+  [0, 72, 144, 216, 288].forEach((a, i) => { g += `<path d="${petal}" transform="rotate(${a + (i % 2) * 6})" fill="#d9374c"/>`; });
+  [36, 108, 180, 252, 324].forEach(a => { g += `<path d="${petal}" transform="rotate(${a}) scale(.68)" fill="#bf2640"/>`; });
+  g += `<path d="M-10 -8 Q-7 -12.5 -2.5 -13" stroke="#f2a0ac" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".7"/>`;
+  g += `<circle r="4.6" fill="#fff2c8"/>`;
+  for (let i = 0; i < 12; i++) g += `<circle cx="${(Math.cos(i * .52) * 3.4).toFixed(2)}" cy="${(Math.sin(i * .52) * 3.4).toFixed(2)}" r="1" fill="#f1c43c"/>`;
+  return g + `<circle r="1.5" fill="#f6d55c"/></g>`;
+}
+function camBud(x, y, ang, s) {
+  return `<g transform="translate(${x} ${y}) rotate(${ang}) scale(${s})"><ellipse cx="0" cy="-5" rx="4.4" ry="5.6" fill="#d9374c"/><path d="M-4.2 -3 Q-4 1 0 1 Q4 1 4.2 -3 Q2 -1 0 -2.6 Q-2 -1 -4.2 -3Z" fill="#4c7a3a"/></g>`;
+}
+function buildCamellia() {
+  const wood = '#6e5a42';
+  let s = seed() + sprout([0, .1, .24, .34], '#8cbf74', '#5d7d45');
+  const trunk = { c: Q(100, 190, 98, 150, 100, 112), g: [.1, .42] };
+  const brs = [branchFrom(trunk, .45, 84, 150, 72, 126, [.3, .56]), branchFrom(trunk, .62, 118, 140, 130, 110, [.34, .6]),
+               branchFrom(trunk, 1, 96, 96, 88, 76, [.4, .62]), branchFrom(trunk, 1, 108, 98, 116, 84, [.42, .64])];
+  s += D(trunk.g, trunk.c.d, wood, 3.6);
+  brs.forEach(b => { s += D(b.g, b.c.d, wood, 2.4); });
+  // 20~60%: 윤기 나는 잎이 마주 남
+  const spots = [[trunk, .3, -1], [trunk, .52, 1], [trunk, .8, -1]];
+  brs.forEach(b => { spots.push([b, .4, 1], [b, .72, -1], [b, 1, 1]); });
+  spots.forEach(([o, f, side], i) => {
+    const p = o.c.at(f), st = Math.max(along(o.g, f), .16), len = 20 - (i % 3) * 2;
+    s += G([st, Math.min(st + .14, .9)], [p.x, p.y], camLeaf(p.x, p.y, p.a + side * (f === 1 ? 32 : 58), len));
+  });
+  // 60~80%: 봉오리 → 80~100%: 빨간 꽃
+  const fl = [[2, 1, -8, 1.02], [1, 1, 18, .9], [0, 1, -20, .86]];
+  fl.forEach(([i, f, r, sc], n) => {
+    const p = brs[i].c.at(f);
+    s += G([.62 + n * .03, .7 + n * .03, .84 + n * .03, .88 + n * .03], [p.x, p.y], camBud(p.x, p.y, r, .9));
+    s += G([.84 + n * .03, .96 + n * .015], [p.x, p.y], camFlower(p.x, p.y - 4, r, sc));
+  });
+  const bp = brs[3].c.at(1);
+  s += G([.7, .8], [bp.x, bp.y], camBud(bp.x, bp.y, 22, .8));
+  return s;
+}
+/* --- 매화나무 (겨울 2월 · 30분): 굽은 줄기와 잔가지 → 분홍 봉오리 → 하얀 다섯 장 꽃 --- */
+function plumFlower(x, y, rot, s) {
+  let g = `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})">`;
+  for (let i = 0; i < 5; i++) g += `<circle cx="0" cy="-4.4" r="3.9" transform="rotate(${i * 72})" fill="#fdf1f4" stroke="#e9b5c5" stroke-width=".8"/>`;
+  for (let i = 0; i < 5; i++) g += `<circle cx="0" cy="-4.4" r="3.1" transform="rotate(${i * 72})" fill="#fdf1f4"/>`;
+  g += `<circle r="2.6" fill="#f0a3b8"/>`;
+  for (let i = 0; i < 7; i++) g += `<path d="M0 0 L0 -3.8" transform="rotate(${i * 51})" stroke="#d98aa0" stroke-width=".5"/><circle cx="0" cy="-4" r=".55" transform="rotate(${i * 51})" fill="#eec24a"/>`;
+  return g + `</g>`;
+}
+function plumBud(x, y, s) {
+  return `<g transform="translate(${x} ${y}) scale(${s * 1.2})"><circle r="2.4" fill="#f29fb5"/><circle cx="-.6" cy="-.7" r=".7" fill="#fff" opacity=".6"/></g>`;
+}
+function buildPlum() {
+  const wood = '#5b4535';
+  let s = seed() + sprout([0, .1, .24, .34], '#8cbf74', '#6b7d45');
+  const trunk = { c: Q(100, 190, 80, 152, 102, 112), g: [.1, .42] };
+  s += D(trunk.g, trunk.c.d, wood, 6);
+  s += D([.14, .44], 'M100 190 Q81 152 102 112', '#6d5543', 2.4);   // 줄기 밝은 면
+  const brs = [
+    branchFrom(trunk, .55, 70, 128, 58, 108, [.3, .56]),
+    branchFrom(trunk, 1, 92, 86, 76, 72, [.38, .6]),
+    branchFrom(trunk, 1, 122, 96, 140, 78, [.4, .62]),
+    branchFrom(trunk, .78, 124, 124, 142, 120, [.36, .6])
+  ];
+  brs.forEach((b, i) => { s += D(b.g, b.c.d, wood, i === 1 || i === 2 ? 3.4 : 2.6); });
+  const twigs = [branchFrom(brs[1], .6, 90, 64, 96, 56, [.52, .66]), branchFrom(brs[2], .55, 126, 74, 120, 64, [.54, .68])];
+  twigs.forEach(t => { s += D(t.g, t.c.d, wood, 1.6); });
+  // 20~40%: 이끼 낀 흙
+  s += G([.16, .3], [100, 188], `<ellipse cx="88" cy="188.5" rx="9" ry="2.6" fill="#7fa65a"/><ellipse cx="113" cy="189" rx="7" ry="2.2" fill="#8fb56a"/>`);
+  // 가지를 따라 봉오리(60~80%) → 꽃(80~100%)
+  const spots = [];
+  [[brs[0], [.45, .8, 1]], [brs[1], [.35, .75, 1]], [brs[2], [.4, .8, 1]], [brs[3], [.5, 1]], [twigs[0], [1]], [twigs[1], [1]], [trunk, [.86]]]
+    .forEach(([o, fs]) => fs.forEach(f => spots.push([o, f])));
+  spots.forEach(([o, f], i) => {
+    const p = o.c.at(f), side = i % 2 ? 1 : -1, off = f === 1 ? 0 : 3.2;
+    const x = +(p.x + Math.cos((p.a + 90 * side) * Math.PI / 180) * off).toFixed(2), y = +(p.y + Math.sin((p.a + 90 * side) * Math.PI / 180) * off).toFixed(2);
+    const a0 = Math.max(.6, along(o.g, f)) + (i % 5) * .012;
+    if (i % 3 === 2) { s += G([a0, a0 + .08], [x, y], plumBud(x, y, 1)); return; }   // 봉오리로 남음
+    s += G([a0, a0 + .08, .84 + (i % 6) * .02, .88 + (i % 6) * .02], [x, y], plumBud(x, y, 1));
+    s += G([.84 + (i % 6) * .02, .95 + (i % 4) * .012], [x, y], plumFlower(x, y, i * 23, 1.12 + (i % 3) * .1));
+  });
+  return s;
+}
+
 const BUILDERS = {
   primrose: buildPrimrose, nemophila: buildBlueStar, monstera: buildMonstera, rosemary: buildMint,
-  maple: buildNandina, cotton: buildCotton, tangerine: buildTangerine
+  maple: buildNandina, cotton: buildCotton, tangerine: buildTangerine,
+  cosmos: buildCosmos, chrysanthemum: buildPompon, poinsettia: buildPoinsettia, camellia: buildCamellia, plum: buildPlum
 };
 
 /* --- 휴식: 잎 끝에서 떨어지는 물방울이 유리병에 모여 '맑은 물'이 됨 --- */
@@ -1898,9 +2218,14 @@ function finishStudy(t) {
                 coins: h.total, base: h.base, bonus: h.bonus, luck: h.luck, boosts };
   if (gift) rec.gift = gift;
   if (h.rare) rec.rare = true;
+  const sr = h.sr = seasonReward(t.type, t.startedAt);
+  if (sr) { rec.sc = sr.n; rec.scs = sr.id; }
   const added = addRecord(rec);
   // 기록이 새로 저장될 때만 지급 (같은 id로 장부에 남아 여러 기기에서도 한 번만)
-  if (added) updateWallet(w => { w.coins += h.total; w.water += (gift === 'water' ? 1 : 0) + (h.refund ? 1 : 0); }, 'earn_' + t.id);
+  if (added) updateWallet(w => {
+    w.coins += h.total; w.water += (gift === 'water' ? 1 : 0) + (h.refund ? 1 : 0);
+    if (sr) { if (sr.past) w.coins += sr.n; else w.season[sr.id] = (w.season[sr.id] || 0) + sr.n; }
+  }, 'earn_' + t.id);
   saveTimer(null);
   const live = finishChime(t, end);
   studyBubble.stop();
@@ -1923,10 +2248,13 @@ function showStudyDone(type, h, end, live, withCount, gift, id) {
   if (h.luck === 'bonus') lines.push(`<li class="luck"><span>보너스!</span><b>+${h.bonus}</b></li>`);
   if (h.luck === 'jackpot') lines.push(`<li class="luck jackpot"><span>대박!</span><b>+${h.bonus}</b></li>`);
   if (h.water) lines.push(`<li class="water"><span>${ICON.water}맑은 물</span><b>+${h.water}</b></li>`);
+  const sr = h.sr;
+  if (sr && sr.past) lines.push(`<li class="season"><span>${seasonIcon(sr.key)}${sr.coin} → 코인</span><b>+${sr.n}</b></li>`);
   const badge = h.luck === 'jackpot' ? '<div class="luck-badge jackpot">대박! 코인 2.5배</div>' : h.luck === 'bonus' ? '<div class="luck-badge">보너스 코인!</div>' : '';
   const extras = [];
   if (gift === 'water') extras.push(`<div class="reward gift water">${ICON.water}<b>+1</b>맑은 물</div>`);
   if (h.refund) extras.push(`<div class="reward gift water">${ICON.water}<b>+1</b>맑은 물 돌려받음</div>`);
+  if (sr && !sr.past) extras.push(`<div class="reward season ${sr.key}">${seasonIcon(sr.key)}<b>+${sr.n}</b>${sr.coin}</div>`);
   const nm = rare ? rare.name : P.name;
   openModal({
     art: staticSVG(type, true, h.rare),
@@ -1992,6 +2320,7 @@ function timerEndedElsewhere(prev) {
     return;
   }
   const h = rollHarvest(prev.type, prev.id, prev.boosts);
+  h.sr = seasonReward(prev.type, prev.startedAt);
   state.done = { type: prev.type, at: end, rare: h.rare };
   if (stageType !== prev.type || stageRare) buildStage(prev.type, 0);
   requestAnimationFrame(() => requestAnimationFrame(() => applyGrowth(stageParts, 1)));
@@ -2084,17 +2413,17 @@ let plantCardsSig = '';
 function renderPlantCards() {
   const growing = isStudy(state.timer) ? state.timer.type : null;
   const sel = growing || state.settings.selected;
-  const types = ORDER.filter(t => !PLANTS[t].limited || isOwned(t) || inSeason(t));
-  const sig = types.map(t => t + isOwned(t) + inSeason(t)).join() + sel + !!growing;
+  const types = ORDER.filter(t => inSeason(t) || t === growing);
+  const sig = types.map(t => t + isOwned(t) + isRep(t)).join() + sel + !!growing;
   if (sig === plantCardsSig) return;
   plantCardsSig = sig;
   $('#plantList').innerHTML = types.map(type => {
-    const P = PLANTS[type], owned = isOwned(type), season = inSeason(type);
+    const P = PLANTS[type], owned = isOwned(type), S = plantSeason(type);
     let meta = `<b>${P.minutes}분</b><span class="dot-sep">·</span>${ICON.coin}${P.coins}`;
     if (!owned) meta = `${ICON.lock}<span>상점 ${P.price}코인</span>`;
-    else if (P.limited) meta = `<b>${P.minutes}분</b><span class="dot-sep">·</span><span class="ltd">${season ? '11월 한정' : '기간 종료'}</span>`;
-    const cls = ['plant-card', P.limited ? 'limited' : '', type === sel ? 'selected' : '', !owned ? 'locked' : '', owned && !season ? 'off-season' : ''].join(' ').trim();
-    return `<button class="${cls}" type="button" data-type="${type}" aria-pressed="${type === sel}" aria-disabled="${!!growing || !canGrow(type)}"
+    const badge = S ? (isRep(type) ? '이달의 대표' : `${S.name} 한정`) : '';
+    const cls = ['plant-card', S ? 'limited' : '', isRep(type) ? 'rep' : '', type === sel ? 'selected' : '', !owned ? 'locked' : ''].join(' ').trim();
+    return `<button class="${cls}" type="button" data-type="${type}" data-badge="${badge}" aria-pressed="${type === sel}" aria-disabled="${!!growing || !canGrow(type)}"
         title="${P.name} · ${P.minutes}분${!owned ? ' · 상점에서 살 수 있어요' : ''}">
         <span class="pc-art">${staticSVG(type, true)}</span>
         <span class="pc-info"><span class="pc-name">${P.name}</span><span class="pc-meta">${meta}</span></span></button>`;
@@ -2245,7 +2574,8 @@ function updateTopStatus() {
    9. 오늘 통계 & 사이드 미니 정원
    ========================================================= */
 function renderStats() {
-  $('#dexCount').textContent = `${ORDER.filter(t => dexStats()[t].count).length}/${ORDER.length}`;
+  const dl = ORDER.filter(released), ds = dexStats();
+  $('#dexCount').textContent = `${dl.filter(t => ds[t].count).length}/${dl.length}`;
   const today = dateKey();
   const sum = daySummary(today);
   $('#todayLabel').textContent = fmtDateLong(today);
@@ -2408,6 +2738,7 @@ function showTip(btn) {
     ${r.coins != null ? `<div><span>받은 코인</span><span>${r.coins}${r.luck === 'jackpot' ? ' (대박)' : r.luck === 'bonus' ? ' (보너스)' : ''}</span></div>` : ''}
     ${items ? `<div><span>준 아이템</span><span>${items}</span></div>` : ''}
     ${r.gift ? `<div><span>추가 보상</span><span>${r.gift === 'water' ? '맑은 물' : '영양제'}</span></div>` : ''}
+    ${r.sc && seasonInfo(r.scs) ? `<div><span>계절 코인</span><span>${seasonInfo(r.scs).coin} ${r.sc}개</span></div>` : ''}
     ${r.memo ? `<p class="tip-memo">${escapeHTML(r.memo)}</p>` : ''}`;
   const svg = btn.querySelector('svg');
   const rect = (svg || btn).getBoundingClientRect();
@@ -2456,33 +2787,39 @@ function confirmDelete(key, id) {
    10-2. 상점 — 모종 · 맑은 물
    ========================================================= */
 function renderShop() {
-  const w = state.wallet;
+  const w = state.wallet, cur = seasonOf();
   $('#shopWallet').innerHTML = `<span>${ICON.coin}<b>${w.coins.toLocaleString('ko-KR')}</b>코인</span>
+    <span>${seasonIcon(cur.key)}${cur.coin} <b>${w.season[cur.id] || 0}</b></span>
     <span>${ICON.water}맑은 물 <b>${w.water}</b></span>`;
-  const nov = isNovember(), banner = $('#shopBanner');
-  banner.className = 'shop-banner' + (nov ? '' : ' off');
-  banner.innerHTML = nov
-    ? `${ICON.maple}<div><b>11월 한정 모종 · 남천나무</b><br>빨강부터 초록까지 물드는 잎과 빨간 열매가 예쁜 나무예요. 다 키우면 코인과 함께 맑은 물 1병을 추가 보상으로 줘요. 11월 30일까지만 사고 키울 수 있어요.</div><span class="dday">${novemberDaysLeft()}일 남음</span>`
-    : `${ICON.maple}<div><b>남천나무는 11월 한정 모종이에요</b><br>11월이 되면 상점에 다시 찾아와요.${isOwned('maple') ? ' 이미 가지고 있으니 11월에 다시 키울 수 있어요.' : ''}</div>`;
-  $('#shopSeeds').innerHTML = ORDER.filter(t => !PLANTS[t].base).map(seedCard).join('');
+  const seasonal = ORDER.filter(t => isSeasonal(t) && inSeason(t)).sort((a, b) => isRep(b) - isRep(a));
+  const banner = $('#shopBanner'), rep = seasonal.find(isRep);
+  banner.className = 'shop-banner ' + cur.key + (seasonal.length ? '' : ' off');
+  banner.innerHTML = seasonal.length
+    ? `${seasonIcon(cur.key)}<div><b>${cur.name} 계절 모종${rep ? ` · 이달의 대표 ${PLANTS[rep].name}` : ''}</b><br>
+       ${cur.name} 동안만 사고 키울 수 있어요. 키우면 ${cur.coin}을 받고, ${josaSeason(cur, '이', '가')} 끝나면 남은 ${cur.coin}은 1개당 1코인으로 바뀌어요.</div>
+       <span class="dday">${seasonDaysLeft(cur)}일 남음</span>`
+    : `${seasonIcon(cur.key)}<div><b>${cur.name} 계절 모종을 준비하고 있어요</b><br>곧 새로운 계절 식물이 찾아와요.</div>`;
+  $('#shopSeasonTitle').textContent = `${cur.name} 모종`;
+  $('#shopSeasonTitle').hidden = $('#shopSeason').hidden = !seasonal.length;
+  $('#shopSeason').innerHTML = seasonal.map(seedCard).join('');
+  $('#shopSeeds').innerHTML = ORDER.filter(t => !PLANTS[t].base && !isSeasonal(t)).map(seedCard).join('');
   $('#shopItems').innerHTML = waterCard();
 }
 function seedCard(type) {
-  const P = PLANTS[type], w = state.wallet, owned = isOwned(type), season = inSeason(type);
+  const P = PLANTS[type], w = state.wallet, owned = isOwned(type), S = plantSeason(type);
   const price = `<span class="price">${ICON.coin}${P.price}</span>`;
   let foot;
-  if (owned) foot = `<span class="owned-badge">${ICON.check}보유 중</span>` +
-    (season ? `<button class="btn small" type="button" data-grow="${type}">키우러 가기</button>` : `<span class="si-note">11월에 다시 키울 수 있어요</span>`);
-  else if (!season) foot = price + `<button class="btn small" type="button" disabled>11월 한정</button>`;
+  if (owned) foot = `<span class="owned-badge">${ICON.check}${S ? `이번 ${S.name} 보유` : '보유 중'}</span><button class="btn small" type="button" data-grow="${type}">키우러 가기</button>`;
   else if (w.coins < P.price) foot = price + `<button class="btn small" type="button" disabled>${P.price - w.coins}코인 부족</button>`;
   else foot = price + `<button class="btn small" type="button" data-buy="${type}">구매하기</button>`;
-  return `<article class="shop-item${owned ? ' owned' : ''}" id="shop-${type}">
-    ${P.limited ? '<span class="ribbon">11월 한정</span>' : ''}
+  const ribbon = S ? `<span class="ribbon${isRep(type) ? '' : ' plain'}">${isRep(type) ? '이달의 대표' : `${S.name} 한정`}</span>` : '';
+  return `<article class="shop-item${owned ? ' owned' : ''}${S ? ' seasonal ' + P.season : ''}" id="shop-${type}">
+    ${ribbon}
     <div class="si-art">${staticSVG(type, true)}</div>
-    <div class="si-no">No.${P.no} · 모종</div>
+    <div class="si-no">No.${P.no} · ${S ? `${S.name} 모종` : '모종'}</div>
     <div class="si-name">${P.name}</div><div class="si-latin">${P.latin}</div>
     <p class="si-desc">${P.desc}</p>
-    <div class="si-meta"><span class="chip">${ICON.clock}${P.minutes}분</span><span class="chip">기본 ${ICON.coin}${P.coins} + 보너스</span>${P.gift ? '<span class="chip gift">추가 보상 · 맑은 물 1병</span>' : ''}</div>
+    <div class="si-meta"><span class="chip">${ICON.clock}${P.minutes}분</span><span class="chip">기본 ${ICON.coin}${P.coins} + 보너스</span>${S ? `<span class="chip season">${seasonIcon(P.season)}${S.coin} ${P.sc}개</span>` : ''}${P.gift ? '<span class="chip gift">추가 보상 · 맑은 물 1병</span>' : ''}</div>
     <div class="si-foot">${foot}</div></article>`;
 }
 function waterCard() {
@@ -2504,11 +2841,12 @@ function buySeed(type) {
     art: staticSVG(type, true),
     title: `${P.name} 모종을 살까요?`,
     body: `<p><b>${P.price}코인</b>을 사용해요. ${P.minutes}분 공부하면 다 자라요.</p>
-           <p class="sub">구매 후 남는 코인: ${state.wallet.coins - P.price}${P.limited ? '<br>남천나무는 11월에만 키울 수 있어요.' : ''}</p>`,
+           <p class="sub">구매 후 남는 코인: ${state.wallet.coins - P.price}${isSeasonal(type) ? `<br>${plantSeason(type).name}이 끝날 때까지 키울 수 있어요. 다음 ${plantSeason(type).name}에는 다시 사야 해요.` : ''}</p>`,
     actions: [ { label: '취소', cls: 'soft', autofocus: true },
       { label: '구매하기', keepOpen: true, onClick: () => {
           let ok = false;
-          updateWallet(w => { if (!w.owned[type] && w.coins >= P.price) { w.coins -= P.price; w.owned[type] = true; ok = true; } }, 'seed_' + type);
+          const key = ownKey(type);
+          updateWallet(w => { if (!w.owned[key] && w.coins >= P.price) { w.coins -= P.price; w.owned[key] = true; ok = true; } }, 'seed_' + key);
           refreshAll();
           if (!ok) { closeModal(); toast('코인이 부족해요.'); return; }
           openModal({ art: staticSVG(type, true), title: `${P.name} 모종을 샀어요!`,
@@ -2551,18 +2889,19 @@ function dexStats() {
 }
 function dexHint(type) {
   const P = PLANTS[type];
-  if (P.limited && !inSeason(type)) return '11월에만 키울 수 있어요';
+  if (isSeasonal(type) && !inSeason(type)) return `${plantSeason(type).name}에만 만날 수 있어요`;
   if (!isOwned(type)) return `상점에서 ${P.price}코인`;
   return `${P.minutes}분 공부하면 만나요`;
 }
 const meter = (label, n, total, cls = '') =>
   `<div class="dex-meter ${cls}"><span>${label}</span><b>${n}/${total}</b><i style="--p:${(n / total).toFixed(3)}"></i></div>`;
 function renderDex() {
-  const d = dexStats(), found = ORDER.filter(t => d[t].count).length, rares = ORDER.filter(t => d[t].rare).length;
-  $('#dexProgress').innerHTML = meter('식물', found, ORDER.length) + meter(`${SPARKLE_ICON}희귀`, rares, ORDER.length, 'rare');
-  $('#dexGrid').innerHTML = ORDER.map((t, i) => {
+  const list = ORDER.filter(released), d = dexStats(), found = list.filter(t => d[t].count).length, rares = list.filter(t => d[t].rare).length;
+  $('#dexProgress').innerHTML = meter('식물', found, list.length) + meter(`${SPARKLE_ICON}희귀`, rares, list.length, 'rare');
+  $('#dexGrid').innerHTML = list.map(t => {
+    const i = ORDER.indexOf(t);
     const P = PLANTS[t], e = d[t], on = e.count > 0, rv = !!e.rare && dexRareView.has(t);
-    return `<div class="dex-item${on ? '' : ' unknown'}${P.limited ? ' limited' : ''}${rv ? ' show-rare' : ''}" role="button" tabindex="0" data-dex="${t}"
+    return `<div class="dex-item${on ? '' : ' unknown'}${isSeasonal(t) ? ' limited' : ''}${rv ? ' show-rare' : ''}" role="button" tabindex="0" data-dex="${t}"
         aria-label="${P.name}${on ? `, ${e.count}번 키움` : ', 아직 못 만남'}${e.rare ? ', 희귀 발견' : ''}">
       <span class="dex-no">No.${pad(i + 1)}</span>
       <span class="dex-art"><span class="dex-v base">${staticSVG(t, true)}</span>${e.rare ? `<span class="dex-v rare">${staticSVG(t, true, true)}</span>` : ''}</span>
@@ -2664,7 +3003,9 @@ function celebrate(type) {
     primrose: ['#f6d247', '#fbe68a', '#a9cf87'], nemophila: ['#86b2ef', '#b8d3f8', '#f3f7ff'],
     monstera: ['#78b866', '#a9d58f', '#f2e3a0'], rosemary: ['#6fbf73', '#9ad893', '#e3f5dc'],
     maple: ['#d4302a', '#e8893a', '#cdb04a'], cotton: ['#fffefa', '#f3bccb', '#a9cf87'],
-    tangerine: ['#f39a2b', '#ffd27a', '#5f9c48']
+    tangerine: ['#f39a2b', '#ffd27a', '#5f9c48'],
+    cosmos: ['#f5a9c6', '#f2c94c', '#fde3ee'], chrysanthemum: ['#f3c24a', '#f9dc7a', '#9fcf87'],
+    poinsettia: ['#d8303c', '#f6f0dc', '#3f7f3c'], camellia: ['#d9374c', '#f6d55c', '#fbe2e6'], plum: ['#fdf1f4', '#f29fb5', '#f0a3b8']
   }[type] || ['#a9cf87', '#f2e3a0', '#fff'];
   for (let i = 0; i < 16; i++) {
     const s = document.createElement('span');
@@ -2823,7 +3164,7 @@ function init() {
     const type = card.dataset.type, P = PLANTS[type];
     if (isStudy(state.timer)) { toast('공부 중에는 식물을 바꿀 수 없어요.'); return; }
     if (!isOwned(type)) { switchView('shop'); flashShopItem(type); toast(`${P.name} 모종은 상점에서 ${P.price}코인에 살 수 있어요.`); return; }
-    if (!inSeason(type)) { toast(`${josa(P.name, '은', '는')} 11월에만 키울 수 있어요.`); return; }
+    if (!inSeason(type)) { toast(`${josa(P.name, '은', '는')} ${plantSeason(type).name}에만 키울 수 있어요.`); return; }
     selectPlant(type);
   });
 
@@ -2940,6 +3281,8 @@ function init() {
   window.addEventListener('focus', tick);
 
   setInterval(tick, 250);
+  setTimeout(settleSeasons, 1200);
+  setInterval(settleSeasons, 30000);
 }
 
 /* =========================================================
@@ -2982,19 +3325,22 @@ const Cloud = {
 /** 지갑 변화량 (이전 → 이후) */
 function walletDiff(a, b) {
   const e = { coins: b.coins - a.coins, nutrients: b.nutrients - a.nutrients, water: b.water - a.water,
-              owned: Object.keys(b.owned).filter(k => b.owned[k] && !a.owned[k]), rest: {} };
+              owned: Object.keys(b.owned).filter(k => b.owned[k] && !a.owned[k]), rest: {}, sc: {} };
   for (const k in b.restLog) { const d = (b.restLog[k] || 0) - (a.restLog[k] || 0); if (d) e.rest[k] = d; }
+  for (const k of new Set([...Object.keys(a.season || {}), ...Object.keys(b.season || {})])) { const d = ((b.season || {})[k] || 0) - ((a.season || {})[k] || 0); if (d) e.sc[k] = d; }
   return e;
 }
-function emptyDiff(e) { return !e.coins && !e.nutrients && !e.water && !e.owned.length && !Object.keys(e.rest).length; }
+function emptyDiff(e) { return !e.coins && !e.nutrients && !e.water && !e.owned.length && !Object.keys(e.rest).length && !Object.keys(e.sc || {}).length; }
 /** 장부 → 지갑 */
 function walletFromLedger(entries) {
-  const w = { coins: 0, nutrients: 0, water: 0, owned: {}, rewardedRest: [], restLog: {}, attended: [] };
+  const w = { coins: 0, nutrients: 0, water: 0, owned: {}, rewardedRest: [], restLog: {}, attended: [], season: {} };
   entries.forEach(e => {
     w.coins += Number(e.coins) || 0; w.water += (Number(e.water) || 0) + (Number(e.nutrients) || 0);   // 예전 영양제 기록도 맑은 물로 합산
     (Array.isArray(e.owned) ? e.owned : []).forEach(t => { w.owned[t] = true; });
     const r = e.rest && typeof e.rest === 'object' ? e.rest : {};
     for (const k in r) w.restLog[k] = (w.restLog[k] || 0) + (Number(r[k]) || 0);
+    const sc = e.sc && typeof e.sc === 'object' ? e.sc : {};
+    for (const k in sc) w.season[k] = (w.season[k] || 0) + (Number(sc[k]) || 0);
     if (typeof e.id === 'string' && e.id.startsWith('rest_')) w.rewardedRest.push(e.id.slice(5));
     if (typeof e.id === 'string' && e.id.startsWith('attend_')) w.attended.push(e.id.slice(7));
     (Array.isArray(e.attended) ? e.attended : []).forEach(k => w.attended.push(k));
@@ -3014,6 +3360,7 @@ function cloudApplyLedger(entries) {
   if (!canGrow(state.settings.selected) && !isStudy(state.timer)) state.settings.selected = 'primrose';
   plantCardsSig = ''; itemsSig = '';
   syncStageFromState(); refreshAll();
+  setTimeout(settleSeasons, 400);
 }
 /** 다른 기기에서 시작 · 일시정지 · 중단 · 완료한 타이머를 이 기기에 반영 */
 function cloudApplyTimer(rt) {
@@ -3107,15 +3454,17 @@ function openAccount() {
 /* --- 로그인 전 기록을 계정으로 옮길지 묻기 --- */
 function guestSummary() {
   const w = state.wallet, plants = Object.values(state.records).reduce((n, l) => n + (l || []).length, 0);
-  const owned = ORDER.filter(t => !PLANTS[t].base && w.owned[t]).map(t => PLANTS[t].name);
-  return { plants, coins: w.coins, nutrients: w.nutrients, water: w.water, owned, timer: !!state.timer,
-           any: plants > 0 || w.coins > 0 || w.nutrients > 0 || w.water > 0 || owned.length > 0 || !!state.timer };
+  const owned = ORDER.filter(t => !PLANTS[t].base && Object.keys(w.owned).some(k => w.owned[k] && (k === t || k.startsWith(t + '@')))).map(t => PLANTS[t].name);
+  const seasonN = Object.values(w.season || {}).reduce((a, b) => a + b, 0);
+  return { plants, coins: w.coins, nutrients: w.nutrients, water: w.water, owned, timer: !!state.timer, seasonN,
+           any: plants > 0 || w.coins > 0 || w.nutrients > 0 || w.water > 0 || owned.length > 0 || seasonN > 0 || !!state.timer };
 }
 function askImport(sum) {
   return new Promise(resolve => {
     const items = [`식물 <b>${sum.plants}</b>개`, `코인 <b>${sum.coins.toLocaleString('ko-KR')}</b>`];
     if (sum.nutrients) items.push(`영양제 <b>${sum.nutrients}</b>개`);
     if (sum.water) items.push(`맑은 물 <b>${sum.water}</b>병`);
+    if (sum.seasonN) items.push(`계절 코인 <b>${sum.seasonN}</b>개`);
     if (sum.owned.length) items.push(`모종 <b>${sum.owned.join(', ')}</b>`);
     function done(move) {
       modalLocked = false;
@@ -3249,8 +3598,8 @@ function start(app, A, F) {
     }
     const w = L.wallet || {};
     const e = { coins: w.coins || 0, nutrients: w.nutrients || 0, water: w.water || 0,
-                owned: Object.keys(w.owned || {}).filter(k => w.owned[k]), rest: w.restLog || {}, attended: w.attended || [] };
-    if (e.coins || e.nutrients || e.water || e.owned.length || Object.keys(e.rest).length || e.attended.length) api.ledger(`import_${DEVICE}_${Date.now().toString(36)}`, e);
+                owned: Object.keys(w.owned || {}).filter(k => w.owned[k]), rest: w.restLog || {}, attended: w.attended || [], sc: w.season || {} };
+    if (e.coins || e.nutrients || e.water || e.owned.length || Object.keys(e.rest).length || e.attended.length || Object.keys(e.sc).length) api.ledger(`import_${DEVICE}_${Date.now().toString(36)}`, e);
     pendingTimer = L.timer || null;
     if (recs.length || e.coins) SG.toast(`이 기기의 기록(식물 ${recs.length}개 · 코인 ${e.coins})을 계정으로 옮겼어요.`);
   }
