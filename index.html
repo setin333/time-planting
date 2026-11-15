@@ -826,7 +826,7 @@ button{font-family:inherit;color:inherit}
         <p class="tip-text">
           <span class="desk-only"><span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br></span>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v2.3.4 · 2026.11.16</span>
+          <span class="app-version">나의 공부 정원 v2.3.5 · 2026.11.16</span>
         </p>
       </aside>
 
@@ -970,34 +970,35 @@ const LS_KEYS = {
    대박(+150%)은 모든 식물 8%. 오래 걸리는 식물일수록 기본 코인과 보너스 확률이 조금씩 높아요
    (기대값 1분당 약 1.4 → 1.9 코인).
    base: 처음부터 키울 수 있음 · price: 상점 모종 가격
+   desc: 식물 설명은 존댓말 없이 명사로 끝맺음 (예: '가을을 알리는 여덟 개의 꽃잎들')
    계절 식물: season(계절) · year · month(대표 달) · sc(계절 코인). 계절 동안만 사고 키울 수 있고,
    일반 코인(coins)은 줄인 대신 계절 코인을 받아 같은 시간 일반 식물과 받는 양이 비슷해요. */
 const PLANTS = {
   primrose:  { name:'달맞이꽃', latin:'Oenothera biennis', minutes:5, coins:6, bonusP:.15, unit:'송이', base:true,
                desc:'노란 네 장의 꽃잎이 피는 꽃', pot:'#e8d9b8', band:'#a9c792', color:'#f2c94c', gardenH:118, tileW:62 },
   nemophila: { name:'푸른별꽃', latin:'Isotoma axillaris', minutes:10, coins:13, bonusP:.18, unit:'포기', price:60,
-               desc:'가는 잎 위로 하늘색 별 모양 꽃이 피어요', pot:'#e6e8ef', band:'#86b2ef', color:'#86b2ef', gardenH:116, tileW:66 },
+               desc:'가는 잎 위로 하늘색 별 모양으로 피는 꽃', pot:'#e6e8ef', band:'#86b2ef', color:'#86b2ef', gardenH:116, tileW:66 },
   monstera:  { name:'몬스테라', latin:'Monstera deliciosa', minutes:15, coins:20, bonusP:.20, unit:'그루', base:true,
-               desc:'갈라지고 구멍 난 커다란 잎', pot:'#cf8f69', band:'#e8b996', color:'#5f9a52', gardenH:150, tileW:116 },
-  rosemary:  { name:'민트', latin:'Mentha', minutes:20, coins:27, bonusP:.23, unit:'포기', price:100,
-               desc:'둥근 잎이 마주나는 싱그러운 허브', pot:'#e3efe6', band:'#6fbf73', color:'#6fbf73', gardenH:126, tileW:68 },
+               desc:'갈라지고 구멍이 난 귀여운 몬스터', pot:'#cf8f69', band:'#e8b996', color:'#5f9a52', gardenH:150, tileW:116 },
+  rosemary:  { name:'애플민트', latin:'Mentha suaveolens', minutes:20, coins:27, bonusP:.23, unit:'포기', price:100,
+               desc:'보송보송한 둥근 잎과 은은한 사과 향의 허브', pot:'#e3efe6', band:'#6fbf73', color:'#6fbf73', gardenH:126, tileW:68 },
   maple:     { name:'남천나무', latin:'Nandina domestica', minutes:30, coins:22, sc:12, bonusP:.27, unit:'그루', price:200, season:'autumn', year:2026, month:11, gift:true,
                desc:'빨강부터 초록까지 물드는 잎과 빨간 열매', pot:'#cdb48c', band:'#c9573c', color:'#d2452f', gardenH:160, tileW:84 },
   cotton:    { name:'목화', latin:'Gossypium hirsutum', minutes:40, coins:56, bonusP:.30, unit:'그루', base:true,
-               desc:'다래가 벌어지면 하얀 목화솜', pot:'#d7bf96', band:'#f3ead6', color:'#ebe3d2', gardenH:168, tileW:100 },
+               desc:'두 가지 색으로 피어나는 꽃과 귀여운 솜', pot:'#d7bf96', band:'#f3ead6', color:'#ebe3d2', gardenH:168, tileW:100 },
   tangerine: { name:'귤나무', latin:'Citrus unshiu', minutes:60, coins:90, bonusP:.35, unit:'그루', price:500,
                desc:'하얀 꽃 뒤에 주황빛 귤이 열리는 나무', pot:'#b98b62', band:'#dcb88c', color:'#f08a24', gardenH:180, tileW:104 },
   // ----- 계절 식물 -----
   cosmos:        { name:'코스모스', latin:'Cosmos bipinnatus', minutes:10, coins:8, sc:3, bonusP:.18, unit:'송이', price:100, season:'autumn', year:2026, month:9,
-                   desc:'가는 잎 사이로 분홍 꽃잎 여덟 장이 활짝', pot:'#fbe3ec', band:'#f5a9c6', color:'#f5a9c6', gardenH:136, tileW:74 },
+                   desc:'가을을 알리는 여덟 개의 꽃잎들', pot:'#fbe3ec', band:'#f5a9c6', color:'#f5a9c6', gardenH:136, tileW:74 },
   chrysanthemum: { name:'퐁퐁 국화', latin:'Chrysanthemum morifolium', minutes:20, coins:15, sc:7, bonusP:.23, unit:'포기', price:150, season:'autumn', year:2026, month:10,
-                   desc:'매끈한 잎 위로 동그란 노란 꽃 다섯 송이', pot:'#f3ead2', band:'#f6c43f', color:'#f3c24a', gardenH:134, tileW:78 },
+                   desc:'매끈한 잎과 퐁퐁 피어난 둥근 꽃', pot:'#f3ead2', band:'#f6c43f', color:'#f3c24a', gardenH:134, tileW:78 },
   poinsettia:    { name:'포인세티아', latin:'Euphorbia pulcherrima', minutes:10, coins:8, sc:3, bonusP:.18, unit:'포기', price:100, season:'winter', year:2026, month:12,
-                   desc:'초록 잎 위로 별 모양 잎이 빨갛게 물들어요', pot:'#f6e1de', band:'#d8303c', color:'#d8303c', gardenH:128, tileW:82 },
+                   desc:'초록 잎 위로 빨갛게 물드는 별 모양 잎', pot:'#f6e1de', band:'#d8303c', color:'#d8303c', gardenH:128, tileW:82 },
   camellia:      { name:'동백꽃', latin:'Camellia japonica', minutes:20, coins:15, sc:7, bonusP:.23, unit:'그루', price:150, season:'winter', year:2026, month:1,
                    desc:'윤기 나는 짙은 잎 사이로 빨간 꽃', pot:'#e6ece2', band:'#d9374c', color:'#d9374c', gardenH:140, tileW:80 },
   plum:          { name:'매화나무', latin:'Prunus mume', minutes:30, coins:22, sc:12, bonusP:.27, unit:'그루', price:200, season:'winter', year:2026, month:2,
-                   desc:'굽은 가지에 하얀 매화가 하나둘', pot:'#ece4dc', band:'#f3b6c6', color:'#f3b6c6', gardenH:156, tileW:94 }
+                   desc:'굽은 가지에 하나둘 피어난 하얀 매화', pot:'#ece4dc', band:'#f3b6c6', color:'#f3b6c6', gardenH:156, tileW:94 }
 };
 const ORDER = ['primrose','nemophila','monstera','rosemary','maple','cotton','tangerine','cosmos','chrysanthemum','poinsettia','camellia','plum'];
 ORDER.forEach((t, i) => { PLANTS[t].no = String(i + 1).padStart(2, '0'); });
@@ -1051,7 +1052,7 @@ const MESSAGES = {
   primrose:  ['작은 꽃도 피는 데 시간이 필요해.', '조금만 더 하면 노란 꽃을 보여 줄게.', '짧은 시간도 꽃 한 송이만큼 소중해.', '해가 져야 피는 꽃도 있어. 때가 있는 거야.'],
   nemophila: ['작은 별꽃도 하나씩 피어나.', '하늘색처럼 마음도 맑게.', '가는 꽃대도 곧게 서 있어. 천천히 가자.'],
   monstera:  ['잎이 하나씩 넓어지고 있어.', '구멍 난 잎에도 다 이유가 있대. 틀려도 괜찮아.', '새 잎은 늘 돌돌 말린 채로 시작해.', '넓은 잎처럼 차근차근 펼쳐 보자.'],
-  rosemary:  ['잎이 하나씩 마주 돋고 있어.', '상쾌하게 한 줄 더!', '민트처럼 머리가 맑아지길.'],
+  rosemary:  ['잎이 하나씩 마주 돋고 있어.', '상쾌하게 한 줄 더!', '애플민트처럼 머리가 맑아지길.'],
   maple:     ['잎이 물드는 데도 시간이 걸려.', '빨간 열매는 천천히 영글어.', '가을은 천천히 깊어지는 계절이야.'],
   cotton:    ['솜은 오래 기다려야 열려. 지금 잘하고 있어.', '긴 시간도 한 걸음씩이면 돼.', '천천히 영그는 중이야.', '포근한 솜이 될 때까지 같이 가 보자.'],
   cosmos:        ['가을바람에도 코스모스는 꼿꼿해.', '가는 줄기도 꽃을 받쳐 줘. 천천히 가자.', '한 송이씩 피어나는 중이야.'],
@@ -1085,7 +1086,7 @@ const DONE_MSG = {
   primrose:  '노란 꽃이 활짝 폈어! 고마워.',
   nemophila: '하늘색 별꽃이 활짝 폈어!',
   monstera:  '갈라진 큰 잎이 다 자랐어. 수고했어!',
-  rosemary:  '싱그러운 민트가 다 자랐어. 수고했어!',
+  rosemary:  '싱그러운 애플민트가 다 자랐어. 수고했어!',
   maple:     '빨간 열매가 열리고 잎이 곱게 물들었어!',
   cotton:    '하얀 솜이 열렸어. 정말 수고했어!',
   tangerine: '주황빛 귤이 주렁주렁 열렸어. 정말 수고했어!',
@@ -1100,7 +1101,7 @@ const STAGE_TEXT = {
   primrose:  ['꽃봉오리가 맺혔어요', '노란 꽃잎이 열리는 중', '노란 꽃이 활짝 피었어요'],
   nemophila: ['흙에서 새싹이 올라오는 중', '가는 잎이 소복하게 돋아요', '가는 꽃대가 올라와요', '꽃대 끝에 봉오리가 맺혔어요', '하늘색 별꽃이 피는 중', '푸른별꽃이 활짝 피었어요'],
   monstera:  ['잎이 갈라지기 시작했어요', '큰 잎이 펼쳐지는 중', '갈라진 잎이 완성됐어요'],
-  rosemary:  ['흙에서 새싹이 올라오는 중', '줄기가 올라오고 둥근 잎이 나요', '잎이 마주나며 줄기가 길어져요', '여기저기서 줄기가 자라요', '줄기 끝에 연한 새잎이 돋는 중', '싱그러운 민트가 완성됐어요'],
+  rosemary:  ['흙에서 새싹이 올라오는 중', '줄기가 올라오고 둥근 잎이 나요', '잎이 마주나며 줄기가 길어져요', '여기저기서 줄기가 자라요', '줄기 끝에 연한 새잎이 돋는 중', '싱그러운 애플민트가 완성됐어요'],
   maple:     ['하얀 꽃이 피고 잎이 물들기 시작해요', '빨간 열매가 맺히는 중', '빨간 열매와 단풍잎이 완성됐어요'],
   cotton:    ['꽃봉오리와 꽃이 피었어요', '다래가 영글고 벌어지는 중', '하얀 목화솜이 열렸어요'],
   tangerine: ['하얀 귤꽃이 피었어요', '초록 열매가 맺히고 익는 중', '주황빛 귤이 익었어요'],
@@ -1664,7 +1665,7 @@ function buildBlueStar() {
   return s;
 }
 
-/* --- 민트 (20분): 흙 여기저기서 줄기가 올라와 둥근 잎이 마주나고, 끝에 연한 새잎 --- */
+/* --- 애플민트 (20분): 흙 여기저기서 줄기가 올라와 둥근 잎이 마주나고, 끝에 연한 새잎 --- */
 function buildMint() {
   let s = seed() + sprout([0, .1, .24, .34], '#8fd08a', '#6b9a4c');
   // [밑동 x, 끝 x, 끝 y, 휘는 정도] — 왼쪽은 키 큰 줄기 셋, 오른쪽은 비스듬한 줄기 둘
@@ -2998,7 +2999,7 @@ function dexStep(dir) {
 function showDexPlant(type) {
   const P = PLANTS[type], e = dexStats()[type], on = e.count > 0, R = RARE[type];
   const rows = on
-    ? [['키운 횟수', `${e.count}번`], ['함께한 공부 시간', fmtMinutes(e.minutes)], ['처음 만난 날', fmtDateLong(dateKey(e.first))],
+    ? [['키운 횟수', `${e.count}번`], ['함께 공부한 시간', fmtMinutes(e.minutes)], ['처음 만난 날', fmtDateLong(dateKey(e.first))],
        ['희귀 모습', e.rare ? `${R.name} · ${e.rare}번` : '미발견']]
     : [['만나는 방법', dexHint(type)], ['희귀 모습', '미발견']];
   const acts = [{ label: '닫기', cls: 'soft', autofocus: true }];
