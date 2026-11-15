@@ -622,7 +622,13 @@ button{font-family:inherit;color:inherit}
 .dex-star.found:hover{transform:scale(1.1)}
 .dex-star.found[aria-pressed="true"]{background:linear-gradient(#ffe48a,#f7c948);color:#fff;border-color:#e3b23c;box-shadow:0 0 0 4px rgba(247,201,72,.25)}
 .dex-star:focus-visible{outline:3px solid #b9d7a9;outline-offset:2px}
-.dex-flip{position:relative;width:150px;height:170px;margin:0 auto}
+.dex-detail{position:relative;display:flex;align-items:center;justify-content:center;gap:28px;width:100%}
+.dex-num{position:absolute;top:0;left:4px;font-size:13px;font-weight:700;color:var(--muted);background:var(--beige);border-radius:999px;padding:2px 10px;letter-spacing:.3px}
+.dex-nav{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line-d);background:var(--card);color:var(--ink-2);display:grid;place-items:center;cursor:pointer;padding:0;flex:none;transition:background .15s,transform .15s}
+.dex-nav:hover{background:var(--beige);transform:scale(1.06)}
+.dex-nav:focus-visible{outline:3px solid #b9d7a9;outline-offset:2px}
+.modal-art .dex-nav svg{width:20px;height:20px}
+.dex-flip{position:relative;width:150px;height:170px;margin:0}
 .dex-flip .dex-v svg{height:160px;width:auto}
 .dex-flip.unknown .dex-v.base svg{filter:brightness(0);opacity:.15}
 .dex-star.big{top:2px;right:-40px}
@@ -708,6 +714,8 @@ button{font-family:inherit;color:inherit}
   .dex-art{height:112px}
   .dex-art svg{height:124px}
   .dex-flip{width:130px;height:150px}
+  .dex-detail{gap:14px}
+  .dex-nav{width:34px;height:34px}
   .dex-flip .dex-v svg{height:140px}
   .dex-star.big{right:-34px}
 }
@@ -818,7 +826,7 @@ button{font-family:inherit;color:inherit}
         <p class="tip-text">
           <span class="desk-only"><span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br></span>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v2.3.3 · 2026.11.16</span>
+          <span class="app-version">나의 공부 정원 v2.3.4 · 2026.11.16</span>
         </p>
       </aside>
 
@@ -2979,6 +2987,14 @@ function toggleDexRare(t) {
   });
   const ttl = $('#modalTitle'); if (modalOpen() && $('#dexFlip')) ttl.textContent = rv ? RARE[t].name : PLANTS[t].name;
 }
+const CHEVRON_L = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const CHEVRON_R = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+/** 도감 식물 창에서 이전 · 다음 번호로 (끝에서는 처음으로 돌아감) */
+function dexStep(dir) {
+  const flip = $('#dexFlip'); if (!flip) return;
+  const list = ORDER.filter(released), i = list.indexOf(flip.dataset.type);
+  showDexPlant(list[(i + dir + list.length) % list.length]);
+}
 function showDexPlant(type) {
   const P = PLANTS[type], e = dexStats()[type], on = e.count > 0, R = RARE[type];
   const rows = on
@@ -2990,9 +3006,12 @@ function showDexPlant(type) {
   else if (!isOwned(type)) acts.push({ label: '상점 보기', onClick: () => { switchView('shop'); setTimeout(() => flashShopItem(type), 80); } });
   const rv = !!e.rare && dexRareView.has(type);
   openModal({
-    art: `<div class="dex-flip${on ? '' : ' unknown'}${rv ? ' show-rare' : ''}" id="dexFlip" data-type="${type}"><span class="dex-v base">${staticSVG(type, true)}</span>${e.rare ? `<span class="dex-v rare">${staticSVG(type, true, true)}</span>` : ''}${dexStarBtn(type, e, rv, true)}</div>`,
+    art: `<div class="dex-detail"><span class="dex-num">No.${pad(ORDER.indexOf(type) + 1)}</span>
+      <button class="dex-nav" type="button" data-dexnav="-1" aria-label="이전 식물">${CHEVRON_L}</button>
+      <div class="dex-flip${on ? '' : ' unknown'}${rv ? ' show-rare' : ''}" id="dexFlip" data-type="${type}"><span class="dex-v base">${staticSVG(type, true)}</span>${e.rare ? `<span class="dex-v rare">${staticSVG(type, true, true)}</span>` : ''}${dexStarBtn(type, e, rv, true)}</div>
+      <button class="dex-nav" type="button" data-dexnav="1" aria-label="다음 식물">${CHEVRON_R}</button></div>`,
     title: rv ? R.name : P.name,
-    body: `<p class="sub">No.${pad(ORDER.indexOf(type) + 1)} · ${P.latin} · ${P.minutes}분</p><p>${P.desc}</p>
+    body: `<p class="sub">${P.latin} · ${P.minutes}분</p><p>${P.desc}</p>
            <div class="dex-rows">${rows.map(([a, b]) => `<div><span>${a}</span><span>${b}</span></div>`).join('')}</div>`,
     actions: acts
   });
@@ -3229,7 +3248,18 @@ function init() {
   $('#dexGrid').addEventListener('keydown', e => {
     if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.dex-item')) { e.preventDefault(); showDexPlant(e.target.dataset.dex); }
   });
-  $('#modalArt').addEventListener('click', e => { const st = e.target.closest('[data-star]'); if (st) toggleDexRare(st.dataset.star); });
+  $('#modalArt').addEventListener('click', e => {
+    const st = e.target.closest('[data-star]'); if (st) { toggleDexRare(st.dataset.star); return; }
+    const nv = e.target.closest('[data-dexnav]'); if (nv) dexStep(+nv.dataset.dexnav);
+  });
+  // 휴대폰: 그림을 옆으로 밀어서 넘기기
+  let swipeX = null;
+  $('#modalArt').addEventListener('touchstart', e => { swipeX = $('#dexFlip') ? e.touches[0].clientX : null; }, { passive: true });
+  $('#modalArt').addEventListener('touchend', e => {
+    if (swipeX === null) return;
+    const dx = e.changedTouches[0].clientX - swipeX; swipeX = null;
+    if (Math.abs(dx) > 45) dexStep(dx < 0 ? 1 : -1);
+  });
   $('#accountBtn').addEventListener('click', openAccount);
   $('#miniStatus').addEventListener('click', () => switchView(isRest(state.timer) ? 'rest' : 'study'));
   $('#soundBtn').addEventListener('click', () => {
@@ -3293,6 +3323,7 @@ function init() {
   // 키보드: Esc, Space(공부 · 휴식 화면에서 시작 / 일시정지 / 재개)
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && modalOpen()) { if (!modalLocked) closeModal(); return; }
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && modalOpen() && $('#dexFlip') && !(e.target.closest && e.target.closest('input, textarea'))) { e.preventDefault(); dexStep(e.key === 'ArrowLeft' ? -1 : 1); return; }
     if (e.code !== 'Space' || modalOpen() || (state.view !== 'study' && state.view !== 'rest')) return;
     if (e.target.closest && e.target.closest('button, input, textarea, select, summary, a')) return;
     e.preventDefault();
