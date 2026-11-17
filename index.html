@@ -664,17 +664,22 @@ button{font-family:inherit;color:inherit}
 .ach.done{opacity:.72}
 .ach.secret{background:repeating-linear-gradient(135deg,var(--card) 0 10px,#f6f0e2 10px 20px)}
 .ach-ico{flex:none;width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#eef5e8;color:#5f8d45}
-.ach-ico svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.ach-ico.rare svg,.ach-ico.season svg{fill:currentColor;stroke:none}
+.ach-ico svg{width:24px;height:24px}
+.ach-ico svg:not(.ico){fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ach-ico.rare svg{fill:currentColor;stroke:none}
 .ach-ico.clock,.ach-ico.sun{background:#fff3d6;color:#c48a1a}
 .ach-ico.cal,.ach-ico.pen{background:#f1ebfa;color:#7a5fae}
 .ach-ico.book{background:#e9f1e2;color:#5f8d45}
 .ach-ico.rare,.ach-ico.luck{background:#fff1c2;color:#c9961e}
 .ach-ico.rest,.ach-ico.water{background:#e4f2fa;color:#3f7fa3}
 .ach-ico.season{background:#fbe8d9;color:#d0612f}
+.ach-ico.season.winter{background:#e3effa}
+.ach-ico.season.spring{background:#fde6ee}
+.ach-ico.season.summer{background:#fff1cc}
 .ach-ico.secret{background:#ece6d8;color:#8f8672}
 .ach-body{flex:1;min-width:0}
-.ach-top{display:flex;align-items:center;gap:8px}
+.ach-top{display:flex;align-items:center;gap:4px 8px;flex-wrap:wrap}
+.ach-top b{white-space:nowrap}
 .ach-top b{font-family:var(--font-title);font-weight:400;font-size:16.5px}
 .ach-top em{font-style:normal;font-size:11.5px;color:var(--ink-2);background:var(--beige);border-radius:999px;padding:1px 7px;margin-left:2px;font-family:var(--font-body)}
 .ach-body p{margin:1px 0 0;font-size:12.5px;color:var(--ink-2)}
@@ -3105,7 +3110,6 @@ const ACH_ICON = {
   luck: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v9M9.5 10a2.5 2 0 0 1 2.5-2h.5a2.5 2 0 0 1 0 4h-1a2.5 2 0 0 0 0 4h.5a2.5 2 0 0 0 2.5-2"/></svg>',
   rest: '<svg viewBox="0 0 24 24"><path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M16 10.5h1.5a2.5 2.5 0 0 1 0 5H16M8 3.5c0 1.5 1 1.5 1 3M12 3.5c0 1.5 1 1.5 1 3"/></svg>',
   water: '<svg viewBox="0 0 24 24"><path d="M12 3.5C9.5 7 7 9.8 7 13a5 5 0 0 0 10 0c0-3.2-2.5-6-5-9.5z"/></svg>',
-  season: '<svg viewBox="-19 -33 38 38"><path d="M0 0 L-3 -4 L-13 -2 L-11 -7 L-17 -13 L-12 -14 L-13 -21 L-7 -17 L-6 -25 L-3 -22 L0 -30 L3 -22 L6 -25 L7 -17 L13 -21 L12 -14 L17 -13 L11 -7 L13 -2 L3 -4 Z M0 0 L0 4"/></svg>',
   pen: '<svg viewBox="0 0 24 24"><path d="M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5zM13.5 7l3 3"/></svg>',
   secret: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.6M12 17h.01"/></svg>'
 };
@@ -3121,7 +3125,9 @@ const ACH = [
   { id:'luck',   name:'행운',        icon:'luck', tiers:[T(1, 10, '보너스 코인 처음 받기', 'bonus'), T(1, 30, '대박 처음 터뜨리기', 'jackpot'), T(10, 60, '대박 10번 터뜨리기', 'jackpot')] },
   { id:'rest',   name:'쉬어 가기',   icon:'rest', stat:'rest', unit:'번', tiers:[T(1, 10, '휴식 1번 마치기'), T(10, 20, '휴식 10번 마치기'), T(50, 50, '휴식 50번 마치기')] },
   { id:'water',  name:'물 주기',     icon:'water', stat:'water', unit:'번', tiers:[T(1, 10, '맑은 물 1번 주기'), T(10, 20, '맑은 물 10번 주기'), T(50, 50, '맑은 물 50번 주기')] },
-  { id:'season', name:'계절의 정원', icon:'season', tiers:[T(1, 10, '계절 식물 처음 키우기', 'seasonal'), T(1, 50, '한 계절의 대표 식물 3종 모두 키우기', 'seasonSet')] },
+  // 계절마다 따로: 그 계절 식물 처음 키우기 · 한 해의 그 계절 대표 식물 3종 모두 키우기
+  ...['spring', 'summer', 'autumn', 'winter'].map(k => ({ id: 'season_' + k, name: `${SEASONS[k].name}의 정원`, icon: 'season ' + k, season: k,
+    tiers: [T(1, 10, `${SEASONS[k].name} 식물 처음 키우기`, 'seas_' + k), T(3, 50, `${SEASONS[k].name} 대표 식물 3종 모두 키우기`, 'set_' + k)] })),
   { id:'note',   name:'기록하기',    icon:'pen', tiers:[T(1, 10, '식물에 처음 이름 붙이기', 'named'), T(10, 30, '메모 10개 남기기', 'memo')] },
   { id:'h_rareday', name:'희귀한 하루', icon:'secret', hidden:true, tiers:[T(2, 30, '하루에 희귀 식물 2개 만나기', 'rareDay')] },
   { id:'h_mint',    name:'사과 향 이름표', icon:'secret', hidden:true, tiers:[T(1, 30, '애플민트에 이름 붙이기', 'mintName')] },
@@ -3146,8 +3152,11 @@ function achStats() {
     rare: rareTypes.size, bonus: recs.filter(r => r.luck === 'bonus').length, jackpot: recs.filter(r => r.luck === 'jackpot').length,
     rest: Object.values(w.restLog || {}).reduce((a, b) => a + (Number(b) || 0), 0),
     water: recs.filter(r => r.boosts && (r.boosts.water || r.boosts.nutrient)).length,
-    seasonal: recs.filter(r => isSeasonal(r.type)).length,
-    seasonSet: Object.values(groups).filter(g => g.length >= 3 && g.every(t => types.has(t))).length,
+    ...Object.fromEntries(Object.keys(SEASONS).flatMap(k => [
+      ['seas_' + k, recs.filter(r => isSeasonal(r.type) && PLANTS[r.type].season === k).length],
+      // 같은 해 그 계절 식물 중 가장 많이 키운 종류 수 (3종이면 달성)
+      ['set_' + k, Math.max(0, ...Object.entries(groups).filter(([g]) => g.endsWith('-' + k)).map(([, g]) => g.filter(t => types.has(t)).length))]
+    ])),
     named: recs.filter(r => r.name).length, memo: recs.filter(r => r.memo).length,
     rareDay: Math.max(0, ...Object.values(rareDay)), mintName: recs.filter(r => r.type === 'rosemary' && r.name).length,
     luckyRare: recs.filter(r => r.rare && r.luck === 'jackpot').length
@@ -3222,7 +3231,7 @@ function renderAch() {
       : cur.done ? `<button class="btn small" type="button" data-ach="${cur.key}">보상받기 · ${ICON.coin}${cur.reward}</button>`
       : `<span class="ach-reward">${ICON.coin}${secret ? '?' : cur.reward}</span>`;
     const cls = allDone ? 'done' : cur.done ? 'ready' : secret ? 'secret' : '';
-    return `<article class="ach ${cls}"><div class="ach-ico ${a.icon}">${ACH_ICON[a.icon]}</div>
+    return `<article class="ach ${cls}"><div class="ach-ico ${a.icon}">${a.season ? seasonIcon(a.season) : ACH_ICON[a.icon]}</div>
       <div class="ach-body"><div class="ach-top"><b>${name}</b>${dots}</div><p>${desc}</p>${bar}</div>
       <div class="ach-act">${act}</div></article>`;
   }).join('');
