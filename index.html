@@ -658,6 +658,7 @@ button{font-family:inherit;color:inherit}
 .sub-count{font-style:normal;font-size:11px;font-weight:700;color:#fff;background:#e0703a;border-radius:999px;min-width:18px;height:18px;padding:0 5px;display:inline-grid;place-items:center}
 .tab{position:relative}
 .tab-dot{position:absolute;top:6px;right:8px;width:8px;height:8px;border-radius:50%;background:#e0703a;box-shadow:0 0 0 2px var(--paper)}
+.dex-grid[hidden],.ach-list[hidden]{display:none}
 .ach-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
 .ach{display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px}
 .ach.ready{border-color:#f0d27a;background:linear-gradient(90deg,#fffbea,var(--card))}
@@ -703,11 +704,10 @@ button{font-family:inherit;color:inherit}
 .ach-pop small{display:block;font-size:12px;color:var(--muted)}
 .ach-pop-ico{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#fff1c2;color:#e3b23c;flex:none}
 .ach-pop-ico svg{width:20px;height:20px;fill:currentColor}
-.coin-burst{position:fixed;left:50%;top:45%;z-index:130;pointer-events:none}
-.coin-burst span{position:absolute;animation:coinUp 1s ease-out forwards;animation-delay:calc(var(--i) * 40ms);opacity:0}
-.coin-burst span svg{width:26px;height:26px}
-@keyframes coinUp{0%{opacity:0;transform:translate(0,0) scale(.6)}20%{opacity:1}100%{opacity:0;transform:translate(calc((var(--i) - 3) * 26px),-90px) scale(1)}}
-@media (prefers-reduced-motion:reduce){.coin-burst{display:none}.ach-pop{transition:none}}
+.coin-fly{position:fixed;z-index:130;pointer-events:none;width:24px;height:24px;left:0;top:0}
+.coin-fly svg{width:24px;height:24px;display:block}
+#statCoins.bump{display:inline-block;animation:attendPop .5s cubic-bezier(.3,1.6,.5,1)}
+@media (prefers-reduced-motion:reduce){.ach-pop{transition:none}}
 
 /* =========================================================
    6. 반응형
@@ -893,7 +893,7 @@ button{font-family:inherit;color:inherit}
         <p class="tip-text">
           <span class="desk-only"><span class="kbd">Space</span> 시작 · 일시정지 · 재개 (공부 · 휴식 화면)<br></span>
           새로고침하거나 창을 닫아도 타이머는 실제 시간 기준으로 이어져요.<br>
-          <span class="app-version">나의 공부 정원 v2.4.0 · 2026.11.16</span>
+          <span class="app-version">나의 공부 정원 v2.4.1 · 2026.11.17</span>
         </p>
       </aside>
 
@@ -3177,9 +3177,9 @@ function claimAch(key) {
   updateWallet(w => { if (w.ach.includes(key)) return; w.ach = [...w.ach, key]; w.coins += tier.reward; got = tier.reward; }, 'ach_' + key);
   return got;
 }
-function claimAchUI(keys) {
+function claimAchUI(keys, from) {
   const sum = keys.reduce((n, k) => n + claimAch(k), 0);
-  if (sum) { toast(`업적 보상 +${sum}코인을 받았어요.`); coinBurst(); }
+  if (sum) { toast(`업적 보상 +${sum}코인을 받았어요.`); coinBurst(from); }
   refreshAll();
 }
 /** 새로 달성한 업적 알림 (기기마다 본 것을 기억) */
@@ -3200,10 +3200,27 @@ function checkAch() {
   showAchPop(label);
 }
 let achPopTimer = 0;
-function coinBurst() {
-  const el = document.createElement('div'); el.className = 'coin-burst';
-  el.innerHTML = Array.from({ length: 7 }, (_, i) => `<span style="--i:${i}">${ICON.coin}</span>`).join('');
-  document.body.appendChild(el); setTimeout(() => el.remove(), 1100);
+/** 동전이 누른 버튼에서 튀어 올라 위쪽 '내 코인'으로 날아감 */
+function coinBurst(from) {
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const r = from && from.getBoundingClientRect();
+  const sx = r ? r.left + r.width / 2 : innerWidth / 2, sy = r ? r.top + r.height / 2 : innerHeight / 2;
+  const tgt = $('#statCoins'), t = tgt && tgt.getBoundingClientRect();
+  const tx = t && t.width ? t.left + 10 : sx, ty = t && t.width ? t.top + t.height / 2 : sy - 140;
+  for (let i = 0; i < 7; i++) {
+    const c = document.createElement('span');
+    c.className = 'coin-fly'; c.innerHTML = ICON.coin;
+    c.style.left = sx + 'px'; c.style.top = sy + 'px';
+    document.body.appendChild(c);
+    const dx = (Math.random() - .5) * 80, dy = -28 - Math.random() * 42;
+    const a = c.animate([
+      { transform: 'translate(-50%,-50%) scale(.5)', opacity: 0 },
+      { transform: `translate(calc(-50% + ${dx.toFixed(0)}px), calc(-50% + ${dy.toFixed(0)}px)) scale(1)`, opacity: 1, offset: .3 },
+      { transform: `translate(calc(-50% + ${(tx - sx).toFixed(0)}px), calc(-50% + ${(ty - sy).toFixed(0)}px)) scale(.55)`, opacity: .85 }
+    ], { duration: 760 + i * 50, delay: i * 35, easing: 'cubic-bezier(.5,0,.3,1)', fill: 'forwards' });
+    a.onfinish = () => c.remove();
+  }
+  if (tgt) setTimeout(() => { tgt.classList.remove('bump'); void tgt.offsetWidth; tgt.classList.add('bump'); }, 820);
 }
 function showAchPop(label) {
   const el = $('#achPop');
@@ -3465,8 +3482,9 @@ function init() {
   document.querySelectorAll('.subtab').forEach(b => b.addEventListener('click', () => { state.dexSub = b.dataset.sub; renderDex(); }));
   $('#achPop').addEventListener('click', () => { state.dexSub = 'ach'; switchView('dex'); $('#achPop').classList.remove('show'); $('#achPop').hidden = true; });
   $('#viewDex').addEventListener('click', e => {
-    const b = e.target.closest('[data-ach]'); if (b) { claimAchUI([b.dataset.ach]); return; }
-    if (e.target.closest('[data-ach-all]')) claimAchUI(achTiers().flatMap(x => x.tiers).filter(t => t.done && !t.claimed).map(t => t.key));
+    const b = e.target.closest('[data-ach]'); if (b) { claimAchUI([b.dataset.ach], b); return; }
+    const all = e.target.closest('[data-ach-all]');
+    if (all) claimAchUI(achTiers().flatMap(x => x.tiers).filter(t => t.done && !t.claimed).map(t => t.key), all);
   });
   $('#dexGrid').addEventListener('click', e => {
     const st = e.target.closest('[data-star]'); if (st) { toggleDexRare(st.dataset.star); return; }
